@@ -16,7 +16,7 @@ To install it: on iPhone, tap Share → Add to Home Screen. On Android, use Chro
 
 ## Updates (automatic)
 
-A GitHub Action (`.github/workflows/update.yml`) reruns the analysis at about 5:15 PM IST every weekday and republishes the site.
+A GitHub Action (`.github/workflows/update.yml`) reruns the analysis at about 5:15 PM and 9:30 PM IST every weekday and republishes the site.
 For a manual refresh, go to GitHub → Actions → **Daily update** → **Run workflow**.
 
 ## Run it locally (optional)

@@ -3,6 +3,7 @@ name: Daily update
 on:
   schedule:
     - cron: "45 11 * * 1-5"   # 5:15 PM IST, Monday-Friday (after NSE close)
+    - cron: "0 16 * * 1-5"    # 9:30 PM IST, second run in case Yahoo's data arrived late
   workflow_dispatch:           # "Run workflow" button for a manual refresh
   push:
     branches: [main]
