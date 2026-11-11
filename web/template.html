@@ -53,6 +53,8 @@ h3{font-size:16px;margin:0 0 10px}
 .grid{display:grid;gap:12px}
 .g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
 @media (max-width:820px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+.g21{grid-template-columns:2fr 1fr}
+@media (max-width:820px){.g21{grid-template-columns:1fr}}
 @media (max-width:520px){.g2{grid-template-columns:1fr}}
 .mute{color:var(--mute)}.small{font-size:13px}.tiny{font-size:12px}
 .up{color:var(--up)}.down{color:var(--down)}
@@ -238,7 +240,7 @@ function renderMarket(){
   $("#t-market").innerHTML=`
   <div class="banner ${rc}" style="margin-top:6px"><div class="row"><span style="font-size:18px">Market mood: ${m.regime}</span></div><div style="font-weight:500;margin-top:4px">${esc(m.regime_text)}</div></div>
   <div class="grid g3" style="margin-top:12px">${card("Nifty 50",ix["Nifty 50"])}${card("Nifty Bank",ix["Nifty Bank"])}${card("India VIX",ix["India VIX"],true)}</div>
-  <div class="grid g2" style="margin-top:12px;grid-template-columns:2fr 1fr">
+  <div class="grid g21" style="margin-top:12px">
     <div class="card"><h3>Nifty 50: last 12 months</h3>${priceChart(m.nifty.chart)}
       <div class="tiny mute" style="margin-top:6px">Nifty ${num(m.nifty.close,0)} · 50-day avg ${num(m.nifty.sma50,0)} · 200-day avg ${num(m.nifty.sma200,0)} · RSI ${m.nifty.rsi}</div></div>
     <div class="card"><h3>Market breadth</h3>
