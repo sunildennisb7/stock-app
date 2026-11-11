@@ -37,7 +37,6 @@ SECTORS = {
     "^CNXENERGY": "Energy",
     "^CNXREALTY": "Realty",
     "^CNXPSUBANK": "PSU Bank",
-    "^CNXMEDIA": "Media",
     "^CNXINFRA": "Infra",
     "NIFTY_FIN_SERVICE.NS": "Financial Services",
 }
@@ -91,15 +90,32 @@ def get_prices(symbols: list[str], refresh: bool = False, years: int = 6) -> dic
         raise RuntimeError("Could not download price data. Check your internet connection.")
 
     out: dict[str, pd.DataFrame] = {}
+
+    def _take(s, df):
+        df = df.dropna(subset=["Close"]).copy()
+        if len(df) >= 60:
+            df.index = pd.to_datetime(df.index).tz_localize(None)
+            out[s] = df[["Open", "High", "Low", "Close", "Volume"]]
+
     for s in symbols:
         try:
-            df = raw[s].dropna(subset=["Close"]).copy()
+            _take(s, raw[s])
         except KeyError:
-            continue
-        if len(df) < 60:
-            continue
-        df.index = pd.to_datetime(df.index).tz_localize(None)
-        out[s] = df[["Open", "High", "Low", "Close", "Volume"]]
+            pass
+    # yfinance's parallel download sometimes drops a symbol ("database is locked"); retry those one by one
+    for s in [s for s in symbols if s not in out]:
+        for attempt in range(3):
+            try:
+                one = yf.download(s, period=f"{years}y", interval="1d", auto_adjust=True,
+                                  progress=False, threads=False, multi_level_index=False)
+                if not one.empty:
+                    _take(s, one)
+                    break
+            except Exception:  # noqa: BLE001
+                pass
+            time.sleep(2)
+        if s not in out:
+            print(f"  ! could not download {s}")
     pd.to_pickle(out, path)
     return out
 
