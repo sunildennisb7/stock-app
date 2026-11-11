@@ -1,0 +1,53 @@
+name: Daily update
+
+on:
+  schedule:
+    - cron: "45 11 * * 1-5"   # 5:15 PM IST, Monday-Friday (after NSE close)
+  workflow_dispatch:           # "Run workflow" button for a manual refresh
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Restore data cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            cache/prices.pkl
+            cache/fundamentals.json
+          key: data-${{ github.run_id }}
+          restore-keys: data-
+      - run: pip install -r requirements.txt
+      - name: Analyse market
+        env:
+          TZ: Asia/Kolkata
+        run: python run.py --refresh --no-open
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: output
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Nifty 50 Analyzer</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nifty 50">
+<style>
+:root{
+  --bg:#f4f6fa;--card:#fff;--ink:#0f172a;--mute:#64748b;--line:#e2e8f0;--soft:#f1f5f9;
+  --accent:#2563eb;--sb:#047857;--b:#16a34a;--h:#b45309;--a:#ea580c;--s:#dc2626;
+  --sb-bg:#d1fae5;--b-bg:#dcfce7;--h-bg:#fef3c7;--a-bg:#ffedd5;--s-bg:#fee2e2;
+  --up:#16a34a;--down:#dc2626;--radius:14px;--shadow:0 1px 2px rgba(15,23,42,.06),0 4px 16px rgba(15,23,42,.05);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0b1120;--card:#131c2e;--ink:#e2e8f0;--mute:#94a3b8;--line:#22304a;--soft:#1a2539;
+  --accent:#60a5fa;--sb:#34d399;--b:#4ade80;--h:#fbbf24;--a:#fb923c;--s:#f87171;
+  --sb-bg:#064e3b;--b-bg:#14532d;--h-bg:#78350f;--a-bg:#7c2d12;--s-bg:#7f1d1d;
+  --up:#4ade80;--down:#f87171;--shadow:none;}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",sans-serif;-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+.wrap{max-width:1180px;margin:0 auto;padding:12px 14px 96px}
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header.top .in{max-width:1180px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:700;font-size:17px;white-space:nowrap}
+.brand small{display:block;font-weight:400;color:var(--mute);font-size:12px}
+nav.tabs{display:flex;gap:4px;margin-left:auto}
+nav.tabs button{border:0;background:none;padding:8px 12px;border-radius:10px;cursor:pointer;color:var(--mute);font-weight:600;display:flex;gap:6px;align-items:center}
+nav.tabs button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+nav.tabs svg{width:18px;height:18px}
+@media (max-width:820px){
+  header.top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
+  .brand{font-size:16px}
+  .tools{flex-direction:column;align-items:stretch!important}
+  .tools>div{max-width:none!important;width:100%!important}
+  .seg{display:flex;width:100%}.seg button{flex:1;padding:7px 6px}
+  nav.tabs{position:fixed;bottom:0;left:0;right:0;margin:0;background:var(--card);border-top:1px solid var(--line);justify-content:space-around;padding:4px 2px calc(4px + env(safe-area-inset-bottom));z-index:30}
+  nav.tabs button{flex-direction:column;gap:2px;font-size:11px;padding:6px 4px;flex:1}
+  nav.tabs button.on{box-shadow:none;background:var(--soft)}
+}
+h2{font-size:20px;margin:18px 0 10px}
+h3{font-size:16px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:820px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.g2{grid-template-columns:1fr}}
+.mute{color:var(--mute)}.small{font-size:13px}.tiny{font-size:12px}
+.up{color:var(--up)}.down{color:var(--down)}
+.big{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sp{flex:1}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 10px;font-weight:700;font-size:12px;white-space:nowrap}
+.L-SB{background:var(--sb-bg);color:var(--sb)}.L-B{background:var(--b-bg);color:var(--b)}.L-H{background:var(--h-bg);color:var(--h)}.L-A{background:var(--a-bg);color:var(--a)}.L-S{background:var(--s-bg);color:var(--s)}
+.banner{border-radius:var(--radius);padding:14px 16px;font-weight:600}
+.warn{background:var(--h-bg);color:var(--ink);border:1px solid color-mix(in srgb,var(--h) 40%,transparent)}
+.seg{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;color:var(--mute)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600}
+.chips button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+input[type=search],input[type=number],input[type=text],input[type=date],select{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%;min-width:0}
+label.f{display:block;font-size:12px;color:var(--mute);font-weight:600}
+label.f>*{margin-top:4px}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;background:var(--accent);color:#fff}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.btn.red{background:var(--s);color:#fff}
+.btn.sm{padding:6px 10px;font-size:13px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 8px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12px;color:var(--mute);font-weight:600;position:sticky;top:0;background:var(--card)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--soft)}
+.bar{height:8px;background:var(--soft);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px}
+/* stock list */
+.slist{display:grid;gap:8px}
+.sitem{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;cursor:pointer;padding:12px 14px}
+.sitem:hover{border-color:var(--accent)}
+.sitem .nm{font-weight:700}
+.sitem .sub{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap}
+.score{font-weight:800;font-variant-numeric:tabular-nums}
+@media (min-width:821px){
+  .slist{grid-template-columns:repeat(2,1fr)}
+}
+@media (min-width:1100px){.slist{grid-template-columns:repeat(3,1fr)}}
+/* detail sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(2,6,23,.55);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.sheet-bg.on{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:880px;max-height:92vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px 14px calc(24px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+@media (min-width:821px){.sheet-bg{align-items:center}.sheet{border-radius:18px;max-height:88vh;padding:20px}}
+.x{border:0;background:var(--soft);border-radius:99px;width:34px;height:34px;cursor:pointer;font-size:18px}
+ul.why{list-style:none;margin:0;padding:0}
+ul.why li{padding:5px 0 5px 24px;position:relative;font-size:14px}
+ul.why li:before{position:absolute;left:0;top:5px;font-weight:800;width:18px;text-align:center}
+ul.why li.p:before{content:"✓";color:var(--up)}ul.why li.n:before{content:"✗";color:var(--down)}ul.why li.z:before{content:"•";color:var(--mute)}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.kv div{background:var(--soft);border-radius:10px;padding:8px 10px}
+.kv b{display:block;font-size:16px}
+.kv span{font-size:12px;color:var(--mute)}
+.chart{width:100%;height:auto;display:block;touch-action:pan-y}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute)}
+.legend i{display:inline-block;width:12px;height:3px;border-radius:2px;vertical-align:middle;margin-right:4px}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:60;opacity:0;transition:.25s;pointer-events:none}
+.toast.on{opacity:1}
+.hide{display:none!important}
+details summary{cursor:pointer;font-weight:600}
+.verdict{border-radius:var(--radius);padding:14px;border:1px solid var(--line);background:var(--card)}
+.verdict .lab{font-size:20px;font-weight:800}
+@media (max-width:600px){
+  table.rc thead{display:none}
+  table.rc tr{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
+  table.rc td{border:0;padding:3px 0;white-space:normal;text-align:left!important}
+  table.rc td:first-child{grid-column:1/-1;font-size:16px}
+  table.rc td[data-l]:not(:first-child):before{content:attr(data-l);display:block;font-size:11px;color:var(--mute);font-weight:600}
+  table.rc td:last-child:has(button){grid-column:1/-1}
+  table.rc td:last-child button{width:100%}
+}
+footer{color:var(--mute);font-size:12px;margin-top:28px;text-align:center}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <div class="brand">Nifty 50 Analyzer<small id="asof"></small></div>
+  <nav class="tabs" id="tabs"></nav>
+</div></header>
+
+<main class="wrap">
+  <section id="t-market"></section>
+  <section id="t-picks" class="hide"></section>
+  <section id="t-record" class="hide"></section>
+  <section id="t-paper" class="hide"></section>
+  <section id="t-port" class="hide"></section>
+  <section id="t-guide" class="hide"></section>
+  <footer>Signals come from fixed rules applied to past prices and reported fundamentals. They are not a forecast and not personal investment advice
+  (this tool is not a SEBI-registered adviser). Data: NSE, Yahoo Finance (end of day, may be delayed or wrong). You decide and place every trade yourself.</footer>
+</main>
+
+<div class="sheet-bg" id="sheetBg"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA=/*__DATA__*/null;
+</script>
+<script>
+"use strict";
+/* ---------------------------------------------------------------- helpers */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const inr=(x,d=2)=>x==null||isNaN(x)?"–":"₹"+Number(x).toLocaleString("en-IN",{minimumFractionDigits:d,maximumFractionDigits:d});
+const num=(x,d=2)=>x==null||isNaN(x)?"–":Number(x).toLocaleString("en-IN",{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=(x,d=1,sign=true)=>x==null||isNaN(x)?"–":(sign&&x>0?"+":"")+(x*100).toFixed(d)+"%";
+const cls=x=>x==null?"":x>0?"up":x<0?"down":"";
+const LCODE={"STRONG BUY":"SB","BUY":"B","HOLD / WAIT":"H","AVOID":"A","SELL / EXIT":"S"};
+const LORDER=["STRONG BUY","BUY","HOLD / WAIT","AVOID","SELL / EXIT"];
+const pill=l=>`<span class="pill L-${LCODE[l]}">${esc(l)}</span>`;
+const store={get:(k,d)=>{try{const v=localStorage.getItem("n50."+k);return v?JSON.parse(v):d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem("n50."+k,JSON.stringify(v))}catch(e){}}};
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),2200)};
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const S=DATA.stocks, BY=Object.fromEntries(S.map(s=>[s.sym,s]));
+const settings=Object.assign({capital:1000000,risk:1,brokerage:0,dp:15.93},store.get("settings",{}));
+
+/* ---------------------------------------------------------------- chart */
+let chartId=0;
+function lineChart(series,dates,opts={}){
+  const narrow=window.innerWidth<600,W=opts.w||(narrow?420:800),H=opts.h||(narrow?240:260),P={l:8,r:58,t:10,b:22},id="c"+(++chartId);
+  const all=series.flatMap(s=>s.v.filter(v=>v!=null));
+  if(!all.length)return "";
+  let lo=Math.min(...all),hi=Math.max(...all);const pad=(hi-lo)*.06||1;lo-=pad;hi+=pad;
+  const n=dates.length,X=i=>P.l+(W-P.l-P.r)*i/(n-1||1),Y=v=>P.t+(H-P.t-P.b)*(1-(v-lo)/(hi-lo));
+  const paths=series.map(s=>{let d="",pen=false;s.v.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1);pen=true});
+    return `<path d="${d}" fill="none" stroke="${s.c}" stroke-width="${s.w||1.6}" ${s.dash?'stroke-dasharray="4 3"':""} stroke-linejoin="round"/>`}).join("");
+  let grid="";for(let k=0;k<=4;k++){const v=lo+(hi-lo)*k/4,y=Y(v);grid+=`<line x1="${P.l}" x2="${W-P.r}" y1="${y}" y2="${y}" stroke="${css("--line")}"/><text x="${W-P.r+6}" y="${y+4}" font-size="11" fill="${css("--mute")}">${opts.fmt?opts.fmt(v):num(v,v>1000?0:1)}</text>`}
+  let xl="";const step=Math.max(1,Math.floor(n/5));for(let i=0;i<n;i+=step){xl+=`<text x="${X(i)}" y="${H-5}" font-size="11" fill="${css("--mute")}" text-anchor="${i===0?"start":"middle"}">${fmtD(dates[i],opts.long)}</text>`}
+  setTimeout(()=>bindHover(id,series,dates,X,Y,W,H,P,opts),0);
+  return `<svg id="${id}" class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="aspect-ratio:${W}/${H}">${grid}${xl}${paths}
+  <line class="hx" y1="${P.t}" y2="${H-P.b}" stroke="${css("--mute")}" stroke-dasharray="3 3" visibility="hidden"/>
+  <g class="tip" visibility="hidden"><rect rx="6" fill="${css("--ink")}" opacity=".92"/><text font-size="12" fill="${css("--bg")}"></text></g></svg>`;
+}
+function fmtD(d,long){const t=new Date(d+"T00:00:00");return t.toLocaleDateString("en-IN",long?{month:"short",year:"2-digit"}:{day:"numeric",month:"short"})}
+function bindHover(id,series,dates,X,Y,W,H,P,opts){
+  const svg=document.getElementById(id);if(!svg)return;
+  const hx=svg.querySelector(".hx"),tip=svg.querySelector(".tip"),rect=tip.querySelector("rect"),txt=tip.querySelector("text");
+  const move=e=>{const r=svg.getBoundingClientRect(),cx=((e.touches?e.touches[0].clientX:e.clientX)-r.left)/r.width*W;
+    const n=dates.length,i=Math.max(0,Math.min(n-1,Math.round((cx-P.l)/(W-P.l-P.r)*(n-1))));
+    hx.setAttribute("x1",X(i));hx.setAttribute("x2",X(i));hx.setAttribute("visibility","visible");
+    const lines=[fmtD(dates[i],false)+" "+dates[i].slice(0,4)].concat(series.map(s=>s.v[i]==null?null:`${s.n}: ${opts.fmt?opts.fmt(s.v[i]):num(s.v[i])}`).filter(Boolean));
+    txt.innerHTML=lines.map((l,k)=>`<tspan x="8" dy="${k?15:15}">${esc(l)}</tspan>`).join("");
+    const w=Math.max(...lines.map(l=>l.length))*6.6+16,h=lines.length*15+10;rect.setAttribute("width",w);rect.setAttribute("height",h);
+    let tx=X(i)+10;if(tx+w>W-P.r)tx=X(i)-w-10;tip.setAttribute("transform",`translate(${tx},${P.t+4})`);tip.setAttribute("visibility","visible")};
+  const out=()=>{hx.setAttribute("visibility","hidden");tip.setAttribute("visibility","hidden")};
+  svg.addEventListener("mousemove",move);svg.addEventListener("touchstart",move,{passive:true});svg.addEventListener("touchmove",move,{passive:true});
+  svg.addEventListener("mouseleave",out);svg.addEventListener("touchend",()=>setTimeout(out,1500));
+}
+const priceChart=c=>lineChart([{v:c.c,c:css("--accent"),n:"Price",w:2},{v:c.a,c:css("--h"),n:"50-day avg"},{v:c.b,c:css("--s"),n:"200-day avg",dash:1}],c.d)+
+  `<div class="legend"><span><i style="background:${css("--accent")}"></i>Price</span><span><i style="background:${css("--h")}"></i>50-day avg</span><span><i style="background:${css("--s")}"></i>200-day avg</span></div>`;
+
+/* ---------------------------------------------------------------- tabs */
+const ICON={
+ market:'<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>',
+ picks:'<path d="M12 2 15 9l7 .5-5.5 4.6L18 21l-6-3.7L6 21l1.5-6.9L2 9.5 9 9z"/>',
+ record:'<path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/>',
+ paper:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M8 3v3M16 3v3"/>',
+ port:'<path d="M3 7h18v12H3z"/><path d="M8 7V5h8v2"/>',
+ guide:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01"/>'};
+const TABS=[["market","Market"],["picks","Picks"],["record","Track record"],["paper","Paper trade"],["port","Portfolio"],["guide","Guide"]];
+$("#tabs").innerHTML=TABS.map(([k,n])=>`<button data-t="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg><span>${n}</span></button>`).join("");
+const RENDER={market:renderMarket,picks:renderPicks,record:renderRecord,paper:renderPaper,port:renderPort,guide:renderGuide};
+function show(t){
+  TABS.forEach(([k])=>$("#t-"+k).classList.toggle("hide",k!==t));
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+  RENDER[t]();cardify();store.set("tab",t);history.replaceState(null,"","#"+t);window.scrollTo(0,0);
+}
+$("#tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(b)show(b.dataset.t)});
+$("#asof").textContent="Data as of "+DATA.data_date+" close";
+
+function cardify(){document.querySelectorAll("table.rc").forEach(t=>{const hs=[...t.querySelectorAll("thead th")].map(h=>h.textContent.trim());
+  t.querySelectorAll("tbody tr").forEach(r=>[...r.children].forEach((td,i)=>{if(hs[i])td.dataset.l=hs[i]}))})}
+/* ---------------------------------------------------------------- market */
+function renderMarket(){
+  const m=DATA.market,ix=m.indices,rc={BULLISH:"L-SB",CAUTIOUS:"L-H",BEARISH:"L-S"}[m.regime];
+  const card=(name,p,inv)=>p?`<div class="card"><div class="mute small">${name}</div><div class="big">${num(p.last,name==="India VIX"?2:0)}</div>
+    <div class="${cls(inv?-p.d1:p.d1)} small">${pct(p.d1,2)} today</div><div class="tiny mute">1W ${pct(p.w1)} · 1M ${pct(p.m1)} · 1Y ${pct(p.y1)}</div></div>`:"";
+  const movers=[...S].sort((a,b)=>b.chg-a.chg);
+  const mv=list=>list.map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b></td><td class="n">${inr(s.price)}</td><td class="n ${cls(s.chg)}">${pct(s.chg,2)}</td></tr>`).join("");
+  const top=k=>[...S].sort((a,b)=>b[k].score-a[k].score).slice(0,5).map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b><div class="tiny mute">${esc(s.ind)}</div></td><td>${pill(s[k].label)}</td><td class="n score">${s[k].score}</td></tr>`).join("");
+  $("#t-market").innerHTML=`
+  <div class="banner ${rc}" style="margin-top:6px"><div class="row"><span style="font-size:18px">Market mood: ${m.regime}</span></div><div style="font-weight:500;margin-top:4px">${esc(m.regime_text)}</div></div>
+  <div class="grid g3" style="margin-top:12px">${card("Nifty 50",ix["Nifty 50"])}${card("Nifty Bank",ix["Nifty Bank"])}${card("India VIX",ix["India VIX"],true)}</div>
+  <div class="grid g2" style="margin-top:12px;grid-template-columns:2fr 1fr">
+    <div class="card"><h3>Nifty 50: last 12 months</h3>${priceChart(m.nifty.chart)}
+      <div class="tiny mute" style="margin-top:6px">Nifty ${num(m.nifty.close,0)} · 50-day avg ${num(m.nifty.sma50,0)} · 200-day avg ${num(m.nifty.sma200,0)} · RSI ${m.nifty.rsi}</div></div>
+    <div class="card"><h3>Market breadth</h3>
+      <div class="small">Stocks above 50-day avg <b style="float:right">${pct(m.breadth50,0,false)}</b></div><div class="bar" style="margin:4px 0 12px"><i style="width:${m.breadth50*100}%;background:var(--accent)"></i></div>
+      <div class="small">Stocks above 200-day avg <b style="float:right">${pct(m.breadth200,0,false)}</b></div><div class="bar" style="margin:4px 0 12px"><i style="width:${m.breadth200*100}%;background:var(--accent)"></i></div>
+      <div class="small">Today: <span class="up"><b>${m.adv}</b> up</span> · <span class="down"><b>${m.dec}</b> down</span></div>
+      <p class="tiny mute">Breadth above 60% means most stocks are taking part in the move (healthy). Below 40% means only a few stocks are holding the index up.</p></div>
+  </div>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><div class="row"><h3>Top swing signals</h3><span class="sp"></span><button class="btn sm ghost" data-go="swing">See all</button></div><div class="tw"><table><tbody>${top("swing")}</tbody></table></div></div>
+    <div class="card"><div class="row"><h3>Top long-term signals</h3><span class="sp"></span><button class="btn sm ghost" data-go="long">See all</button></div><div class="tw"><table><tbody>${top("long")}</tbody></table></div></div>
+  </div>
+  <div class="card" style="margin-top:12px"><h3>Sectors</h3><div class="tw"><table><thead><tr><th>Sector</th><th class="n">1 week</th><th class="n">1 month</th><th class="n">3 months</th><th class="n">1 year</th><th>Trend</th></tr></thead><tbody>
+    ${m.sectors.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td class="n ${cls(s.w1)}">${pct(s.w1)}</td><td class="n ${cls(s.m1)}">${pct(s.m1)}</td><td class="n ${cls(s.m3)}">${pct(s.m3)}</td><td class="n ${cls(s.y1)}">${pct(s.y1)}</td><td>${s.trend==="Up"?'<span class="pill L-B">Up</span>':s.trend==="Down"?'<span class="pill L-S">Down</span>':'<span class="pill L-H">Mixed</span>'}</td></tr>`).join("")}
+  </tbody></table></div></div>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3>Top gainers today</h3><table><tbody>${mv(movers.slice(0,5))}</tbody></table></div>
+    <div class="card"><h3>Top losers today</h3><table><tbody>${mv(movers.slice(-5).reverse())}</tbody></table></div>
+  </div>`;
+  $("#t-market").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{picksState.mode=b.dataset.go;show("picks")});
+}
+
+/* ---------------------------------------------------------------- picks */
+const picksState=Object.assign({mode:"swing",filter:"buy",q:"",sort:"score"},store.get("picks",{}));
+function edgeLine(mode,label){
+  const h=DATA.hit[mode][label];if(!h)return"";
+  const days=mode==="swing"?DATA.hit.swing_days:DATA.hit.long_days,per=mode==="swing"?"~1 month":"~6 months";
+  return `Past 5 years: after a <b>${esc(label)}</b> ${mode==="swing"?"swing":"long-term"} label, the stock was higher ${per} later <b>${pct(h.win,0,false)}</b> of the time (avg ${pct(h.avg)}), and beat the average Nifty 50 stock by <b class="${cls(h.xs)}">${pct(h.xs,2)}</b>.`;
+}
+function renderPicks(){
+  const st=picksState;store.set("picks",st);
+  const k=st.mode;
+  let list=S.filter(s=>{const l=s[k].label;
+    if(st.filter==="buy"&&!(l==="STRONG BUY"||l==="BUY"))return false;
+    if(st.filter==="hold"&&l!=="HOLD / WAIT")return false;
+    if(st.filter==="avoid"&&!(l==="AVOID"||l==="SELL / EXIT"))return false;
+    if(st.q&&!(s.sym+" "+s.name+" "+s.ind).toLowerCase().includes(st.q.toLowerCase()))return false;return true});
+  const sorters={score:(a,b)=>b[k].score-a[k].score,chg:(a,b)=>b.chg-a.chg,mom:(a,b)=>(b.mom??-9)-(a.mom??-9),name:(a,b)=>a.sym.localeCompare(b.sym)};
+  list.sort(sorters[st.sort]);
+  const counts=Object.fromEntries(LORDER.map(l=>[l,S.filter(s=>s[k].label===l).length]));
+  const sb=S.filter(s=>s[k].label==="STRONG BUY").sort(sorters.score).map(s=>s.sym);
+  const b=S.filter(s=>s[k].label==="BUY").sort(sorters.score).map(s=>s.sym);
+  $("#t-picks").innerHTML=`
+  <div class="row" style="margin-top:6px"><div class="seg" id="mode"><button data-m="swing" class="${k==="swing"?"on":""}">Swing<div class="tiny mute" style="font-weight:500">days–weeks</div></button><button data-m="long" class="${k==="long"?"on":""}">Long term<div class="tiny mute" style="font-weight:500">months–years</div></button></div></div>
+  <div class="card" style="margin-top:12px">
+    <h3>${k==="swing"?"Swing":"Long-term"} summary for ${DATA.data_date}</h3>
+    <div class="small"><span class="pill L-SB">STRONG BUY</span> ${sb.length?sb.join(", "):"none today"}</div>
+    <div class="small" style="margin-top:6px"><span class="pill L-B">BUY</span> ${b.length?b.join(", "):"none today"}</div>
+    <div class="row tiny mute" style="margin-top:10px">${LORDER.map(l=>`${pill(l)} ${counts[l]}`).join(" ")}</div>
+    <div class="tiny mute" style="margin-top:10px">${edgeLine(k,"STRONG BUY")} <a href="#record" data-rec>Full track record →</a></div>
+    ${DATA.market.regime!=="BULLISH"?`<div class="banner warn small" style="margin-top:10px">Market mood is ${DATA.market.regime}. Consider smaller position sizes.</div>`:""}
+  </div>
+  <div class="row tools" style="margin-top:12px;gap:10px">
+    <div class="chips" id="filt">${[["buy","Buy signals"],["hold","Hold / wait"],["avoid","Avoid / sell"],["all","All 50"]].map(([f,n])=>`<button data-f="${f}" class="${st.filter===f?"on":""}">${n}</button>`).join("")}</div>
+    <span class="sp"></span>
+    <div class="row" style="gap:8px;flex:1;max-width:430px"><div style="flex:1;min-width:140px"><input type="search" id="q" placeholder="Search stock or sector" value="${esc(st.q)}"></div>
+    <div style="width:150px"><select id="sort">${[["score","Sort: score"],["chg","Sort: today %"],["mom","Sort: 12m momentum"],["name","Sort: A–Z"]].map(([v,n])=>`<option value="${v}" ${st.sort===v?"selected":""}>${n}</option>`).join("")}</select></div></div>
+  </div>
+  <div class="slist" style="margin-top:12px">${list.length?list.map(s=>stockItem(s,k)).join(""):'<div class="card mute">No stocks match this filter today.</div>'}</div>`;
+  $("#mode").onclick=e=>{const b=e.target.closest("button");if(b){st.mode=b.dataset.m;renderPicks()}};
+  $("#filt").onclick=e=>{const b=e.target.closest("button");if(b){st.filter=b.dataset.f;renderPicks()}};
+  $("#q").oninput=e=>{st.q=e.target.value;clearTimeout(renderPicks.t);renderPicks.t=setTimeout(()=>{renderPicks();const q=$("#q");q.focus();q.setSelectionRange(q.value.length,q.value.length)},250)};
+  $("#sort").onchange=e=>{st.sort=e.target.value;renderPicks()};
+  $("#t-picks").querySelector("[data-rec]").onclick=e=>{e.preventDefault();show("record")};
+}
+function stockItem(s,k){
+  const v=s[k],col={SB:"var(--sb)",B:"var(--b)",H:"var(--h)",A:"var(--a)",S:"var(--s)"}[LCODE[v.label]];
+  const extra=k==="swing"&&(v.label==="BUY"||v.label==="STRONG BUY")?`<span class="tiny">Entry ~${inr(v.entry,1)} · Stop ${inr(v.stop,1)} · Target ${inr(v.target,1)}</span>`
+    :k==="long"?`<span class="tiny mute">12m momentum ${pct(s.mom,0)} · P/E ${num(s.metrics.pe,1)} · ROE ${pct(s.metrics.roe,0,false)}</span>`:`<span class="tiny mute">${esc(v.action)}</span>`;
+  return `<div class="card sitem" data-sym="${s.sym}">
+    <div><span class="nm">${s.sym}</span> <span class="tiny mute">${esc(s.name)}</span></div>
+    <div class="row">${pill(v.label)}<span class="score" style="color:${col}">${v.score}</span></div>
+    <div class="small">${inr(s.price)} <span class="${cls(s.chg)}">${pct(s.chg,2)}</span> <span class="tiny mute">· ${esc(s.ind)}</span></div><div></div>
+    <div class="bar" style="grid-column:1/-1;margin:4px 0"><i style="width:${v.score}%;background:${col}"></i></div>
+    <div class="sub">${extra}</div></div>`;
+}
+
+/* ---------------------------------------------------------------- detail sheet */
+const reasons=list=>`<ul class="why">${list.map(r=>`<li class="${r.s>0?"p":r.s<0?"n":"z"}">${esc(r.t)}</li>`).join("")}</ul>`;
+function qtyFor(entry,stop){const riskAmt=settings.capital*settings.risk/100,per=entry-stop;if(per<=0)return 0;
+  return Math.max(0,Math.floor(Math.min(riskAmt/per,settings.capital*0.2/entry)))}
+function openStock(sym){
+  const s=BY[sym];if(!s)return;const sw=s.swing,lt=s.long,m=s.metrics;
+  const q=qtyFor(sw.entry,sw.stop),buyable=sw.label==="BUY"||sw.label==="STRONG BUY";
+  $("#sheet").innerHTML=`
+  <div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div><div class="big">${s.sym}</div><div class="mute small">${esc(s.name)} · ${esc(s.ind)}</div></div><span class="sp"></span><button class="x" id="closeS" aria-label="Close">×</button></div>
+  <div class="row" style="margin:6px 0 12px"><span class="big">${inr(s.price)}</span><span class="${cls(s.chg)}">${pct(s.chg,2)} today</span>
+    <span class="tiny mute">1M ${pct(s.perf.m1)} · 3M ${pct(s.perf.m3)} · 1Y ${pct(s.perf.y1)}</span></div>
+  <div class="grid g2">
+    <div class="verdict"><div class="mute tiny">SWING (days–weeks) · score ${sw.score}/100</div><div class="lab">${pill(sw.label)}</div><div style="margin-top:6px;font-weight:600">${esc(sw.action)}</div></div>
+    <div class="verdict"><div class="mute tiny">LONG TERM (months–years) · score ${lt.score}/100</div><div class="lab">${pill(lt.label)}</div><div style="margin-top:6px;font-weight:600">${esc(lt.action)}</div></div>
+  </div>
+  <div class="card" style="margin-top:12px">${priceChart(s.chart)}</div>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3>Swing trade plan</h3>
+      ${buyable?"":`<div class="banner warn small" style="margin-bottom:10px">No swing buy signal today. Levels below are for reference only.</div>`}
+      <div class="kv"><div><span>Entry (around)</span><b>${inr(sw.entry)}</b></div><div><span>Stop-loss</span><b class="down">${inr(sw.stop)}</b><span>${pct(sw.stop_pct)}</span></div>
+      <div><span>Target</span><b class="up">${inr(sw.target)}</b><span>${pct(sw.target_pct)}</span></div><div><span>Risk : reward</span><b>1 : 2</b></div>
+      <div><span>Qty for your settings</span><b>${q}</b><span>${inr(q*sw.entry,0)}</span></div><div><span>Max loss if stopped</span><b class="down">${inr(q*(sw.entry-sw.stop),0)}</b></div></div>
+      <p class="tiny mute">Qty = risk ${settings.risk}% of ${inr(settings.capital,0)} capital ÷ distance to stop, capped at 20% of capital. Exit at stop or target, or after ~20 trading days. <a href="#" data-set>Change settings</a></p>
+      <div class="tiny mute">${sw.hist.n?`On ${s.sym} itself, the "${esc(sw.label)}" label was followed by a rise ~1 month later ${pct(sw.hist.win,0,false)} of the time (avg ${pct(sw.hist.avg)}, ${sw.hist.n} days in 5 yrs).`:""}</div>
+      <h3 style="margin-top:12px">Why</h3>${reasons(sw.reasons)}</div>
+    <div class="card"><h3>Long-term view</h3>
+      <div class="kv"><div><span>Trend score</span><b>${lt.tech}/60</b></div><div><span>Fundamental score</span><b>${lt.fund??"–"}/40</b></div>
+      <div><span>Accumulate zone</span><b>${inr(lt.zone_lo,0)}–${inr(lt.zone_hi,0)}</b></div><div><span>Review if below</span><b class="down">${inr(lt.review,0)}</b><span>~3% under 200-day avg</span></div></div>
+      <h3 style="margin-top:12px">Why</h3>${reasons(lt.reasons)}</div>
+  </div>
+  <div class="card" style="margin-top:12px"><h3>Key numbers</h3><div class="kv">
+    <div><span>P/E</span><b>${num(m.pe,1)}</b></div><div><span>Price/Book</span><b>${num(m.pb,1)}</b></div><div><span>ROE</span><b>${pct(m.roe,1,false)}</b></div>
+    <div><span>Debt/Equity</span><b>${m.de==null?"–":num(m.de/100,2)}</b></div><div><span>Profit margin</span><b>${pct(m.pm,1,false)}</b></div>
+    <div><span>Profit growth YoY</span><b class="${cls(m.eg)}">${pct(m.eg,0)}</b></div><div><span>Revenue growth YoY</span><b class="${cls(m.rg)}">${pct(m.rg,0)}</b></div>
+    <div><span>Dividend yield</span><b>${m.dy==null?"–":num(m.dy>1?m.dy:m.dy*100,2)+"%"}</b></div><div><span>Market cap</span><b>${m.mcap?"₹"+num(m.mcap/1e7,0)+" Cr":"–"}</b></div>
+    <div><span>RSI (14)</span><b>${s.rsi}</b></div><div><span>52-week high</span><b>${inr(s.hi52,0)}</b></div><div><span>52-week low</span><b>${inr(s.lo52,0)}</b></div>
+    <div><span>12m momentum</span><b class="${cls(s.mom)}">${pct(s.mom,0)}</b><span>rank ${Math.round((s.mom_rank||0)*50)}/50</span></div><div><span>Volatility (1y)</span><b>${pct(s.vol,0,false)}</b></div></div></div>
+  <div class="row" style="margin-top:14px"><button class="btn" data-pbuy>Paper buy ${q||1} @ ${inr(s.price)}</button><button class="btn ghost" data-padd>Add to my portfolio</button></div>`;
+  $("#sheetBg").classList.add("on");document.body.style.overflow="hidden";
+  $("#closeS").onclick=closeSheet;
+  $("#sheet").querySelector("[data-set]").onclick=e=>{e.preventDefault();closeSheet();show("paper");setTimeout(()=>$("#settingsCard")?.scrollIntoView({behavior:"smooth"}),50)};
+  $("#sheet").querySelector("[data-pbuy]").onclick=()=>{paperBuy(s.sym,q||1);closeSheet()};
+  $("#sheet").querySelector("[data-padd]").onclick=()=>{closeSheet();show("port");const f=$("#hSym");if(f){f.value=s.sym;$("#hPrice").value=s.price;$("#hQty").focus()}};
+}
+function closeSheet(){$("#sheetBg").classList.remove("on");document.body.style.overflow=""}
+$("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")closeSheet()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
+document.addEventListener("click",e=>{const r=e.target.closest("[data-sym]");if(r&&!e.target.closest("button,input,select,a"))openStock(r.dataset.sym)});
+
+/* ---------------------------------------------------------------- track record */
+function renderRecord(){
+  const H=DATA.hit,B=DATA.backtest;
+  const hitTable=(mode)=>`<div class="tw"><table><thead><tr><th>Label</th><th class="n">Times seen</th><th class="n">Price higher after</th><th class="n">Avg return</th><th class="n">Edge vs avg stock</th></tr></thead><tbody>
+    ${LORDER.concat(["ALL"]).map(l=>{const h=H[mode][l];if(!h)return"";return `<tr><td>${l==="ALL"?"<b>All stock-days</b>":pill(l)}</td><td class="n">${h.n.toLocaleString("en-IN")}</td><td class="n">${pct(h.win,0,false)}</td><td class="n">${pct(h.avg)}</td><td class="n ${cls(h.xs)}"><b>${l==="ALL"?"–":pct(h.xs,2)}</b></td></tr>`}).join("")}</tbody></table></div>`;
+  const bt=(k,title)=>{const b=B[k],s=b.stats,c=b.curve;
+    const beatEW=s.total>s.ew.total;
+    return `<div class="card" style="margin-top:12px"><h3>${title}</h3>
+    <div class="banner ${beatEW?"L-B":"warn"} small" style="margin-bottom:10px">${beatEW?`This strategy beat simply buying and holding the same 50 stocks over ${s.years} years.`:`This strategy did <u>worse</u> than simply buying and holding the same 50 stocks over ${s.years} years.`}</div>
+    <div class="kv"><div><span>Strategy total return</span><b class="${cls(s.total)}">${pct(s.total,0)}</b><span>${pct(s.cagr,1)} / yr</span></div>
+      <div><span>Buy & hold all 50 (equal)</span><b class="${cls(s.ew.total)}">${pct(s.ew.total,0)}</b><span>${pct(s.ew.cagr,1)} / yr</span></div>
+      <div><span>Nifty 50 index</span><b class="${cls(s.bench.total)}">${pct(s.bench.total,0)}</b><span>${pct(s.bench.cagr,1)} / yr</span></div>
+      <div><span>Worst fall (strategy)</span><b class="down">${pct(s.maxdd,0)}</b><span>buy & hold: ${pct(s.ew.maxdd,0)}</span></div>
+      ${s.trades!=null?`<div><span>Trades</span><b>${s.trades}</b><span>${s.exits.target} target · ${s.exits.stop} stop · ${s.exits.time} time</span></div>
+      <div><span>Winning trades</span><b>${pct(s.win,0,false)}</b><span>avg win ${pct(s.avg_win)} · avg loss ${pct(s.avg_loss)}</span></div>
+      <div><span>Profit factor</span><b>${s.pf==null?"–":num(s.pf,2)}</b><span>&gt;1 = made money</span></div>`:""}</div>
+    <div style="margin-top:12px">${lineChart([{v:c.s,c:css("--accent"),n:"Strategy",w:2},{v:c.e,c:css("--b"),n:"Buy & hold 50"},{v:c.b,c:css("--mute"),n:"Nifty 50",dash:1}],c.d,{long:1,fmt:v=>num(v,0)})}
+    <div class="legend"><span><i style="background:${css("--accent")}"></i>Strategy</span><span><i style="background:${css("--b")}"></i>Buy &amp; hold same 50 stocks</span><span><i style="background:${css("--mute")}"></i>Nifty 50 index</span></div></div>
+    <p class="tiny mute">${esc(b.rules)}</p>
+    ${b.recent?`<details><summary>Last ${b.recent.length} trades</summary><div class="tw"><table class="rc"><thead><tr><th>Stock</th><th>In</th><th>Out</th><th class="n">Entry</th><th class="n">Exit</th><th class="n">Return</th><th>Exit reason</th></tr></thead><tbody>
+      ${b.recent.map(t=>`<tr><td><b>${t.sym}</b></td><td>${t.in}</td><td>${t.out}</td><td class="n">${num(t.entry)}</td><td class="n">${num(t.exit)}</td><td class="n ${cls(t.ret)}">${pct(t.ret)}</td><td>${t.why}</td></tr>`).join("")}</tbody></table></div></details>`:""}
+    ${b.history?`<details><summary>Recent holdings</summary>${b.history.map(h=>`<div class="small" style="margin-top:6px"><b>${h.d}</b>: ${h.hold.join(", ")||"cash"}</div>`).join("")}</details>`:""}
+    </div>`};
+  const sb=H.swing["STRONG BUY"],lb=H.long["STRONG BUY"];
+  $("#t-record").innerHTML=`
+  <h2>Do these signals actually work?</h2>
+  <div class="card"><p style="margin-top:0"><b>The honest summary.</b> Every label was checked against what actually happened over the last 5 years for today's Nifty 50 stocks.</p>
+  <ul class="why">
+    <li class="${sb.xs>0?"p":"n"}">Swing <b>STRONG BUY</b> stocks beat the average Nifty 50 stock by <b>${pct(sb.xs,2)}</b> over the next month. ${Math.abs(sb.xs)<0.005?"That's a very small edge, easily wiped out by costs.":""}</li>
+    <li class="${lb.xs>0?"p":"n"}">Long-term <b>STRONG BUY</b> stocks beat the average Nifty 50 stock by <b>${pct(lb.xs,2)}</b> over the next 6 months.</li>
+    <li class="${B.swing.stats.total>B.swing.stats.ew.total?"p":"n"}">Trading the swing signals: ${pct(B.swing.stats.total,0)} vs ${pct(B.swing.stats.ew.total,0)} for just buying and holding all 50.</li>
+    <li class="${B.long.stats.total>B.long.stats.ew.total?"p":"n"}">Following the long-term signals: ${pct(B.long.stats.total,0)} vs ${pct(B.long.stats.ew.total,0)} for buying and holding all 50.</li>
+    <li class="z">Stocks rise more often than they fall over time, so a high "price higher after" % is normal. The <b>edge vs average stock</b> column is the real test.</li>
+    <li class="z">These tests only use stocks that are in the Nifty 50 <i>today</i>. Companies that fell out of the index are missing, so all past results look better than real life would have been.</li>
+  </ul></div>
+  <div class="card" style="margin-top:12px"><h3>Swing labels: what happened over the next ${H.swing_days} trading days (~1 month)</h3>${hitTable("swing")}</div>
+  <div class="card" style="margin-top:12px"><h3>Long-term labels: what happened over the next ${H.long_days} trading days (~6 months)</h3>${hitTable("long")}
+    <p class="tiny mute">Long-term history uses the trend part of the score only, because past fundamentals aren't available for free.</p></div>
+  ${bt("swing","Backtest: trading every swing BUY signal")}
+  ${bt("long","Backtest: holding the top 10 long-term picks, rebalanced monthly")}`;
+}
+
+/* ---------------------------------------------------------------- charges & tax */
+function charges(buyVal,sellVal){
+  // Equity delivery on NSE. Brokerage per order (₹, from settings) applied on each side that exists.
+  const br=(buyVal?settings.brokerage:0)+(sellVal?settings.brokerage:0);
+  const stt=0.001*(buyVal+sellVal),exch=0.0000297*(buyVal+sellVal),sebi=0.000001*(buyVal+sellVal),stamp=0.00015*buyVal;
+  const gst=0.18*(br+exch+sebi),dp=sellVal?settings.dp:0;
+  return {br,stt,exch,sebi,stamp,gst,dp,total:br+stt+exch+sebi+stamp+gst+dp};
+}
+function taxEst(gain,buyDate,sellDate){
+  if(!buyDate)return{type:"–",tax:0,rate:0};
+  const days=(new Date(sellDate)-new Date(buyDate))/864e5;
+  if(gain<=0)return{type:days>365?"LTCG (loss)":"STCG (loss)",tax:0,rate:0};
+  if(days>365)return{type:"LTCG",rate:0.125,tax:Math.max(0,gain-125000)*0.125*1.04};
+  return{type:"STCG",rate:0.20,tax:gain*0.20*1.04};
+}
+const today=()=>new Date().toISOString().slice(0,10);
+
+/* ---------------------------------------------------------------- paper trading */
+function paper(){return store.get("paper",{cash:1000000,start:1000000,pos:[],hist:[]})}
+function savePaper(p){store.set("paper",p)}
+function paperBuy(sym,qty){
+  const p=paper(),s=BY[sym],cost=qty*s.price,ch=charges(cost,0).total;
+  if(cost+ch>p.cash){toast("Not enough paper cash");return}
+  p.cash-=cost+ch;
+  const sw=s.swing;p.pos.push({id:Date.now(),sym,qty,price:s.price,date:DATA.data_date,stop:sw.stop,target:sw.target,label:sw.label,ch});
+  savePaper(p);toast(`Paper bought ${qty} ${sym}`);if(!$("#t-paper").classList.contains("hide"))renderPaper();
+}
+function renderPaper(){
+  const p=paper();let inv=0,val=0;
+  const rows=p.pos.map(x=>{const s=BY[x.sym],cur=s?s.price:x.price,v=cur*x.qty;inv+=x.price*x.qty;val+=v;const pl=v-x.price*x.qty;
+    const alert=cur<=x.stop?'<span class="pill L-S">Stop hit</span>':cur>=x.target?'<span class="pill L-SB">Target hit</span>':"";
+    return `<tr><td><b class="click" data-sym="${x.sym}" style="cursor:pointer">${x.sym}</b> ${alert}<div class="tiny mute">${x.date} · ${esc(x.label)}</div></td><td class="n">${x.qty}</td><td class="n">${num(x.price)}</td><td class="n">${num(cur)}</td>
+    <td class="n ${cls(pl)}">${inr(pl,0)}<div class="tiny">${pct(cur/x.price-1)}</div></td><td class="n tiny">${num(x.stop,1)} / ${num(x.target,1)}</td><td><button class="btn sm ghost" data-sell="${x.id}">Sell</button></td></tr>`}).join("");
+  const eq=p.cash+val,ret=eq/p.start-1,wins=p.hist.filter(h=>h.pl>0).length;
+  $("#t-paper").innerHTML=`
+  <h2>Paper trading <span class="tiny mute">(practice with fake money)</span></h2>
+  <div class="grid g4"><div class="card"><div class="mute small">Account value</div><div class="big">${inr(eq,0)}</div><div class="${cls(ret)} small">${pct(ret,2)} overall</div></div>
+    <div class="card"><div class="mute small">Cash</div><div class="big">${inr(p.cash,0)}</div></div>
+    <div class="card"><div class="mute small">Open positions</div><div class="big">${p.pos.length}</div><div class="small ${cls(val-inv)}">${inr(val-inv,0)} unrealised</div></div>
+    <div class="card"><div class="mute small">Closed trades</div><div class="big">${p.hist.length}</div><div class="small">${p.hist.length?pct(wins/p.hist.length,0,false)+" winners":"–"}</div></div></div>
+  <div class="card" style="margin-top:12px"><div class="row"><h3>Open positions</h3><span class="sp"></span>
+    <button class="btn sm" id="buyAll">Paper-buy all swing BUY signals</button></div>
+    ${p.pos.length?`<div class="tw"><table class="rc"><thead><tr><th>Stock</th><th class="n">Qty</th><th class="n">Buy</th><th class="n">Now</th><th class="n">P&amp;L</th><th class="n">Stop / Target</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:
+    '<p class="mute small">No open positions. Open any stock and tap "Paper buy", or use the button above. Prices update each time you rerun the analyzer.</p>'}
+  </div>
+  <div class="card" style="margin-top:12px"><h3>Buy any stock</h3><div class="grid g3">
+    <label class="f">Stock<select id="pSym">${S.map(s=>`<option>${s.sym}</option>`).join("")}</select></label>
+    <label class="f">Quantity<input type="number" id="pQty" min="1" value="10"></label>
+    <label class="f">&nbsp;<button class="btn" id="pBuy" style="width:100%">Paper buy at last close</button></label></div></div>
+  ${p.hist.length?`<div class="card" style="margin-top:12px"><h3>Closed trades</h3><div class="tw"><table class="rc"><thead><tr><th>Stock</th><th>Bought</th><th>Sold</th><th class="n">Qty</th><th class="n">Buy</th><th class="n">Sell</th><th class="n">P&amp;L after costs</th></tr></thead><tbody>
+    ${p.hist.slice().reverse().map(h=>`<tr><td><b>${h.sym}</b></td><td>${h.date}</td><td>${h.sold}</td><td class="n">${h.qty}</td><td class="n">${num(h.price)}</td><td class="n">${num(h.sell)}</td><td class="n ${cls(h.pl)}">${inr(h.pl,0)}</td></tr>`).join("")}</tbody></table></div></div>`:""}
+  ${settingsCard()}
+  <div class="row" style="margin-top:12px"><span class="sp"></span><button class="btn sm red" id="pReset">Reset paper account</button></div>`;
+  $("#pBuy").onclick=()=>paperBuy($("#pSym").value,Math.max(1,parseInt($("#pQty").value)||1));
+  $("#buyAll").onclick=()=>{const list=S.filter(s=>s.swing.label==="BUY"||s.swing.label==="STRONG BUY").filter(s=>!paper().pos.some(x=>x.sym===s.sym));
+    if(!list.length){toast("No new swing BUY signals");return}
+    let ok=0;list.forEach(s=>{const before=paper().pos.length;paperBuy(s.sym,Math.max(1,qtyFor(s.swing.entry,s.swing.stop)));if(paper().pos.length>before)ok++});
+    toast(ok===list.length?`Paper bought ${ok} stocks`:`Bought ${ok} of ${list.length}. Not enough paper cash for the rest`)};
+  $("#t-paper").querySelectorAll("[data-sell]").forEach(b=>b.onclick=()=>{const p=paper(),i=p.pos.findIndex(x=>x.id==b.dataset.sell);if(i<0)return;const x=p.pos[i],s=BY[x.sym],px=s?s.price:x.price;
+    const ch=charges(0,px*x.qty).total;p.cash+=px*x.qty-ch;p.hist.push({...x,sell:px,sold:DATA.data_date,pl:(px-x.price)*x.qty-ch-(x.ch||0)});p.pos.splice(i,1);savePaper(p);toast("Sold "+x.sym);renderPaper()});
+  $("#pReset").onclick=()=>{if(confirm("Reset paper account to ₹10,00,000 and delete all paper trades?")){store.set("paper",null);renderPaper()}};
+  bindSettings();cardify();
+}
+function settingsCard(){return `<div class="card" id="settingsCard" style="margin-top:12px"><h3>Your settings</h3><div class="grid g4">
+  <label class="f">Trading capital (₹)<input type="number" id="sCap" value="${settings.capital}"></label>
+  <label class="f">Risk per trade (%)<input type="number" id="sRisk" step="0.25" value="${settings.risk}"></label>
+  <label class="f">Brokerage per order (₹)<input type="number" id="sBr" step="1" value="${settings.brokerage}"></label>
+  <label class="f">DP charge per sell (₹)<input type="number" id="sDp" step="0.01" value="${settings.dp}"></label></div>
+  <p class="tiny mute">Risk per trade is how much of your capital you're willing to lose if a stop-loss hits. 0.5–1% is a common choice. Saved on this device only.</p></div>`}
+function bindSettings(){[["sCap","capital"],["sRisk","risk"],["sBr","brokerage"],["sDp","dp"]].forEach(([id,k])=>{const el=document.getElementById(id);if(el)el.onchange=()=>{settings[k]=parseFloat(el.value)||0;store.set("settings",settings);toast("Settings saved")}})}
+
+/* ---------------------------------------------------------------- real portfolio */
+function renderPort(){
+  const H=store.get("holdings",[]);const t=today();let tInv=0,tVal=0,tCh=0,tTax=0;
+  const rows=H.map((h,i)=>{const s=BY[h.sym],cur=s?s.price:(h.manual||h.price),inv=h.price*h.qty,val=cur*h.qty,gain=val-inv;
+    const ch=charges(0,val).total,tx=taxEst(gain-ch,h.date,t);tInv+=inv;tVal+=val;tCh+=ch;tTax+=tx.tax;
+    return `<tr><td><b ${s?`data-sym="${h.sym}" style="cursor:pointer"`:""}>${esc(h.sym)}</b><div class="tiny mute">${h.date||""}</div></td><td class="n">${h.qty}</td><td class="n">${num(h.price)}</td><td class="n">${num(cur)}</td>
+    <td class="n ${cls(gain)}">${inr(gain,0)}<div class="tiny">${pct(cur/h.price-1)}</div></td>
+    <td>${s?pill(s.swing.label):"–"}</td><td>${s?pill(s.long.label):"–"}</td>
+    <td class="n tiny">${inr(ch,0)}<br>${tx.type} ${inr(tx.tax,0)}</td><td><button class="btn sm ghost" data-del="${i}">Remove</button></td></tr>`}).join("");
+  const net=tVal-tInv-tCh-tTax;
+  $("#t-port").innerHTML=`
+  <h2>My portfolio</h2>
+  <div class="grid g4"><div class="card"><div class="mute small">Invested</div><div class="big">${inr(tInv,0)}</div></div>
+    <div class="card"><div class="mute small">Current value</div><div class="big">${inr(tVal,0)}</div><div class="small ${cls(tVal-tInv)}">${inr(tVal-tInv,0)} (${tInv?pct(tVal/tInv-1):"–"})</div></div>
+    <div class="card"><div class="mute small">If you sold everything today</div><div class="small">Charges ≈ ${inr(tCh,0)}<br>Tax ≈ ${inr(tTax,0)}</div></div>
+    <div class="card"><div class="mute small">Net gain after costs & tax</div><div class="big ${cls(net)}">${inr(net,0)}</div></div></div>
+  <div class="card" style="margin-top:12px"><h3>Holdings</h3>
+    ${H.length?`<div class="tw"><table class="rc"><thead><tr><th>Stock</th><th class="n">Qty</th><th class="n">Avg buy</th><th class="n">Now</th><th class="n">P&amp;L</th><th>Swing</th><th>Long term</th><th class="n">Sell costs / tax</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+    :'<p class="mute small">Add the stocks you actually own to see P&amp;L, the current signal for each, and what you\'d pay in charges and tax if you sold today.</p>'}
+    ${H.some(h=>{const s=BY[h.sym];return s&&(s.long.label==="SELL / EXIT"||s.swing.label==="SELL / EXIT")})?'<div class="banner warn small" style="margin-top:10px">Some of your holdings have a SELL / EXIT label. Open them to see why before deciding anything.</div>':""}
+  </div>
+  <div class="card" style="margin-top:12px"><h3>Add a holding</h3><div class="grid g4">
+    <label class="f">Stock (NSE symbol)<input type="text" id="hSym" list="symList" placeholder="e.g. TCS" autocapitalize="characters"></label>
+    <label class="f">Quantity<input type="number" id="hQty" min="1"></label>
+    <label class="f">Average buy price (₹)<input type="number" id="hPrice" step="0.05"></label>
+    <label class="f">Buy date<input type="date" id="hDate" value="${t}"></label></div>
+    <datalist id="symList">${S.map(s=>`<option value="${s.sym}">${esc(s.name)}</option>`).join("")}</datalist>
+    <div class="row" style="margin-top:10px"><button class="btn" id="hAdd">Add holding</button><span class="tiny mute">Stocks outside the Nifty 50 are allowed, but their price won't update.</span></div></div>
+  <div class="card" style="margin-top:12px"><h3>How charges & tax are estimated</h3><div class="small mute">
+    Equity delivery on NSE: STT 0.1% on buy and sell · exchange fee 0.00297% · SEBI fee ₹10/crore · stamp duty 0.015% on buy · GST 18% on brokerage + exchange + SEBI fees · DP charge per sell (set in Paper trade → settings).<br>
+    Tax: held ≤ 12 months = STCG 20%; held &gt; 12 months = LTCG 12.5% on gains above ₹1.25 lakh per year, plus 4% cess. The ₹1.25 lakh exemption is applied per holding here, but really it applies once across all your gains in a year. This is a rough estimate. Check with a CA for filing.</div></div>
+  <div class="row" style="margin-top:12px"><button class="btn sm ghost" id="hExport">Export holdings</button><label class="btn sm ghost" style="display:inline-block">Import<input type="file" id="hImport" accept=".json" class="hide"></label></div>`;
+  $("#hAdd").onclick=()=>{const sym=$("#hSym").value.trim().toUpperCase(),qty=parseFloat($("#hQty").value),price=parseFloat($("#hPrice").value),date=$("#hDate").value;
+    if(!sym||!(qty>0)||!(price>0)){toast("Enter symbol, quantity and price");return}
+    const H=store.get("holdings",[]);H.push({sym,qty,price,date});store.set("holdings",H);toast("Added "+sym);renderPort()};
+  $("#t-port").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const H=store.get("holdings",[]);if(confirm("Remove "+H[b.dataset.del].sym+"?")){H.splice(b.dataset.del,1);store.set("holdings",H);renderPort()}});
+  $("#hExport").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({holdings:store.get("holdings",[]),paper:paper(),settings},null,1)],{type:"application/json"}));a.download="nifty-analyzer-backup.json";a.click()};
+  cardify();
+  $("#hImport").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const j=JSON.parse(t);if(j.holdings)store.set("holdings",j.holdings);if(j.paper)store.set("paper",j.paper);if(j.settings){Object.assign(settings,j.settings);store.set("settings",settings)}toast("Imported");renderPort()}catch(err){toast("Not a valid backup file")}})};
+}
+
+/* ---------------------------------------------------------------- guide */
+function renderGuide(){
+  $("#t-guide").innerHTML=`<h2>How to use this</h2>
+  <div class="grid g2">
+  <div class="card"><h3>What the labels mean</h3>
+    <p>${pill("STRONG BUY")} Score 72+. Rules strongly favour buying.</p><p>${pill("BUY")} Score 58–71. Rules favour buying.</p>
+    <p>${pill("HOLD / WAIT")} Score 42–57. Don't buy yet. If you own it, hold.</p><p>${pill("AVOID")} Score 28–41. Don't buy.</p><p>${pill("SELL / EXIT")} Below 28. Don't buy. If you own it, consider exiting.</p></div>
+  <div class="card"><h3>How the scores are built</h3>
+    <p class="small"><b>Swing (0–100):</b> 12-month momentum rank vs other Nifty 50 stocks (30), trend: price vs 50/200-day averages (30), MACD momentum (15), RSI not overbought (10), breakout + volume (15), minus 10 if the overall market is weak.</p>
+    <p class="small"><b>Long term (0–100):</b> momentum rank (30) + long-term trend (30) + fundamentals (40): return on equity, profit and revenue growth, margins, debt, and P/E vs sector peers.</p>
+    <p class="small mute">Momentum is used because it's one of the most widely documented stock-market effects worldwide. My first version used other rules, and they had no edge in testing, so I replaced them.</p></div>
+  <div class="card"><h3>A sensible routine</h3><ol class="small" style="padding-left:18px;margin:0">
+    <li>Check <b>Market mood</b> first. In a BEARISH market, most buy signals fail more often.</li>
+    <li>Open a BUY / STRONG BUY stock and read the <b>Why</b> list. Don't just trust the label.</li>
+    <li>For swing trades, place the <b>stop-loss</b> at the same time as you buy (GTT/SL order at your broker).</li>
+    <li>Keep each trade's risk to about 1% of capital. Ten losses in a row would then cost about 10%, not everything.</li>
+    <li>Practise in <b>Paper trade</b> for a few weeks before using real money.</li>
+    <li>Rerun the analyzer after market close (3:30 PM IST) for fresh signals.</li></ol></div>
+  <div class="card"><h3>Read this before investing</h3><ul class="why small">
+    <li class="n">The signals don't predict the future. In 5 years of testing, the edge was small, and trading them did not beat simply holding all 50 stocks. See Track record.</li>
+    <li class="n">Data is end-of-day and can be wrong or delayed. Always check the price at your broker before you trade.</li>
+    <li class="n">This isn't personal advice and doesn't know your goals, income or other investments. A SEBI-registered adviser can give advice for your situation.</li>
+    <li class="z">For most people, the evidence favours regular, long-term investing in a diversified fund (for example, a Nifty 50 index fund via SIP) over frequent trading.</li></ul></div>
+  </div>
+  <div class="card" style="margin-top:12px"><h3>Install as an app</h3><div class="small">
+    <p><b>iPhone / iPad (Safari):</b> tap Share → <b>Add to Home Screen</b>.</p>
+    <p><b>Android (Chrome):</b> tap ⋮ → <b>Install app</b> (or Add to Home screen).</p>
+    <p><b>Mac:</b> Safari → File → <b>Add to Dock</b>, or Chrome → ⋮ → Cast, save and share → <b>Install page as app</b>.</p></div></div>
+  <div class="card" style="margin-top:12px"><h3>Updates</h3><p class="small">The data refreshes automatically every weekday evening after market close (around 5 PM IST). Pull down or reopen the app to see the latest.</p>
+  <p class="tiny mute">Generated ${esc(DATA.generated)}. Paper trades, holdings and settings are saved on each device separately (your phone and Mac don't sync). Use Export / Import in Portfolio to move them between devices.</p></div>`;
+}
+
+/* ---------------------------------------------------------------- boot */
+if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+const first=(location.hash||"").slice(1);
+show(TABS.some(([k])=>k===first)?first:(store.get("tab","market")||"market"));
+</script>
+</body>
+</html>
