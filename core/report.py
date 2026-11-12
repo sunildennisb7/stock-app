@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from . import backtest, data, funds, signals
+from . import alerts, backtest, data, funds, signals
 from .indicators import add_indicators
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -56,7 +56,8 @@ def _dump(obj) -> str:
     return json.dumps(obj, separators=(",", ":"), allow_nan=False)
 
 
-def build(refresh: bool = False, log=print, with_funds: bool = True) -> Path:
+def build(refresh: bool = False, log=print, with_funds: bool = True, mode: str = "plain") -> Path:
+    """mode: "plain" (just build), "evening" (also send evening alerts), "midday" (1:30 PM buy list + push)."""
     log("1/6  Getting Nifty 500 + ETF lists...")
     uni = data.get_universe(refresh)
     uni = uni[~uni["sym"].str.contains("DUMMY", case=False)]
@@ -64,6 +65,8 @@ def build(refresh: bool = False, log=print, with_funds: bool = True) -> Path:
     log("2/6  Downloading ~6 years of daily prices for ~550 symbols...")
     allsyms = uni["yf"].tolist() + list(data.INDICES) + list(data.SECTORS)
     prices = data.get_prices(allsyms, refresh)
+    if mode == "midday" or alerts.now_ist().hour < 16:
+        alerts.drop_today(prices)  # market still open: use completed days only
     nse_filled = data.fill_gaps_from_nse(prices, log)
     nifty = prices["^NSEI"]
     data_day = nifty.index[-1]
@@ -144,7 +147,9 @@ def build(refresh: bool = False, log=print, with_funds: bool = True) -> Path:
             "pe": _r(metrics.get("pe"), 1), "roe": _r(metrics.get("roe"), 3),
             "mc": _r(metrics["mcap"] / 1e7, 0) if metrics.get("mcap") else None,
             "v": _r(float((d["Close"] * d["Volume"]).iloc[-20:].mean()) / 1e7, 2),  # avg daily traded value, ₹ Cr
-            **({"od": d.index[-1].strftime("%d %b")} if d.index[-1] < data_day else {}),  # price older than the rest
+            **({"od": d.index[-1].strftime("%d %b")} if d.index[-1] < data_day else {}),
+            "zl": _r(max(float(last["SMA50"]), entry * 0.95) if last["SMA50"] < entry else entry * 0.97),
+            "zh": _r(entry), "rv": _r(float(last["SMA200"]) * 0.97),  # price older than the rest
         })
         detail = {
             "s": sym, "perf": perf, "rsi": _r(last["RSI"], 1), "sma50": _r(last["SMA50"]), "sma200": _r(last["SMA200"]),
@@ -237,6 +242,15 @@ def build(refresh: bool = False, log=print, with_funds: bool = True) -> Path:
         "nse_filled": nse_filled,
         "labels": LORDER, "market": market, "items": items, "hit": hit, "backtest": bt, "funds": fund_info,
     }
+    if mode == "evening":
+        log("     sending evening alerts...")
+        alerts.evening(payload, log)
+    if mode == "midday":
+        log("     building today's buy list from live prices...")
+        payload["midday"] = alerts.midday(payload, log)
+    else:
+        payload["midday"] = alerts.load_state().get("midday")
+    payload["vapid"] = (ROOT / "web" / "vapid_public.txt").read_text().strip() if (ROOT / "web" / "vapid_public.txt").exists() else None
     blob = _dump(payload).replace("</", "<\\/")
     (OUT_DIR / "index.html").write_text(TEMPLATE.read_text().replace("/*__DATA__*/null", blob))
     for f in (ROOT / "web" / "static").iterdir():

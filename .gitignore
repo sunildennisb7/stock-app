@@ -6,3 +6,4 @@ output/
 cache/*
 !cache/ind_*.csv
 .claude/
+.secrets/

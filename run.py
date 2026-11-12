@@ -22,9 +22,12 @@ def main() -> int:
     ap.add_argument("--refresh", action="store_true", help="ignore cache and download fresh prices")
     ap.add_argument("--no-open", action="store_true", help="build only, don't start the local viewer")
     ap.add_argument("--no-funds", action="store_true", help="skip mutual fund rankings")
+    ap.add_argument("--notify", action="store_true", help="send evening push alerts (used by the scheduled run)")
+    ap.add_argument("--midday", action="store_true", help="1:30 PM run: today's buy list from live prices + push")
     args = ap.parse_args()
     t = time.time()
-    build(refresh=args.refresh, with_funds=not args.no_funds)
+    mode = "midday" if args.midday else "evening" if args.notify else "plain"
+    build(refresh=args.refresh, with_funds=not args.no_funds, mode=mode)
     print(f"\nDone in {time.time() - t:.0f}s. App files are in {OUT_DIR}")
     if args.no_open:
         return 0

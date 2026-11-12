@@ -3,23 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#f4f6fa">
 <title>Market Analyzer India</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Market India">
+<script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("n50.theme"))||"light"}catch(e){}document.documentElement.dataset.theme=t})();</script>
 <style>
-:root{
+:root{color-scheme:light;
   --bg:#f4f6fa;--card:#fff;--ink:#0f172a;--mute:#64748b;--line:#e2e8f0;--soft:#f1f5f9;
   --accent:#2563eb;--sb:#047857;--b:#16a34a;--h:#b45309;--a:#ea580c;--s:#dc2626;
   --sb-bg:#d1fae5;--b-bg:#dcfce7;--h-bg:#fef3c7;--a-bg:#ffedd5;--s-bg:#fee2e2;
   --up:#16a34a;--down:#dc2626;--radius:14px;--shadow:0 1px 2px rgba(15,23,42,.06),0 4px 16px rgba(15,23,42,.05);
 }
-@media (prefers-color-scheme:dark){:root{
+:root[data-theme=dark]{color-scheme:dark;
+  --bg:#0b1120;--card:#131c2e;--ink:#e2e8f0;--mute:#94a3b8;--line:#22304a;--soft:#1a2539;
+  --accent:#60a5fa;--sb:#34d399;--b:#4ade80;--h:#fbbf24;--a:#fb923c;--s:#f87171;
+  --sb-bg:#064e3b;--b-bg:#14532d;--h-bg:#78350f;--a-bg:#7c2d12;--s-bg:#7f1d1d;
+  --up:#4ade80;--down:#f87171;--shadow:none;}
+@media (prefers-color-scheme:dark){:root[data-theme=auto]{color-scheme:dark;
   --bg:#0b1120;--card:#131c2e;--ink:#e2e8f0;--mute:#94a3b8;--line:#22304a;--soft:#1a2539;
   --accent:#60a5fa;--sb:#34d399;--b:#4ade80;--h:#fbbf24;--a:#fb923c;--s:#f87171;
   --sb-bg:#064e3b;--b-bg:#14532d;--h-bg:#78350f;--a-bg:#7c2d12;--s-bg:#7f1d1d;
@@ -89,6 +95,8 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--soft)}
 .sheet-bg.on{display:flex}
 .sheet{background:var(--bg);width:100%;max-width:880px;max-height:92vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px 14px calc(24px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
 @media (min-width:821px){.sheet-bg{align-items:center}.sheet{border-radius:18px;max-height:88vh;padding:20px}}
+.themeBtn{border:1px solid var(--line);background:var(--card);border-radius:10px;height:36px;padding:0 10px;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;color:var(--ink);flex:none}
+.themeBtn svg{width:18px;height:18px}
 .x{border:0;background:var(--soft);border-radius:99px;width:34px;height:34px;cursor:pointer;font-size:18px;flex:none}
 ul.why{list-style:none;margin:0;padding:0}
 ul.why li{padding:5px 0 5px 24px;position:relative;font-size:14px}
@@ -114,6 +122,7 @@ footer{color:var(--mute);font-size:12px;margin-top:28px;text-align:center}
   .g21{grid-template-columns:1fr}
   header.top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
   .brand{font-size:16px}
+  .themeBtn{margin-left:auto}
   .tools{flex-direction:column;align-items:stretch!important}
   .tools>div{max-width:none!important;width:100%!important}
   .seg{display:flex;width:100%}.seg button{flex:1;padding:7px 6px}
@@ -138,6 +147,7 @@ footer{color:var(--mute);font-size:12px;margin-top:28px;text-align:center}
 <header class="top"><div class="in">
   <div class="brand">Market Analyzer India<small id="asof"></small></div>
   <nav class="tabs" id="tabs"></nav>
+  <button class="themeBtn" id="themeBtn" aria-label="Change theme"></button>
 </div></header>
 
 <main class="wrap">
@@ -193,6 +203,18 @@ const hitKey=u=>u==="all"?"All stocks":u==="etf"?"ETF":u;
 function cardify(){document.querySelectorAll("table.rc").forEach(t=>{const hs=[...t.querySelectorAll("thead th")].map(h=>h.textContent.trim());
   t.querySelectorAll("tbody tr").forEach(r=>[...r.children].forEach((td,i)=>{if(hs[i])td.dataset.l=hs[i]}))})}
 
+/* ================================================================ theme */
+const THEMES={light:{n:"Light",i:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'},
+  dark:{n:"Dark",i:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'},auto:{n:"Auto",i:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>'}};
+function applyTheme(t){document.documentElement.dataset.theme=t;store.set("theme",t);
+  $("#themeBtn").innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${THEMES[t].i}</svg><span>${THEMES[t].n}</span>`;
+  const dark=t==="dark"||(t==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);
+  document.querySelector('meta[name=theme-color]').content=dark?"#0b1120":"#f4f6fa"}
+applyTheme(store.get("theme","light"));
+$("#themeBtn").onclick=()=>{const order=["light","dark","auto"],cur=store.get("theme","light");applyTheme(order[(order.indexOf(cur)+1)%3]);
+  const t=store.get("tab","market");show(t,true);if($("#sheetBg").classList.contains("on"))closeSheet();toast("Theme: "+THEMES[store.get("theme","light")].n)};
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if(store.get("theme","light")==="auto"){applyTheme("auto");show(store.get("tab","market"),true)}});
+
 /* ================================================================ data freshness */
 function istNow(){const d=new Date();return new Date(d.getTime()+(d.getTimezoneOffset()+330)*60000)}
 function prevWeekday(d){const x=new Date(d);do{x.setDate(x.getDate()-1)}while(x.getDay()===0||x.getDay()===6);return x}
@@ -204,6 +226,18 @@ function staleDays(){ // weekdays the app is missing, counting today only after 
 function freshBanner(){const n=staleDays();if(n<1)return"";
   return `<div class="banner warn small" style="margin:6px 0 12px">Prices are from the <b>${DATA.data_date}</b> close. ${n===1?"One trading day":n+" trading days"} may be missing (unless the market was closed for a holiday).
   Always check the <b>live price</b> at your broker before buying: you'll pay the live price, not this one. Use the live price check on any stock to recalculate the plan.</div>`}
+function todayIST(){const d=istNow();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function buyListCard(){const M=DATA.midday;
+  if(!M||M.date!==todayIST()){const n=istNow(),wk=n.getDay()>0&&n.getDay()<6;return wk&&n.getHours()<14?`<div class="card small mute" id="todayCard" style="margin-bottom:12px">Today's buy list (checked against live prices) arrives around <b>1:30 PM IST</b>.</div>`:""}
+  if(M.closed)return `<div class="card small" id="todayCard" style="margin-bottom:12px"><b>Today's buy list:</b> no live prices today, so the market is probably closed for a holiday.</div>`;
+  const sw=M.swing||[],lg=M.long||[];
+  return `<div class="card" id="todayCard" style="margin-bottom:12px;border-color:var(--b)"><div class="row"><h3 style="margin:0">Today's buy list</h3><span class="tag">prices at ${esc(M.at)}</span></div>
+  <p class="tiny mute" style="margin:6px 0 10px">Buy signals that are still within 3% of their signal price and above their stop-loss at mid-day. Check the live price at your broker before you buy.</p>
+  ${sw.length||lg.length?"":'<p class="small">No buy signal is still near its signal price today. Better to wait.</p>'}
+  ${sw.length?`<div class="tw"><table class="rc"><thead><tr><th>Swing</th><th class="n">Price</th><th class="n">vs signal</th><th class="n">Stop-loss</th><th class="n">Target</th></tr></thead><tbody>
+    ${sw.map(p=>`<tr class="click" data-sym="${p.s}"><td><b>${p.s}</b> ${pill(p.lab)}</td><td class="n">${inr(p.live)}</td><td class="n ${cls(p.move)}">${pct(p.move)}</td><td class="n down">${inr(p.stop)}</td><td class="n up">${inr(p.target)}</td></tr>`).join("")}</tbody></table></div>`:""}
+  ${lg.length?`<div class="tw" style="margin-top:8px"><table class="rc"><thead><tr><th>Long term</th><th class="n">Price</th><th class="n">Accumulate zone</th><th class="n">Review below</th></tr></thead><tbody>
+    ${lg.map(p=>`<tr class="click" data-sym="${p.s}"><td><b>${p.s}</b> <span class="pill L-SB">STRONG BUY</span></td><td class="n">${inr(p.live)}</td><td class="n">${inr(p.zl,0)}–${inr(p.zh,0)}</td><td class="n down">${inr(p.rv,0)}</td></tr>`).join("")}</tbody></table></div>`:""}</div>`}
 const PRICE_NOTE=`<span class="tiny mute">Prices are closing prices from ${DATA.data_date}. You buy at the live price at your broker.</span>`;
 
 /* ================================================================ chart */
@@ -271,7 +305,7 @@ function renderMarket(){
   const movers=[...STOCKS].sort((a,b)=>b.chg-a.chg);
   const mv=list=>list.map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b> <span class="tag">${s.cap}</span></td><td class="n">${inr(s.price)}</td><td class="n ${cls(s.chg)}">${pct(s.chg,2)}</td></tr>`).join("");
   const top=(k,list)=>[...list].sort((a,b)=>b[k].score-a[k].score).slice(0,6).map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b> <span class="tag">${s.cap}</span><div class="tiny mute">${esc(s.ind)}</div></td><td>${pill(s[k].label)}</td><td class="n score">${s[k].score}</td></tr>`).join("");
-  $("#t-market").innerHTML=`${freshBanner()}
+  $("#t-market").innerHTML=`${freshBanner()}${buyListCard()}
   <div class="banner ${rc}" style="margin-top:6px"><div style="font-size:18px">Market mood: ${m.regime}</div><div style="font-weight:500;margin-top:4px">${esc(m.regime_text)}</div></div>
   <div class="grid g5" style="margin-top:12px">${card("Nifty 50",ix["Nifty 50"])}${card("Nifty Bank",ix["Nifty Bank"])}${card("Midcap 150",ix["Midcap 150"])}${card("Smallcap 250",ix["Smallcap 250"])}${card("India VIX",ix["India VIX"],true)}</div>
   <div class="grid g21" style="margin-top:12px">
@@ -322,7 +356,7 @@ function renderPicks(){
   const counts=Object.fromEntries(LORDER.map(l=>[l,base.filter(s=>s[k].label===l).length]));
   const sb=base.filter(s=>s[k].label==="STRONG BUY").sort(sorters.score);
   const shown=list.slice(0,picksLimit);
-  $("#t-picks").innerHTML=`${freshBanner()}
+  $("#t-picks").innerHTML=`${freshBanner()}${buyListCard()}
   <div class="row" style="margin-top:6px"><div class="seg" id="mode"><button data-m="long" class="${k==="long"?"on":""}">Long term<div class="tiny mute" style="font-weight:500">months–years</div></button><button data-m="swing" class="${k==="swing"?"on":""}">Swing<div class="tiny mute" style="font-weight:500">days–weeks</div></button></div></div>
   <div class="chips" id="uni" style="margin-top:10px">${UNIS.map(([u,n])=>`<button data-u="${u}" class="${st.uni===u?"on":""}">${n} <span class="mute">${S.filter(s=>uniFilter(u,s)).length}</span></button>`).join("")}</div>
   <div class="card" style="margin-top:12px">
@@ -652,9 +686,9 @@ function renderPort(){
 const learnState=Object.assign({sec:"record",uni:"all"},store.get("learn",{}));
 function renderLearn(){
   const st=learnState;store.set("learn",st);
-  $("#t-learn").innerHTML=`<div class="seg" id="lsec" style="margin-top:6px">${[["record","Track record"],["fno","F&O tools"],["guide","Guide"]].map(([k,n])=>`<button data-k="${k}" class="${st.sec===k?"on":""}">${n}</button>`).join("")}</div><div id="lbody"></div>`;
+  $("#t-learn").innerHTML=`<div class="seg" id="lsec" style="margin-top:6px">${[["alerts","Alerts & theme"],["record","Track record"],["fno","F&O tools"],["guide","Guide"]].map(([k,n])=>`<button data-k="${k}" class="${st.sec===k?"on":""}">${n}</button>`).join("")}</div><div id="lbody"></div>`;
   $("#lsec").onclick=e=>{const b=e.target.closest("button");if(b){st.sec=b.dataset.k;renderLearn();cardify()}};
-  ({record:renderRecord,fno:renderFno,guide:renderGuide})[st.sec]();
+  ({alerts:renderAlerts,record:renderRecord,fno:renderFno,guide:renderGuide})[st.sec]();
 }
 function renderRecord(){
   const H=DATA.hit,B=DATA.backtest,st=learnState,key=hitKey(st.uni);
@@ -700,6 +734,57 @@ function renderRecord(){
   ${bt("long","Backtest: holding the top 15 long-term picks, rebalanced monthly")}
   ${bt("swing","Backtest: trading every swing BUY signal")}`;
   $("#runi").onclick=e=>{const b=e.target.closest("button");if(b){st.uni=b.dataset.u;renderLearn();cardify()}};
+}
+
+/* ---------- alerts & theme ---------- */
+function b64u(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+function u8(b64){const p="=".repeat((4-b64.length%4)%4),s=atob((b64+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(s,c=>c.charCodeAt(0))}
+function watchlist(){let w=store.get("watch",null);if(!w){w=[...new Set([...store.get("holdings",[]).filter(h=>h.type!=="fund").map(h=>h.sym),...paper().pos.map(p=>p.sym)])].filter(x=>BY[x]);store.set("watch",w)}return w}
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+async function pushSub(){if(!("serviceWorker" in navigator))return null;const r=await navigator.serviceWorker.getRegistration();return r?r.pushManager.getSubscription():null}
+function setupCode(sub){const j=sub.toJSON();return "MA1."+b64u(new TextEncoder().encode(JSON.stringify({n:store.get("devname",isIOS?"iPhone":/Android/.test(navigator.userAgent)?"Android phone":"Computer"),s:{endpoint:j.endpoint,keys:j.keys},w:watchlist()})))}
+async function renderAlerts(){
+  const supported="serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
+  const perm=supported?Notification.permission:"unsupported";
+  let sub=null;try{sub=await pushSub()}catch(e){}
+  const w=watchlist(),t=store.get("theme","light");
+  $("#lbody").innerHTML=`
+  <h2>Alerts & theme</h2>
+  <div class="card"><h3>Theme</h3><div class="seg" id="thSeg">${["light","dark","auto"].map(k=>`<button data-th="${k}" class="${t===k?"on":""}">${THEMES[k].n}</button>`).join("")}</div>
+    <p class="tiny mute">Auto follows your phone or computer's light/dark setting.</p></div>
+  <div class="card" style="margin-top:12px"><h3>Push notifications</h3>
+    <ul class="why small"><li class="z"><b>1:30 PM IST</b> (market days): today's buy list, checked against live prices.</li>
+    <li class="z"><b>Evening</b> (after the close): daily summary, new STRONG BUYs, market mood changes, and alerts for your watchlist (label changes, stop-loss or target hits).</li></ul>
+    <div id="pushBody" style="margin-top:10px"></div></div>
+  <div class="card" style="margin-top:12px"><h3>My watchlist <span class="tiny mute">${w.length} stocks</span></h3>
+    <div class="row" style="flex-wrap:nowrap"><div style="flex:1"><input type="text" id="wAdd" list="symList" placeholder="Add a symbol, e.g. TCS" autocapitalize="characters"></div><button class="btn" id="wGo">Add</button></div>
+    <div class="row" style="margin-top:10px">${w.map(x=>`<span class="pill" style="background:var(--soft);color:var(--ink)">${x} <button data-wrm="${x}" style="border:0;background:none;cursor:pointer;color:var(--mute);padding:0 0 0 4px">✕</button></span>`).join("")||'<span class="small mute">Empty. Add stocks you own or are watching.</span>'}</div>
+    ${sub?'<p class="tiny mute">After changing your watchlist, copy the new setup code below and send it to Claude so your alerts use the new list.</p>':""}</div>`;
+  $("#thSeg").onclick=e=>{const b=e.target.closest("button");if(b){applyTheme(b.dataset.th);renderLearn();cardify()}};
+  const addW=()=>{const x=$("#wAdd").value.trim().toUpperCase();if(!BY[x]){toast("Pick a symbol from the list");return}const l=watchlist();if(!l.includes(x)){l.push(x);store.set("watch",l)}renderLearn()};
+  $("#wGo").onclick=addW;$("#wAdd").onkeydown=e=>{if(e.key==="Enter")addW()};
+  $("#lbody").querySelectorAll("[data-wrm]").forEach(b=>b.onclick=()=>{store.set("watch",watchlist().filter(x=>x!==b.dataset.wrm));renderLearn()});
+  const pb=$("#pushBody");
+  if(!supported){pb.innerHTML=isIOS&&!standalone?`<div class="banner warn small">On iPhone, notifications only work from the installed app: open this page in <b>Safari</b>, tap Share → <b>Add to Home Screen</b>, then open it from the new icon and come back here. Needs iOS 16.4 or newer.</div>`:`<div class="banner warn small">This browser doesn't support push notifications. Try Chrome, Edge or Safari, or install the app to your home screen.</div>`;return}
+  if(location.protocol!=="https:"&&location.hostname!=="localhost"){pb.innerHTML='<p class="small mute">Open the app from its https link to enable notifications.</p>';return}
+  if(perm==="denied"){pb.innerHTML='<div class="banner warn small">Notifications are blocked for this app. Allow them in your phone or browser settings (Settings → Notifications), then come back.</div>';return}
+  if(!sub){pb.innerHTML=`<label class="f" style="max-width:320px">Name for this device<input type="text" id="devName" value="${esc(store.get("devname",isIOS?"iPhone":/Android/.test(navigator.userAgent)?"Android phone":"Computer"))}"></label>
+    <button class="btn" id="pushOn" style="margin-top:10px">Enable notifications</button>`;
+    $("#pushOn").onclick=async()=>{try{store.set("devname",$("#devName").value.trim()||"Device");
+      const p=await Notification.requestPermission();if(p!=="granted"){toast("Permission not given");renderLearn();return}
+      const reg=await navigator.serviceWorker.register("sw.js");await navigator.serviceWorker.ready;
+      await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(DATA.vapid)});toast("Notifications enabled");renderLearn()}
+      catch(e){toast("Couldn't enable: "+(e.message||e))}};return}
+  const code=setupCode(sub);
+  pb.innerHTML=`<div class="banner L-B small" style="font-weight:500">Notifications are enabled on this device. <b>One last step:</b> copy the setup code and send it to Claude in your chat, so the daily alerts know where to go.</div>
+    <textarea id="pushCode" readonly style="width:100%;height:90px;margin-top:10px;font:12px ui-monospace,monospace;background:var(--soft);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px">${esc(code)}</textarea>
+    <div class="row" style="margin-top:8px"><button class="btn" id="pCopy">Copy setup code</button>${navigator.share?'<button class="btn ghost" id="pShare">Share…</button>':""}<button class="btn ghost" id="pTest">Test on this device</button><span class="sp"></span><button class="btn sm red" id="pOff">Turn off</button></div>
+    <p class="tiny mute">The code only lets this app send notifications to this device; it contains no personal data except your watchlist symbols.</p>`;
+  $("#pCopy").onclick=async()=>{try{await navigator.clipboard.writeText(code);toast("Copied. Paste it to Claude.")}catch(e){$("#pushCode").select();document.execCommand("copy");toast("Copied")}};
+  $("#pShare")&&($("#pShare").onclick=()=>navigator.share({text:code}).catch(()=>{}));
+  $("#pTest").onclick=async()=>{const r=await navigator.serviceWorker.ready;r.showNotification("Test notification",{body:"Notifications work on this device. Your daily alerts will look like this.",icon:"icon-192.png",tag:"test"});};
+  $("#pOff").onclick=async()=>{if(confirm("Turn off notifications on this device?")){await sub.unsubscribe();toast("Notifications turned off");renderLearn()}};
 }
 
 /* ---------- F&O tools ---------- */
@@ -830,9 +915,10 @@ function renderGuide(){
 }
 
 /* ================================================================ boot */
-if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 const first=(location.hash||"").slice(1);
-show(TABS.some(([k])=>k===first)?first:(store.get("tab","market")||"market"));
+if(first==="today"){show("market");setTimeout(()=>$("#todayCard")?.scrollIntoView({behavior:"smooth"}),100)}
+else show(TABS.some(([k])=>k===first)?first:(store.get("tab","market")||"market"));
 </script>
 </body>
 </html>

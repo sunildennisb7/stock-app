@@ -20,6 +20,15 @@ To install it: on iPhone, tap Share → Add to Home Screen. On Android, use Chro
 A GitHub Action (`.github/workflows/update.yml`) reruns the analysis at about 6:45 PM and 9:30 PM IST every weekday and republishes the site.
 For a manual refresh, go to GitHub → Actions → **Daily update** → **Run workflow**.
 
+## Push notifications
+
+- **1:30 PM IST** (market days): today's buy list, with buy signals re-checked against live prices.
+- **Evening**: daily summary, new STRONG BUYs, market mood changes, and watchlist alerts.
+
+Setup: in the app open **Learn → Alerts & theme → Enable notifications**, then send the setup code to Claude.
+It gets added to the `PUSH_SUBSCRIBERS` repository secret. The push signing key is the `VAPID_PRIVATE_KEY` secret
+(local copy in `.secrets/`, which is never committed). On iPhone, add the app to the Home Screen first (iOS 16.4+).
+
 ## Run it locally (optional)
 
 ```bash

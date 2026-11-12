@@ -2,6 +2,7 @@ name: Daily update
 
 on:
   schedule:
+    - cron: "45 7 * * 1-5"    # 1:15 PM IST: today's buy list from live prices (+ push at ~1:30 PM)
     - cron: "15 13 * * 1-5"   # 6:45 PM IST, Monday-Friday (after NSE publishes end-of-day files)
     - cron: "0 16 * * 1-5"    # 9:30 PM IST, second run in case Yahoo's data arrived late
   workflow_dispatch:           # "Run workflow" button for a manual refresh
@@ -35,13 +36,24 @@ jobs:
             cache/fundamentals.json
             cache/fund_navs.pkl
             cache/amfi_navall.txt
+            cache/alert_state.json
           key: data-${{ github.run_id }}
           restore-keys: data-
       - run: pip install -r requirements.txt
       - name: Analyse market
         env:
           TZ: Asia/Kolkata
-        run: python run.py --refresh --no-open
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          PUSH_SUBSCRIBERS: ${{ secrets.PUSH_SUBSCRIBERS }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          if [ "$SCHEDULE" = "45 7 * * 1-5" ]; then
+            python run.py --refresh --no-open --midday
+          elif [ -n "$SCHEDULE" ]; then
+            python run.py --refresh --no-open --notify
+          else
+            python run.py --refresh --no-open
+          fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: output
