@@ -7,6 +7,9 @@ An installable app (phone and desktop) that analyses the Indian market every eve
 - **Funds**: ~1,200 direct-plan mutual funds ranked within 23 categories (returns, risk, worst fall, Sharpe), plus an SIP calculator
 - **Paper**: practise with ₹10 lakh of fake money
 - **Portfolio**: your real stocks, ETFs and mutual funds, P&L, Indian charges and an STCG/LTCG estimate
+- **Watchlist & price alerts**: tap ☆ on any stock; set "alert if above/below ₹X" levels (checked ~1:15 PM and at close)
+- **Screens**: Near 52-week high, Quality at fair price, Pullback in uptrend, Dividend payers, Low-debt growers, Steady movers
+- **Extras**: global search (stocks, ETFs, funds), 1-year/5-year charts, share a stock, portfolio health & allocation, SIP goal planner
 - **Learn**: track record of every signal (by company size), F&O payoff and risk calculators (no F&O signals), guide
 
 ## Open the app

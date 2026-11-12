@@ -83,6 +83,33 @@ def send(sub: dict, title: str, body: str, url: str = "", tag: str = "daily", lo
         return True
 
 
+def price_alerts(sub: dict, prices: dict[str, float], prev_close: dict[str, float], st: dict, when: str) -> list[str]:
+    """Custom alerts: sub["pa"] = [{"s": "RELIANCE", "above": 1400}, {"s": "TCS", "below": 2400}].
+    Fires once when the level is crossed; re-arms after the price moves back to the other side."""
+    fired = st.setdefault("pa_fired", {})
+    key0 = sub["s"]["endpoint"][-24:]
+    out = []
+    for a in sub.get("pa", []):
+        sym = a.get("s")
+        px = prices.get(sym)
+        if px is None:
+            continue
+        for side in ("above", "below"):
+            lvl = a.get(side)
+            if not lvl:
+                continue
+            k = f"{key0}|{sym}|{side}|{lvl}"
+            hit = px >= lvl if side == "above" else px <= lvl
+            if hit and not fired.get(k):
+                pc = prev_close.get(sym)
+                chg = f" ({px / pc - 1:+.1%} today)" if pc else ""
+                out.append(f"{sym} is {'above' if side == 'above' else 'below'} ₹{lvl:,.2f}: now ₹{px:,.2f}{chg} [{when}]")
+                fired[k] = True
+            elif not hit and fired.get(k):
+                fired.pop(k)  # re-arm
+    return out
+
+
 def _names(lst, k=6):
     names = [x["s"] for x in lst[:k]]
     return ", ".join(names) + (f" +{len(lst) - k} more" if len(lst) > k else "")
@@ -136,6 +163,9 @@ def evening(payload: dict, log=print) -> None:
                     events.append(f"{sym} closed ₹{c[2]:,.2f}, below its stop-loss level ₹{p[3]:,.2f}")
                 elif p[4] and c[2] >= p[4]:
                     events.append(f"{sym} closed ₹{c[2]:,.2f}, reached its target ₹{p[4]:,.2f}")
+        closes = {k: v[2] for k, v in cur.items()}
+        prevc = {k: v[2] for k, v in prev.items()} if prev else {}
+        events += price_alerts(sub, closes, prevc, st, "close")
         if ok and events:
             ok = send(sub, f"Watchlist: {len(events)} alert{'s' if len(events) > 1 else ''}", " · ".join(events)[:600],
                       "#port", "watch", log)
@@ -180,7 +210,9 @@ def midday(payload: dict, log=print, send_push: bool = True) -> dict:
     stocks = [x for x in items if x["k"] == "s"]  # the buy list is stocks only
     sw_c = sorted([x for x in stocks if x["sl"] <= 1], key=lambda x: -x["ss"])[:40]
     lt_c = sorted([x for x in stocks if x["ll"] == 0], key=lambda x: -x["ls"])[:40]
-    syms = sorted({x["s"] for x in sw_c + lt_c})
+    subs_all = subscribers()
+    alert_syms = {a["s"] for sub in subs_all for a in sub.get("pa", []) if a.get("s")}
+    syms = sorted({x["s"] for x in sw_c + lt_c} | alert_syms)
     live, at = fetch_live(syms)
     if not live:
         log("     no intraday prices for today (market holiday?): no buy list")
@@ -208,6 +240,12 @@ def midday(payload: dict, log=print, send_push: bool = True) -> dict:
     swing, longp = swing[:8], longp[:8]
     res = {"date": today, "at": at, "swing": swing, "long": longp, "checked": len(syms)}
     log(f"     buy list at {at}: {len(swing)} swing, {len(longp)} long-term (checked {len(syms)})")
+    if send_push and alert_syms:
+        closes = {x["s"]: x["p"] for x in items}
+        for sub in subs_all:
+            ev = price_alerts(sub, live, closes, st, at or "mid-day")
+            if ev:
+                send(sub, f"Price alert{'s' if len(ev) > 1 else ''}", " · ".join(ev)[:600], "#port", "price", log)
     if send_push and st.get("midday_sent") != today:
         if swing or longp:
             title = f"Buy list for today ({at} prices)"

@@ -149,7 +149,12 @@ def build(refresh: bool = False, log=print, with_funds: bool = True, mode: str =
             "v": _r(float((d["Close"] * d["Volume"]).iloc[-20:].mean()) / 1e7, 2),  # avg daily traded value, ₹ Cr
             **({"od": d.index[-1].strftime("%d %b")} if d.index[-1] < data_day else {}),
             "zl": _r(max(float(last["SMA50"]), entry * 0.95) if last["SMA50"] < entry else entry * 0.97),
-            "zh": _r(entry), "rv": _r(float(last["SMA200"]) * 0.97),  # price older than the rest
+            "zh": _r(entry), "rv": _r(float(last["SMA200"]) * 0.97),
+            "h52": _r(entry / float(last["High252"]) - 1, 3) if last["High252"] == last["High252"] else None,  # vs 52-wk high
+            "dy": _r((metrics.get("dy") or 0) if (metrics.get("dy") or 0) > 1 else (metrics.get("dy") or 0) * 100, 2) if metrics.get("dy") else None,
+            "a2": 1 if entry > float(last["SMA200"]) else 0, "vo": _r(last["Vol252"], 3),
+            "de": _r(metrics["de"] / 100, 2) if metrics.get("de") is not None else None,
+            "eg": _r(metrics.get("eg"), 3),  # price older than the rest
         })
         detail = {
             "s": sym, "perf": perf, "rsi": _r(last["RSI"], 1), "sma50": _r(last["SMA50"]), "sma200": _r(last["SMA200"]),
@@ -168,6 +173,8 @@ def build(refresh: bool = False, log=print, with_funds: bool = True, mode: str =
                      "zone_hi": _r(entry), "review": _r(float(last["SMA200"]) * 0.97)},
             "metrics": {k: _r(v, 4) for k, v in metrics.items()},
             "chart": _chart(d),
+            "chart5": (lambda w: {"d": [x.strftime("%Y-%m-%d") for x in w.index], "c": [_r(v) for v in w["Close"]],
+                                  "b": [_r(v) for v in w["SMA200"]]})(d[["Close", "SMA200"]].iloc[-1260:].groupby(pd.Grouper(freq="W-FRI")).tail(1).dropna(subset=["Close"])),
         }
         (det_dir / f"{sym}.json").write_text(_dump(detail))
 

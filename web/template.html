@@ -122,7 +122,7 @@ footer{color:var(--mute);font-size:12px;margin-top:28px;text-align:center}
   .g21{grid-template-columns:1fr}
   header.top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
   .brand{font-size:16px}
-  #bellBtn{margin-left:auto}
+  #searchBtn{margin-left:auto}
   .themeBtn span{display:none}
   .tools{flex-direction:column;align-items:stretch!important}
   .tools>div{max-width:none!important;width:100%!important}
@@ -150,6 +150,7 @@ html,body{overflow-x:hidden}
 <header class="top"><div class="in">
   <div class="brand">Market Analyzer India<small id="asof"></small></div>
   <nav class="tabs" id="tabs"></nav>
+  <button class="themeBtn" id="searchBtn" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span></button>
   <button class="themeBtn" id="bellBtn" aria-label="Alerts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span>Alerts</span></button>
   <button class="themeBtn" id="themeBtn" aria-label="Change theme"></button>
 </div></header>
@@ -196,7 +197,7 @@ const isBuy=l=>l==="STRONG BUY"||l==="BUY";
 const S=DATA.items.map(x=>({sym:x.s,name:x.n,ind:x.i,cap:x.c,kind:x.k==="e"?"etf":"stock",price:x.p,chg:x.ch,
   perf:{w1:x.w1,m1:x.m1,m3:x.m3,y1:x.y1},rsi:x.r,mom:x.mo,momr:x.mr,val:x.v,
   swing:{score:x.ss,label:LORDER[x.sl],entry:x.e,stop:x.st,target:x.t},long:{score:x.ls,label:LORDER[x.ll]},
-  metrics:{pe:x.pe,roe:x.roe,mcap:x.mc},od:x.od||null}));
+  metrics:{pe:x.pe,roe:x.roe,mcap:x.mc,dy:x.dy,de:x.de,eg:x.eg},od:x.od||null,h52:x.h52,a2:x.a2,vo:x.vo}));
 const BY=Object.fromEntries(S.map(s=>[s.sym,s]));
 const STOCKS=S.filter(s=>s.kind==="stock"),ETFS=S.filter(s=>s.kind==="etf");
 $("#symList").innerHTML=S.map(s=>`<option value="${s.sym}">${esc(s.name)}</option>`).join("");
@@ -216,9 +217,18 @@ function applyTheme(t){document.documentElement.dataset.theme=t;store.set("theme
   document.querySelector('meta[name=theme-color]').content=dark?"#0b1120":"#f4f6fa"}
 applyTheme(store.get("theme","light"));
 $("#bellBtn").onclick=()=>{learnState.sec="alerts";show("learn")};
+$("#searchBtn").onclick=openSearch;
 $("#themeBtn").onclick=()=>{const order=["light","dark","auto"],cur=store.get("theme","light");applyTheme(order[(order.indexOf(cur)+1)%3]);
   const t=store.get("tab","market");show(t,true);if($("#sheetBg").classList.contains("on"))closeSheet();toast("Theme: "+THEMES[store.get("theme","light")].n)};
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if(store.get("theme","light")==="auto"){applyTheme("auto");show(store.get("tab","market"),true)}});
+
+/* ================================================================ watchlist + price alerts (local) */
+function inWatch(sym){return watchlist().includes(sym)}
+function toggleWatch(sym){let w=watchlist();w=w.includes(sym)?w.filter(x=>x!==sym):[...w,sym];store.set("watch",w);toast(w.includes(sym)?`${sym} added to watchlist`:`${sym} removed from watchlist`);return w.includes(sym)}
+function palerts(){return store.get("palerts",{})}
+function syncNeeded(){const sent=store.get("sentSnap",null),sub=store.get("hasSub",false);if(!sub)return false;return JSON.stringify({w:[...watchlist()].sort(),p:palerts()})!==sent}
+function syncBanner(){return syncNeeded()?`<div class="banner warn small" style="margin-bottom:12px">Your watchlist or price alerts changed. Open <a href="#" data-gosync>Alerts</a>, copy the new setup code and send it to Claude so notifications use them.</div>`:""}
+document.addEventListener("click",e=>{const a=e.target.closest("[data-gosync]");if(a){e.preventDefault();learnState.sec="alerts";show("learn")}});
 
 /* ================================================================ data freshness */
 function istNow(){const d=new Date();return new Date(d.getTime()+(d.getTimezoneOffset()+330)*60000)}
@@ -310,7 +320,11 @@ function renderMarket(){
   const movers=[...STOCKS].sort((a,b)=>b.chg-a.chg);
   const mv=list=>list.map(s=>`<tr class="click" data-sym="${s.sym}"><td style="white-space:normal"><b>${s.sym}</b> <span class="tag">${s.cap}</span></td><td class="n">${inr(s.price)}</td><td class="n ${cls(s.chg)}">${pct(s.chg,2)}</td></tr>`).join("");
   const top=(k,list)=>[...list].sort((a,b)=>b[k].score-a[k].score).slice(0,6).map(s=>`<tr class="click" data-sym="${s.sym}"><td style="white-space:normal"><b>${s.sym}</b> <span class="tag">${s.cap}</span><div class="tiny mute">${esc(s.ind)}</div></td><td>${pill(s[k].label)}</td><td class="n score">${s[k].score}</td></tr>`).join("");
-  $("#t-market").innerHTML=`${freshBanner()}<div id="alertPrompt"></div>${buyListCard()}
+  const W=watchlist().map(x=>BY[x]).filter(Boolean);
+  const wcard=W.length?`<div class="card" style="margin-bottom:12px"><div class="row"><h3 style="margin:0">⭐ My watchlist</h3><span class="sp"></span><button class="btn sm ghost" data-gowatch>Edit</button></div>
+    <div class="tw" style="margin-top:8px"><table class="rc"><thead><tr><th>Stock</th><th class="n">Price</th><th class="n">Day</th><th>Long term</th><th>Swing</th></tr></thead><tbody>
+    ${W.map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b> <span class="tag">${s.cap}</span></td><td class="n">${inr(s.price)}</td><td class="n ${cls(s.chg)}">${pct(s.chg,2)}</td><td>${pill(s.long.label)}</td><td>${pill(s.swing.label)}</td></tr>`).join("")}</tbody></table></div></div>`:"";
+  $("#t-market").innerHTML=`${freshBanner()}${syncBanner()}<div id="alertPrompt"></div>${buyListCard()}${wcard}
   <div class="banner ${rc}" style="margin-top:6px"><div style="font-size:18px">Market mood: ${m.regime}</div><div style="font-weight:500;margin-top:4px">${esc(m.regime_text)}</div></div>
   <div class="grid g5" style="margin-top:12px">${card("Nifty 50",ix["Nifty 50"])}${card("Nifty Bank",ix["Nifty Bank"])}${card("Midcap 150",ix["Midcap 150"])}${card("Smallcap 250",ix["Smallcap 250"])}${card("India VIX",ix["India VIX"],true)}</div>
   <div class="grid g21" style="margin-top:12px">
@@ -334,14 +348,25 @@ function renderMarket(){
     <div class="card"><h3>Top gainers today (Nifty 500)</h3><table><tbody>${mv(movers.slice(0,6))}</tbody></table></div>
     <div class="card"><h3>Top losers today (Nifty 500)</h3><table><tbody>${mv(movers.slice(-6).reverse())}</tbody></table></div>
   </div>`;
-  pushSub().then(sub=>{if(sub||store.get("hidePrompt",false))return;const el=$("#alertPrompt");if(!el)return;
+  $("#t-market").querySelector("[data-gowatch]")&&($("#t-market").querySelector("[data-gowatch]").onclick=()=>{learnState.sec="alerts";show("learn")});
+  pushSub().then(sub=>{store.set("hasSub",!!sub);if(sub||store.get("hidePrompt",false))return;const el=$("#alertPrompt");if(!el)return;
     el.innerHTML=`<div class="card row" style="margin-bottom:12px;flex-wrap:nowrap"><div style="flex:1"><b>Get the 1:30 PM buy list on your phone</b><div class="tiny mute">Plus evening summary and watchlist alerts.</div></div><button class="btn sm" id="apGo">Set up</button><button class="x" id="apX" aria-label="Hide">×</button></div>`;
     $("#apGo").onclick=()=>{learnState.sec="alerts";show("learn")};$("#apX").onclick=()=>{store.set("hidePrompt",true);el.innerHTML=""}}).catch(()=>{});
   $("#t-market").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{const [m,u]=b.dataset.go.split(",");Object.assign(picksState,{mode:m,uni:u,filter:"buy",ind:"",q:""});show("picks")});
 }
 
 /* ================================================================ picks */
-const picksState=Object.assign({mode:"long",uni:"all",filter:"buy",q:"",sort:"score",ind:""},store.get("picks2",{}));
+const picksState=Object.assign({mode:"long",uni:"all",filter:"buy",q:"",sort:"score",ind:"",screen:""},store.get("picks2",{}));
+let PE_MED=null;function peMedian(ind){if(!PE_MED){PE_MED={};const g={};STOCKS.forEach(s=>{if(s.metrics.pe>0)(g[s.ind]=g[s.ind]||[]).push(s.metrics.pe)});
+  for(const k in g){const a=g[k].sort((x,y)=>x-y);PE_MED[k]=a[Math.floor(a.length/2)]}}return PE_MED[ind]}
+const SCREENS={
+  high:{n:"Near 52-week high",d:"Within 3% of the 52-week high and above the 200-day average: strong trends.",f:s=>s.h52!=null&&s.h52>=-0.03&&s.a2},
+  quality:{n:"Quality at fair price",d:"Return on equity 15%+ and P/E at or below the sector's typical P/E.",f:s=>s.metrics.roe>=0.15&&s.metrics.pe>0&&s.metrics.pe<=(peMedian(s.ind)||1e9)},
+  pullback:{n:"Pullback in uptrend",d:"Long-term BUY or better, above the 200-day average, but RSI under 45: a dip in a healthy trend.",f:s=>s.a2&&s.rsi<45&&isBuy(s.long.label)},
+  dividend:{n:"Dividend payers",d:"Dividend yield of 2% or more.",f:s=>s.metrics.dy>=2},
+  growth:{n:"Low-debt growers",d:"Profit growing 15%+ a year with debt below half of equity.",f:s=>s.metrics.eg>=0.15&&s.metrics.de!=null&&s.metrics.de<0.5},
+  calm:{n:"Steady movers",d:"Yearly volatility under 25% and above the 200-day average: smoother rides.",f:s=>s.vo!=null&&s.vo<0.25&&s.a2},
+};
 let picksLimit=40;
 function edgeLine(mode,uni,label){
   const t=DATA.hit[mode][hitKey(uni)];if(!t||!t[label])return"";const h=t[label],per=mode==="swing"?"~1 month":"~6 months";
@@ -357,6 +382,7 @@ function renderPicks(){
     if(st.filter==="hold"&&l!=="HOLD / WAIT")return false;
     if(st.filter==="avoid"&&!(l==="AVOID"||l==="SELL / EXIT"))return false;
     if(st.ind&&s.ind!==st.ind)return false;
+    if(st.screen&&SCREENS[st.screen]&&!(s.kind==="stock"&&SCREENS[st.screen].f(s)))return false;
     if(st.q&&!(s.sym+" "+s.name+" "+s.ind).toLowerCase().includes(st.q.toLowerCase()))return false;return true});
   const sorters={score:(a,b)=>b[k].score-a[k].score,chg:(a,b)=>b.chg-a.chg,mom:(a,b)=>(b.mom??-9)-(a.mom??-9),m3:(a,b)=>(b.perf.m3??-9)-(a.perf.m3??-9),
     pe:(a,b)=>(a.metrics.pe>0?a.metrics.pe:1e9)-(b.metrics.pe>0?b.metrics.pe:1e9),mcap:(a,b)=>(b.metrics.mcap||0)-(a.metrics.mcap||0),name:(a,b)=>a.sym.localeCompare(b.sym)};
@@ -375,6 +401,8 @@ function renderPicks(){
     ${DATA.market.regime!=="BULLISH"?`<div class="banner warn small" style="margin-top:10px">Market mood is ${DATA.market.regime}. Consider smaller position sizes.</div>`:""}
     ${st.uni==="Smallcap"?`<div class="banner warn small" style="margin-top:10px">Smallcaps move more and can fall 30–60% in bad markets. Keep position sizes small and check daily traded value (liquidity) before buying.</div>`:""}
   </div>
+  <div class="chips" id="scr" style="margin-top:12px"><span class="tiny mute" style="align-self:center;white-space:nowrap">Screens:</span>${Object.entries(SCREENS).map(([k,v])=>`<button data-sc="${k}" class="${st.screen===k?"on":""}">${v.n}</button>`).join("")}</div>
+  ${st.screen?`<div class="tiny mute" style="margin-top:6px">${esc(SCREENS[st.screen].d)} <a href="#" id="scrX">Clear screen</a></div>`:""}
   <div class="row tools" style="margin-top:12px;gap:10px">
     <div class="chips" id="filt">${[["buy","Buy signals"],["hold","Hold / wait"],["avoid","Avoid / sell"],["all","All"]].map(([f,n])=>`<button data-f="${f}" class="${st.filter===f?"on":""}">${n}</button>`).join("")}</div>
     <span class="sp"></span>
@@ -391,6 +419,8 @@ function renderPicks(){
   $("#mode").onclick=e=>{const b=e.target.closest("button");if(b){st.mode=b.dataset.m;re()}};
   $("#uni").onclick=e=>{const b=e.target.closest("button");if(b){st.uni=b.dataset.u;st.ind="";re()}};
   $("#filt").onclick=e=>{const b=e.target.closest("button");if(b){st.filter=b.dataset.f;re()}};
+  $("#scr").onclick=e=>{const b=e.target.closest("button");if(b){st.screen=st.screen===b.dataset.sc?"":b.dataset.sc;if(st.screen){st.filter="all";if(st.uni==="etf")st.uni="all"}re()}};
+  $("#scrX")&&($("#scrX").onclick=e=>{e.preventDefault();st.screen="";re()});
   $("#q").oninput=e=>{st.q=e.target.value;clearTimeout(renderPicks.t);renderPicks.t=setTimeout(()=>{picksLimit=40;renderPicks();const q=$("#q");q.focus();q.setSelectionRange(q.value.length,q.value.length)},300)};
   $("#ind").onchange=e=>{st.ind=e.target.value;re()};
   $("#sort").onchange=e=>{st.sort=e.target.value;re()};
@@ -425,7 +455,8 @@ async function openStock(sym){
   const sw=D.swing,lt=D.long,m=D.metrics||{},etf=s.kind==="etf";
   const q=qtyFor(sw.entry,sw.stop),buyable=isBuy(sw.label);
   $("#sheet").innerHTML=`
-  <div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div><div class="big">${s.sym} <span class="tag">${s.cap}</span></div><div class="mute small">${esc(s.name)} · ${esc(s.ind)}</div></div><span class="sp"></span><button class="x" id="closeS" aria-label="Close">×</button></div>
+  <div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div><div class="big">${s.sym} <span class="tag">${s.cap}</span></div><div class="mute small">${esc(s.name)} · ${esc(s.ind)}</div></div><span class="sp"></span>
+    <button class="x" id="starS" aria-label="Watchlist" title="Watchlist">${inWatch(s.sym)?"★":"☆"}</button>${navigator.share?'<button class="x" id="shareS" aria-label="Share" title="Share">⇪</button>':""}<button class="x" id="closeS" aria-label="Close">×</button></div>
   <div class="row" style="margin:6px 0 4px"><span class="big">${inr(s.price)}</span><span class="${cls(s.chg)}">${pct(s.chg,2)} on the day</span>
     <span class="tiny mute">1M ${pct(D.perf.m1)} · 3M ${pct(D.perf.m3)} · 1Y ${pct(D.perf.y1)}</span></div>
   <div class="tiny mute" style="margin-bottom:12px">Closing price on ${s.od?`<b class="down">${s.od}</b> (older than the rest: no newer data yet)`:DATA.data_date}. Not a live price.</div>
@@ -437,7 +468,7 @@ async function openStock(sym){
   <div class="card" style="margin-top:12px"><h3>Check against the live price</h3>
     <div class="row" style="flex-wrap:nowrap"><div style="flex:1"><input type="number" id="livePx" step="0.05" inputmode="decimal" placeholder="Type the price you see at your broker"></div><button class="btn" id="liveGo">Check</button></div>
     <div id="liveOut" class="small" style="margin-top:10px"><span class="mute">The plan below uses the ${DATA.data_date} close of ${inr(s.price)}. Enter today's live price to see if the entry still makes sense and get a recalculated stop, target and quantity.</span></div></div>
-  <div class="card" style="margin-top:12px">${priceChart(D.chart)}</div>
+  <div class="card" style="margin-top:12px"><div class="row"><div class="seg" id="rng"><button data-r="1" class="on">1 year</button><button data-r="5">5 years</button></div></div><div id="chartBox" style="margin-top:8px">${priceChart(D.chart)}</div></div>
   <div class="grid g2" style="margin-top:12px">
     <div class="card"><h3>Long-term view</h3>
       <div class="kv"><div><span>Trend + momentum</span><b>${lt.tech}/60</b></div><div><span>Fundamentals</span><b>${lt.fund??"–"}/40</b></div>
@@ -461,8 +492,13 @@ async function openStock(sym){
     <div><span>12m momentum</span><b class="${cls(s.mom)}">${pct(s.mom,0)}</b><span>beats ${pct(s.momr,0,false)} of ${etf?"ETFs":"Nifty 500"}</span></div><div><span>Volatility (1y)</span><b>${pct(D.vol,0,false)}</b></div>
     <div><span>Avg traded / day</span><b>₹${num(s.val,1)} Cr</b></div></div>
     ${etf&&s.ind==="International"?`<p class="tiny mute">International ETFs can trade well above their real value (NAV) when foreign investment limits are hit. Check the iNAV on the fund house's site before buying.</p>`:""}</div>
-  <div class="row" style="margin-top:14px"><button class="btn" data-pbuy>Paper buy ${q||1} @ ${inr(s.price)}</button><button class="btn ghost" data-padd>Add to my portfolio</button></div>`;
+  <div class="row" style="margin-top:14px"><button class="btn" data-pbuy>Paper buy ${q||1} @ ${inr(s.price)}</button><button class="btn ghost" data-padd>Add to my portfolio</button><button class="btn ghost" data-palert>🔔 Price alert</button></div>`;
   $("#closeS").onclick=closeSheet;
+  $("#starS").onclick=()=>{const on=toggleWatch(s.sym);$("#starS").textContent=on?"★":"☆"};
+  $("#shareS")&&($("#shareS").onclick=()=>navigator.share({title:s.sym+" · Market Analyzer India",text:`${s.sym} (${s.name}) ${inr(s.price)} · Long term: ${lt.label} · Swing: ${sw.label}`,url:location.origin+location.pathname+"#stock="+encodeURIComponent(s.sym)}).catch(()=>{}));
+  $("#rng").onclick=e=>{const b=e.target.closest("button");if(!b)return;$("#rng").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+    $("#chartBox").innerHTML=b.dataset.r==="5"&&D.chart5?lineChart([{v:D.chart5.c,c:css("--accent"),n:"Price",w:2},{v:D.chart5.b,c:css("--s"),n:"200-day avg",dash:1}],D.chart5.d,{long:1})+`<div class="legend"><span><i style="background:${css("--accent")}"></i>Price (weekly)</span><span><i style="background:${css("--s")}"></i>200-day avg</span></div>`:priceChart(D.chart)};
+  $("#sheet").querySelector("[data-palert]").onclick=()=>{if(!inWatch(s.sym))toggleWatch(s.sym);closeSheet();learnState.sec="alerts";show("learn");setTimeout(()=>{const el=document.querySelector(`[data-pa="${s.sym}"][data-side="above"]`);el&&(el.scrollIntoView({behavior:"smooth",block:"center"}),el.focus())},150)};
   const goLive=()=>liveCheck(s,D,parseFloat($("#livePx").value));
   $("#liveGo").onclick=goLive;$("#livePx").onkeydown=e=>{if(e.key==="Enter")goLive()};
   $("#sheet").querySelector("[data-set]").onclick=e=>{e.preventDefault();closeSheet();show("paper");setTimeout(()=>$("#settingsCard")?.scrollIntoView({behavior:"smooth"}),50)};
@@ -492,6 +528,19 @@ function liveCheck(s,D,live){
     <div class="banner ${lcls}" style="font-weight:500;padding:10px 12px;margin-top:8px"><b>Long term:</b> ${lv}</div>
     <div class="row" style="margin-top:8px"><button class="btn sm ghost" id="livePaper">Paper buy ${Math.max(1,q)} at ${inr(live)}</button></div>`;
   $("#livePaper").onclick=()=>{paperBuy(s.sym,Math.max(1,q),false,live);closeSheet()};
+}
+function openSearch(){
+  $("#sheet").innerHTML=`<div class="row" style="flex-wrap:nowrap"><div style="flex:1"><input type="search" id="gq" placeholder="Search stocks, ETFs and mutual funds" autocomplete="off"></div><button class="x" id="closeS">×</button></div><div id="gres" style="margin-top:12px"></div>`;
+  $("#sheetBg").classList.add("on");document.body.style.overflow="hidden";$("#closeS").onclick=closeSheet;
+  const run=()=>{const q=$("#gq").value.trim().toLowerCase();if(q.length<2){$("#gres").innerHTML='<p class="small mute">Type at least 2 letters. Try a company name, symbol, sector or fund house.</p>';return}
+    const st=S.filter(s=>(s.sym+" "+s.name+" "+s.ind).toLowerCase().includes(q)).sort((a,b)=>(b.sym.toLowerCase().startsWith(q)?1:0)-(a.sym.toLowerCase().startsWith(q)?1:0)||b.long.score-a.long.score).slice(0,15);
+    const fu=FUNDS?FUNDS.funds.filter(f=>(f.n+" "+f.h+" "+f.cat).toLowerCase().includes(q)).sort((a,b)=>(a.rank??999)-(b.rank??999)).slice(0,10):[];
+    $("#gres").innerHTML=(st.length?`<h3>Stocks & ETFs</h3><div class="tw"><table><tbody>${st.map(s=>`<tr class="click" data-sym="${s.sym}"><td style="white-space:normal"><b>${s.sym}</b> <span class="tag">${s.cap}</span><div class="tiny mute">${esc(s.name)}</div></td><td class="n">${inr(s.price)}</td><td>${pill(s.long.label)}</td></tr>`).join("")}</tbody></table></div>`:"")+
+      (fu.length?`<h3 style="margin-top:12px">Mutual funds</h3><div class="tw"><table><tbody>${fu.map(f=>`<tr class="click" data-fund="${f.c}"><td style="white-space:normal"><b>${esc(f.n)}</b><div class="tiny mute">${esc(f.cat)}${f.rank?` · rank ${f.rank}/${f.of}`:""}</div></td><td class="n ${cls(f.r3)}">${pct(f.r3)}<div class="tiny mute">3Y/yr</div></td></tr>`).join("")}</tbody></table></div>`:"")+
+      (!st.length&&!fu.length?`<p class="small mute">No matches${FUNDS?"":" (funds still loading)"}.</p>`:"");
+    $("#gres").querySelectorAll("[data-fund]").forEach(r=>r.onclick=()=>openFund(+r.dataset.fund))};
+  $("#gq").oninput=run;run();setTimeout(()=>$("#gq").focus(),50);
+  loadFunds().then(()=>{if($("#gq"))run()}).catch(()=>{});
 }
 function closeSheet(){$("#sheetBg").classList.remove("on");document.body.style.overflow=""}
 $("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")closeSheet()});
@@ -555,12 +604,20 @@ function sipFV(monthly,annual,years){const r=Math.pow(1+annual,1/12)-1,n=years*1
 function sipCard(){const s=store.get("sip",{m:10000,y:15,r:12,step:0});return `<div class="card" style="margin-top:12px"><h3>SIP calculator</h3><div class="grid g4">
   <label class="f">Monthly amount (₹)<input type="number" id="sipM" value="${s.m}"></label><label class="f">Years<input type="number" id="sipY" value="${s.y}"></label>
   <label class="f">Expected return (% / yr)<input type="number" id="sipR" step="0.5" value="${s.r}"></label><label class="f">Yearly step-up (%)<input type="number" id="sipS" value="${s.step}"></label></div>
-  <div id="sipOut" style="margin-top:12px"></div><p class="tiny mute">Equity funds have historically returned about 10–14% a year over long periods in India, with big ups and downs on the way. Nothing is guaranteed.</p></div>`}
+  <div id="sipOut" style="margin-top:12px"></div>
+  <h3 style="margin-top:16px">Goal planner</h3><div class="grid g3">
+  <label class="f">Goal amount (₹)<input type="number" id="gAmt" value="${store.get("goal",{a:5000000}).a}"></label><label class="f">In years<input type="number" id="gYrs" value="${store.get("goal",{y:15}).y||15}"></label>
+  <label class="f">Already saved (₹)<input type="number" id="gHave" value="${store.get("goal",{h:0}).h||0}"></label></div><div id="goalOut" style="margin-top:10px"></div>
+  <p class="tiny mute">Equity funds have historically returned about 10–14% a year over long periods in India, with big ups and downs on the way. Nothing is guaranteed.</p></div>`}
 function bindSip(){const f=()=>{const m=+$("#sipM").value||0,y=Math.min(50,+$("#sipY").value||0),r=(+$("#sipR").value||0)/100,step=(+$("#sipS").value||0)/100;store.set("sip",{m,y,r:r*100,step:step*100});
   let bal=0,inv=0,mm=m;const pts=[],yrs=[];const rm=Math.pow(1+r,1/12)-1;for(let i=1;i<=y;i++){for(let k=0;k<12;k++){bal=(bal+mm)*(1+rm);inv+=mm}pts.push(bal);yrs.push(i);mm*=1+step}
   $("#sipOut").innerHTML=`<div class="kv"><div><span>You invest</span><b>${inr(inv,0)}</b></div><div><span>Estimated value</span><b class="up">${inr(bal,0)}</b></div><div><span>Gain</span><b>${inr(bal-inv,0)}</b></div></div>`+
     (y>1?lineChart([{v:pts,c:css("--b"),n:"Value",w:2}],yrs,{xfmt:v=>"Yr "+v,fmt:v=>"₹"+(v>=1e7?num(v/1e7,1)+"Cr":num(v/1e5,1)+"L"),h:200}):"")};
-  ["sipM","sipY","sipR","sipS"].forEach(id=>$("#"+id).oninput=f);f()}
+  ["sipM","sipY","sipR","sipS"].forEach(id=>$("#"+id).oninput=()=>{f();g()});f();
+  const g=()=>{const A=+$("#gAmt").value||0,Y=Math.max(1,+$("#gYrs").value||1),H=+$("#gHave").value||0,r=(+$("#sipR").value||0)/100;store.set("goal",{a:A,y:Y,h:H});
+    const rm=Math.pow(1+r,1/12)-1,n=Y*12,fvHave=H*Math.pow(1+r,Y),need=Math.max(0,A-fvHave),m=rm===0?need/n:need/(((Math.pow(1+rm,n)-1)/rm)*(1+rm));
+    $("#goalOut").innerHTML=`<div class="kv"><div><span>Monthly SIP needed</span><b class="up">${inr(m,0)}</b><span>at ${num(r*100,1)}% a year</span></div><div><span>Your savings grow to</span><b>${inr(fvHave,0)}</b></div><div><span>Total you'd invest</span><b>${inr(m*n+H,0)}</b></div></div>`};
+  ["gAmt","gYrs","gHave"].forEach(id=>$("#"+id).oninput=g);g()}
 
 /* ================================================================ charges & tax */
 function charges(buyVal,sellVal){
@@ -664,6 +721,7 @@ function renderPort(){
     :'<p class="mute small">Add the stocks, ETFs and mutual funds you actually own to see P&amp;L, the current signal for each, and what you\'d pay in charges and tax if you sold today.</p>'}
     ${H.some(h=>{const s=BY[h.sym];return h.type!=="fund"&&s&&(s.long.label==="SELL / EXIT")})?'<div class="banner warn small" style="margin-top:10px">Some holdings have a long-term SELL / EXIT label. Open them to see why before deciding anything.</div>':""}
   </div>
+  ${portAnalytics(H)}
   <div class="card" style="margin-top:12px"><div class="row"><h3>Add a holding</h3><span class="sp"></span><div class="seg" id="htype"><button data-t="stock" class="${isF?"":"on"}">Stock / ETF</button><button data-t="fund" class="${isF?"on":""}">Mutual fund</button></div></div>
     <div class="grid g4" style="margin-top:8px">
     ${isF?`<label class="f" style="grid-column:span 2">Fund name<input type="text" id="hFund" list="fundList" placeholder="Start typing a fund name"></label><datalist id="fundList"></datalist>`
@@ -688,6 +746,28 @@ function renderPort(){
   $("#hExport").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({holdings:store.get("holdings",[]),paper:paper(),settings},null,1)],{type:"application/json"}));a.download="market-analyzer-backup.json";a.click()};
   $("#hImport").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const j=JSON.parse(t);if(j.holdings)store.set("holdings",j.holdings);if(j.paper)store.set("paper",j.paper);if(j.settings){Object.assign(settings,j.settings);store.set("settings",settings)}toast("Imported");renderPort();cardify()}catch(err){toast("Not a valid backup file")}})};
   cardify();
+}
+
+function portAnalytics(H){
+  if(!H.length)return"";const t=today();const rows=H.map(h=>{let cur,sec,cap,lab=null;
+    if(h.type==="fund"){const f=FUNDS&&FUNDS.funds.find(x=>x.c===h.code);cur=f?f.nav:h.price;sec=f?f.cat:"Mutual fund";cap="Mutual funds"}
+    else{const s=BY[h.sym];cur=s?s.price:h.price;sec=s?s.ind:"Other";cap=s?(s.kind==="etf"?"ETFs":s.cap):"Other";lab=s?s.long.label:null}
+    const val=cur*h.qty,inv=h.price*h.qty,days=h.date?(new Date(t)-new Date(h.date))/864e5:0;
+    return {h,val,inv,sec,cap,lab,days,gain:val-inv,cagr:days>=30?Math.pow(val/inv,365/days)-1:null}});
+  const tot=rows.reduce((a,r)=>a+r.val,0)||1;
+  const group=k=>{const g={};rows.forEach(r=>g[r[k]]=(g[r[k]]||0)+r.val);return Object.entries(g).sort((a,b)=>b[1]-a[1])};
+  const bars=list=>list.map(([n,v])=>`<div class="small" style="margin-top:6px">${esc(n)} <b style="float:right">${pct(v/tot,0,false)}</b></div><div class="bar" style="margin-top:3px"><i style="width:${v/tot*100}%;background:var(--accent)"></i></div>`).join("");
+  const warn=[];const big=rows.slice().sort((a,b)=>b.val-a.val)[0];
+  if(rows.length>1&&big.val/tot>0.25)warn.push(`${esc(big.h.name||big.h.sym)} is ${pct(big.val/tot,0,false)} of your portfolio. Many investors keep any single stock under 10–20%.`);
+  const sec=group("sec")[0];if(rows.length>2&&sec[1]/tot>0.4)warn.push(`${pct(sec[1]/tot,0,false)} is in one sector (${esc(sec[0])}). Spreading across sectors lowers risk.`);
+  const sc=rows.filter(r=>r.cap==="Smallcap").reduce((a,r)=>a+r.val,0);if(sc/tot>0.3)warn.push(`${pct(sc/tot,0,false)} is in smallcaps, which can fall 30–60% in bad years.`);
+  const sells=rows.filter(r=>r.lab==="SELL / EXIT"||r.lab==="AVOID");if(sells.length)warn.push(`${sells.length} holding${sells.length>1?"s are":" is"} rated AVOID or SELL / EXIT: ${sells.map(r=>r.h.sym).join(", ")}.`);
+  const ltcg=rows.filter(r=>r.days>365&&r.gain>0).reduce((a,r)=>a+r.gain,0);
+  return `<div class="grid g2" style="margin-top:12px"><div class="card"><h3>Where your money is</h3><div class="tiny mute">By sector / category</div>${bars(group("sec").slice(0,8))}
+    <div class="tiny mute" style="margin-top:12px">By size</div>${bars(group("cap"))}</div>
+    <div class="card"><h3>Portfolio health</h3>${warn.length?`<ul class="why small">${warn.map(w=>`<li class="n">${w}</li>`).join("")}</ul>`:'<ul class="why small"><li class="p">No concentration warnings. Your holdings are reasonably spread out.</li></ul>'}
+    <ul class="why small">${rows.filter(r=>r.cagr!=null).sort((a,b)=>b.cagr-a.cagr).slice(0,6).map(r=>`<li class="${r.cagr>0?"p":"n"}">${esc(r.h.name||r.h.sym)}: ${pct(r.cagr,1)} a year since ${r.h.date}</li>`).join("")}</ul>
+    ${ltcg>0?`<p class="small" style="margin-bottom:0"><b>Tax tip:</b> you have about ${inr(ltcg,0)} of long-term gains (held over a year). Up to ₹1.25 lakh of long-term equity gains per financial year is tax-free, so some investors sell and rebuy to use it each year ("tax harvesting"). Check with a CA.</p>`:""}</div></div>`;
 }
 
 /* ================================================================ learn: track record / F&O / guide */
@@ -751,7 +831,9 @@ function watchlist(){let w=store.get("watch",null);if(!w){w=[...new Set([...stor
 const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
 async function pushSub(){if(!("serviceWorker" in navigator))return null;const r=await navigator.serviceWorker.getRegistration();return r?r.pushManager.getSubscription():null}
-function setupCode(sub){const j=sub.toJSON();return "MA1."+b64u(new TextEncoder().encode(JSON.stringify({n:store.get("devname",isIOS?"iPhone":/Android/.test(navigator.userAgent)?"Android phone":"Computer"),s:{endpoint:j.endpoint,keys:j.keys},w:watchlist()})))}
+function setupCode(sub){const j=sub.toJSON(),P=palerts();
+  const pa=Object.entries(P).filter(([k,v])=>watchlist().includes(k)&&(v.above||v.below)).map(([k,v])=>Object.assign({s:k},v.above?{above:v.above}:{},v.below?{below:v.below}:{}));
+  return "MA1."+b64u(new TextEncoder().encode(JSON.stringify({n:store.get("devname",isIOS?"iPhone":/Android/.test(navigator.userAgent)?"Android phone":"Computer"),s:{endpoint:j.endpoint,keys:j.keys},w:watchlist(),pa})))}
 async function renderAlerts(){
   const supported="serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
   const perm=supported?Notification.permission:"unsupported";
@@ -767,12 +849,19 @@ async function renderAlerts(){
     <div id="pushBody" style="margin-top:10px"></div></div>
   <div class="card" style="margin-top:12px"><h3>My watchlist <span class="tiny mute">${w.length} stocks</span></h3>
     <div class="row" style="flex-wrap:nowrap"><div style="flex:1"><input type="text" id="wAdd" list="symList" placeholder="Add a symbol, e.g. TCS" autocapitalize="characters"></div><button class="btn" id="wGo">Add</button></div>
-    <div class="row" style="margin-top:10px">${w.map(x=>`<span class="pill" style="background:var(--soft);color:var(--ink)">${x} <button data-wrm="${x}" style="border:0;background:none;cursor:pointer;color:var(--mute);padding:0 0 0 4px">✕</button></span>`).join("")||'<span class="small mute">Empty. Add stocks you own or are watching.</span>'}</div>
+    ${w.length?`<div class="tw" style="margin-top:10px"><table class="rc"><thead><tr><th>Stock</th><th class="n">Price</th><th class="n">Alert if above ₹</th><th class="n">Alert if below ₹</th><th></th></tr></thead><tbody>
+      ${w.map(x=>{const st=BY[x],a=palerts()[x]||{};return `<tr><td><b data-sym="${x}" style="cursor:pointer">${x}</b> ${st?pill(st.long.label):""}</td><td class="n">${st?inr(st.price):"–"}</td>
+      <td class="n"><input type="number" step="0.05" data-pa="${x}" data-side="above" value="${a.above||""}" placeholder="e.g. ${st?Math.round(st.price*1.05):""}" style="max-width:140px"></td>
+      <td class="n"><input type="number" step="0.05" data-pa="${x}" data-side="below" value="${a.below||""}" placeholder="e.g. ${st?Math.round(st.price*0.95):""}" style="max-width:140px"></td>
+      <td><button class="btn sm ghost" data-wrm="${x}">Remove</button></td></tr>`}).join("")}</tbody></table></div>
+      <p class="tiny mute">Price alerts are checked at about 1:15 PM (live prices) and at the close. Each alert fires once when the price crosses your level.</p>`:'<p class="small mute" style="margin-top:10px">Empty. Add stocks you own or are watching, or tap ☆ on any stock.</p>'}
     ${sub?'<p class="tiny mute">After changing your watchlist, copy the new setup code below and send it to Claude so your alerts use the new list.</p>':""}</div>`;
   $("#thSeg").onclick=e=>{const b=e.target.closest("button");if(b){applyTheme(b.dataset.th);renderLearn();cardify()}};
   const addW=()=>{const x=$("#wAdd").value.trim().toUpperCase();if(!BY[x]){toast("Pick a symbol from the list");return}const l=watchlist();if(!l.includes(x)){l.push(x);store.set("watch",l)}renderLearn()};
   $("#wGo").onclick=addW;$("#wAdd").onkeydown=e=>{if(e.key==="Enter")addW()};
   $("#lbody").querySelectorAll("[data-wrm]").forEach(b=>b.onclick=()=>{store.set("watch",watchlist().filter(x=>x!==b.dataset.wrm));renderLearn()});
+  $("#lbody").querySelectorAll("[data-pa]").forEach(i=>i.onchange=()=>{const P=palerts(),k=i.dataset.pa;P[k]=P[k]||{};const v=parseFloat(i.value);if(v>0)P[k][i.dataset.side]=v;else delete P[k][i.dataset.side];
+    if(!P[k].above&&!P[k].below)delete P[k];store.set("palerts",P);toast("Alert saved");renderLearn()});
   const pb=$("#pushBody");
   if(!supported){pb.innerHTML=isIOS&&!standalone?`<div class="banner warn small"><b>Almost there.</b> On iPhone, notifications only work from the installed app: open this page in <b>Safari</b>, tap Share → <b>Add to Home Screen</b>, then open it from the new icon and come back here. Needs iOS 16.4 or newer.</div>`:`<div class="banner warn small">This browser doesn't support push notifications. Try Chrome, Edge or Safari, or install the app to your home screen.</div>`;return}
   if(location.protocol!=="https:"&&location.hostname!=="localhost"){pb.innerHTML='<p class="small mute">Open the app from its https link to enable notifications.</p>';return}
@@ -784,13 +873,14 @@ async function renderAlerts(){
       const reg=await navigator.serviceWorker.register("sw.js");await navigator.serviceWorker.ready;
       await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(DATA.vapid)});toast("Notifications enabled");renderLearn()}
       catch(e){toast("Couldn't enable: "+(e.message||e))}};return}
-  const code=setupCode(sub);
-  pb.innerHTML=`<div class="banner L-B small" style="font-weight:500">Notifications are enabled on this device. <b>One last step:</b> copy the setup code and send it to Claude in your chat, so the daily alerts know where to go.</div>
+  const code=setupCode(sub);store.set("hasSub",true);
+  pb.innerHTML=`${syncNeeded()||!store.get("sentSnap",null)?`<div class="banner ${store.get("sentSnap",null)?"warn":"L-B"} small" style="font-weight:500">${store.get("sentSnap",null)?"Your watchlist or price alerts changed. Copy the new code below and send it to Claude.":"Notifications are enabled on this device. <b>One last step:</b> copy the setup code and send it to Claude in your chat, so the daily alerts know where to go."}</div>`:`<div class="banner L-B small" style="font-weight:500">Notifications are on, and your watchlist and alerts are up to date.</div>`}
     <textarea id="pushCode" readonly style="width:100%;height:90px;margin-top:10px;font:12px ui-monospace,monospace;background:var(--soft);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px">${esc(code)}</textarea>
     <div class="row" style="margin-top:8px"><button class="btn" id="pCopy">Copy setup code</button>${navigator.share?'<button class="btn ghost" id="pShare">Share…</button>':""}<button class="btn ghost" id="pTest">Test on this device</button><span class="sp"></span><button class="btn sm red" id="pOff">Turn off</button></div>
     <p class="tiny mute">The code only lets this app send notifications to this device; it contains no personal data except your watchlist symbols.</p>`;
-  $("#pCopy").onclick=async()=>{try{await navigator.clipboard.writeText(code);toast("Copied. Paste it to Claude.")}catch(e){$("#pushCode").select();document.execCommand("copy");toast("Copied")}};
-  $("#pShare")&&($("#pShare").onclick=()=>navigator.share({text:code}).catch(()=>{}));
+  const snap=()=>store.set("sentSnap",JSON.stringify({w:[...watchlist()].sort(),p:palerts()}));
+  $("#pCopy").onclick=async()=>{try{await navigator.clipboard.writeText(code);toast("Copied. Paste it to Claude.")}catch(e){$("#pushCode").select();document.execCommand("copy");toast("Copied")}snap()};
+  $("#pShare")&&($("#pShare").onclick=()=>navigator.share({text:code}).then(snap).catch(()=>{}));
   $("#pTest").onclick=async()=>{const r=await navigator.serviceWorker.ready;r.showNotification("Test notification",{body:"Notifications work on this device. Your daily alerts will look like this.",icon:"icon-192.png",tag:"test"});};
   $("#pOff").onclick=async()=>{if(confirm("Turn off notifications on this device?")){await sub.unsubscribe();toast("Notifications turned off");renderLearn()}};
 }
@@ -925,7 +1015,12 @@ function renderGuide(){
 /* ================================================================ boot */
 if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});
 const first=(location.hash||"").slice(1);
-if(first==="today"){show("market");setTimeout(()=>$("#todayCard")?.scrollIntoView({behavior:"smooth"}),100)}
+if(first.startsWith("watch=")){const [lst,flag]=first.slice(6).split("&");const add=decodeURIComponent(lst).toUpperCase().split(",").map(x=>x.trim()).filter(x=>BY[x]);
+  const w=watchlist();add.forEach(x=>{if(!w.includes(x))w.push(x)});store.set("watch",w);
+  if(flag==="synced")store.set("sentSnap",JSON.stringify({w:[...w].sort(),p:palerts()}));
+  history.replaceState(null,"","#market");show("market");if(add.length)toast("Added to watchlist: "+add.join(", "))}
+else if(first.startsWith("stock=")){show("market");openStock(decodeURIComponent(first.slice(6)).toUpperCase())}
+else if(first==="today"){show("market");setTimeout(()=>$("#todayCard")?.scrollIntoView({behavior:"smooth"}),100)}
 else show(TABS.some(([k])=>k===first)?first:(store.get("tab","market")||"market"));
 </script>
 </body>
