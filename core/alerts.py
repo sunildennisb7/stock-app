@@ -72,14 +72,14 @@ def send(sub: dict, title: str, body: str, url: str = "", tag: str = "daily", lo
     data = json.dumps({"title": title, "body": body, "url": SITE + url, "tag": tag})
     try:
         webpush(subscription_info=sub["s"], data=data, vapid_private_key=v,
-                vapid_claims={"sub": SITE.rstrip("/")}, ttl=12 * 3600, timeout=20)
+                vapid_claims={"sub": "https://sunildennisb7.github.io"}, ttl=12 * 3600, timeout=20)  # origin only: paths are rejected
         return True
     except WebPushException as e:
         code = getattr(e.response, "status_code", None)
         log(f"  ! push to {sub.get('n', 'device')} failed ({code})")
         return code not in (404, 410)
     except Exception as e:  # noqa: BLE001
-        log(f"  ! push to {sub.get('n', 'device')} failed ({type(e).__name__})")
+        log(f"  ! push to {sub.get('n', 'device')} failed ({type(e).__name__}: {str(e)[:120]})")
         return True
 
 
