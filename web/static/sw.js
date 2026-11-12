@@ -1,5 +1,5 @@
 // Network-first: always try to get the latest daily data; fall back to the last copy when offline.
-const CACHE = "n50-v3";
+const CACHE = "n50-v4";
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./", "manifest.webmanifest", "icon-192.png", "icon-512.png"])));
   self.skipWaiting();
@@ -11,7 +11,8 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET" || new URL(e.request.url).origin !== location.origin) return;
   e.respondWith(
-    fetch(e.request).then(r => {
+    // "no-cache" = always ask GitHub if there's a newer version (cheap 304 if not), so updates show immediately
+    fetch(e.request, { cache: "no-cache" }).then(r => {
       if (r.ok) { const copy = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
       return r;
     }).catch(() => caches.match(e.request).then(r => r || caches.match("./")))

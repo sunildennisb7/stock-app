@@ -923,7 +923,7 @@ function renderGuide(){
 }
 
 /* ================================================================ boot */
-if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});
 const first=(location.hash||"").slice(1);
 if(first==="today"){show("market");setTimeout(()=>$("#todayCard")?.scrollIntoView({behavior:"smooth"}),100)}
 else show(TABS.some(([k])=>k===first)?first:(store.get("tab","market")||"market"));
