@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
-<title>Nifty 50 Analyzer</title>
+<title>Market Analyzer India</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Nifty 50">
+<meta name="apple-mobile-web-app-title" content="Market India">
 <style>
 :root{
   --bg:#f4f6fa;--card:#fff;--ink:#0f172a;--mute:#64748b;--line:#e2e8f0;--soft:#f1f5f9;
@@ -29,7 +29,7 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-s
 button,input,select{font:inherit;color:inherit}
 a{color:var(--accent)}
 .wrap{max-width:1180px;margin:0 auto;padding:12px 14px 96px}
-header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 header.top .in{max-width:1180px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:12px}
 .brand{font-weight:700;font-size:17px;white-space:nowrap}
 .brand small{display:block;font-weight:400;color:var(--mute);font-size:12px}
@@ -37,25 +37,12 @@ nav.tabs{display:flex;gap:4px;margin-left:auto}
 nav.tabs button{border:0;background:none;padding:8px 12px;border-radius:10px;cursor:pointer;color:var(--mute);font-weight:600;display:flex;gap:6px;align-items:center}
 nav.tabs button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
 nav.tabs svg{width:18px;height:18px}
-@media (max-width:820px){
-  header.top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
-  .brand{font-size:16px}
-  .tools{flex-direction:column;align-items:stretch!important}
-  .tools>div{max-width:none!important;width:100%!important}
-  .seg{display:flex;width:100%}.seg button{flex:1;padding:7px 6px}
-  nav.tabs{position:fixed;bottom:0;left:0;right:0;margin:0;background:var(--card);border-top:1px solid var(--line);justify-content:space-around;padding:4px 2px calc(4px + env(safe-area-inset-bottom));z-index:30}
-  nav.tabs button{flex-direction:column;gap:2px;font-size:11px;padding:6px 4px;flex:1}
-  nav.tabs button.on{box-shadow:none;background:var(--soft)}
-}
 h2{font-size:20px;margin:18px 0 10px}
 h3{font-size:16px;margin:0 0 10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
 .grid{display:grid;gap:12px}
-.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
-@media (max-width:820px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr)}
 .g21{grid-template-columns:2fr 1fr}
-@media (max-width:820px){.g21{grid-template-columns:1fr}}
-@media (max-width:520px){.g2{grid-template-columns:1fr}}
 .mute{color:var(--mute)}.small{font-size:13px}.tiny{font-size:12px}
 .up{color:var(--up)}.down{color:var(--down)}
 .big{font-size:24px;font-weight:700;letter-spacing:-.01em}
@@ -63,12 +50,14 @@ h3{font-size:16px;margin:0 0 10px}
 .sp{flex:1}
 .pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 10px;font-weight:700;font-size:12px;white-space:nowrap}
 .L-SB{background:var(--sb-bg);color:var(--sb)}.L-B{background:var(--b-bg);color:var(--b)}.L-H{background:var(--h-bg);color:var(--h)}.L-A{background:var(--a-bg);color:var(--a)}.L-S{background:var(--s-bg);color:var(--s)}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:0 6px;font-size:11px;color:var(--mute);font-weight:600}
 .banner{border-radius:var(--radius);padding:14px 16px;font-weight:600}
 .warn{background:var(--h-bg);color:var(--ink);border:1px solid color-mix(in srgb,var(--h) 40%,transparent)}
 .seg{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;gap:2px}
 .seg button{border:0;background:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;color:var(--mute)}
 .seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
-.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;max-width:100%}
+.chips::-webkit-scrollbar{display:none}
 .chips button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600}
 .chips button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 input[type=search],input[type=number],input[type=text],input[type=date],select{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%;min-width:0}
@@ -80,29 +69,27 @@ label.f>*{margin-top:4px}
 .btn.sm{padding:6px 10px;font-size:13px}
 table{width:100%;border-collapse:collapse}
 th,td{padding:9px 8px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
-th{font-size:12px;color:var(--mute);font-weight:600;position:sticky;top:0;background:var(--card)}
+th{font-size:12px;color:var(--mute);font-weight:600;background:var(--card)}
+th.sort{cursor:pointer}th.sort:hover{color:var(--ink)}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td.wtd{white-space:normal;min-width:180px}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 tr.click{cursor:pointer}tr.click:hover td{background:var(--soft)}
 .bar{height:8px;background:var(--soft);border-radius:99px;overflow:hidden}
 .bar>i{display:block;height:100%;border-radius:99px}
-/* stock list */
 .slist{display:grid;gap:8px}
 .sitem{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;cursor:pointer;padding:12px 14px}
 .sitem:hover{border-color:var(--accent)}
 .sitem .nm{font-weight:700}
 .sitem .sub{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap}
 .score{font-weight:800;font-variant-numeric:tabular-nums}
-@media (min-width:821px){
-  .slist{grid-template-columns:repeat(2,1fr)}
-}
+@media (min-width:821px){.slist{grid-template-columns:repeat(2,1fr)}}
 @media (min-width:1100px){.slist{grid-template-columns:repeat(3,1fr)}}
-/* detail sheet */
 .sheet-bg{position:fixed;inset:0;background:rgba(2,6,23,.55);z-index:50;display:none;align-items:flex-end;justify-content:center}
 .sheet-bg.on{display:flex}
 .sheet{background:var(--bg);width:100%;max-width:880px;max-height:92vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px 14px calc(24px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
 @media (min-width:821px){.sheet-bg{align-items:center}.sheet{border-radius:18px;max-height:88vh;padding:20px}}
-.x{border:0;background:var(--soft);border-radius:99px;width:34px;height:34px;cursor:pointer;font-size:18px}
+.x{border:0;background:var(--soft);border-radius:99px;width:34px;height:34px;cursor:pointer;font-size:18px;flex:none}
 ul.why{list-style:none;margin:0;padding:0}
 ul.why li{padding:5px 0 5px 24px;position:relative;font-size:14px}
 ul.why li:before{position:absolute;left:0;top:5px;font-weight:800;width:18px;text-align:center}
@@ -114,91 +101,127 @@ ul.why li.p:before{content:"✓";color:var(--up)}ul.why li.n:before{content:"✗
 .chart{width:100%;height:auto;display:block;touch-action:pan-y}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute)}
 .legend i{display:inline-block;width:12px;height:3px;border-radius:2px;vertical-align:middle;margin-right:4px}
-.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:60;opacity:0;transition:.25s;pointer-events:none}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:60;opacity:0;transition:.25s;pointer-events:none;max-width:90vw;text-align:center}
 .toast.on{opacity:1}
 .hide{display:none!important}
 details summary{cursor:pointer;font-weight:600}
 .verdict{border-radius:var(--radius);padding:14px;border:1px solid var(--line);background:var(--card)}
 .verdict .lab{font-size:20px;font-weight:800}
+.leg{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr .8fr auto;gap:6px;align-items:end;margin-bottom:6px}
+footer{color:var(--mute);font-size:12px;margin-top:28px;text-align:center}
+@media (max-width:820px){
+  .g3,.g4,.g5{grid-template-columns:repeat(2,1fr)}
+  .g21{grid-template-columns:1fr}
+  header.top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
+  .brand{font-size:16px}
+  .tools{flex-direction:column;align-items:stretch!important}
+  .tools>div{max-width:none!important;width:100%!important}
+  .seg{display:flex;width:100%}.seg button{flex:1;padding:7px 6px}
+  nav.tabs{position:fixed;bottom:0;left:0;right:0;margin:0;background:var(--card);border-top:1px solid var(--line);justify-content:space-around;padding:4px 2px calc(4px + env(safe-area-inset-bottom));z-index:30}
+  nav.tabs button{flex-direction:column;gap:2px;font-size:11px;padding:6px 2px;flex:1}
+  nav.tabs button.on{box-shadow:none;background:var(--soft)}
+  .leg{grid-template-columns:1fr 1fr 1fr}
+}
+@media (max-width:520px){.g2{grid-template-columns:1fr}}
 @media (max-width:600px){
   table.rc thead{display:none}
   table.rc tr{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
   table.rc td{border:0;padding:3px 0;white-space:normal;text-align:left!important}
-  table.rc td:first-child{grid-column:1/-1;font-size:16px}
+  table.rc td:first-child{grid-column:1/-1;font-size:16px;min-width:0}
   table.rc td[data-l]:not(:first-child):before{content:attr(data-l);display:block;font-size:11px;color:var(--mute);font-weight:600}
   table.rc td:last-child:has(button){grid-column:1/-1}
   table.rc td:last-child button{width:100%}
 }
-footer{color:var(--mute);font-size:12px;margin-top:28px;text-align:center}
 </style>
 </head>
 <body>
 <header class="top"><div class="in">
-  <div class="brand">Nifty 50 Analyzer<small id="asof"></small></div>
+  <div class="brand">Market Analyzer India<small id="asof"></small></div>
   <nav class="tabs" id="tabs"></nav>
 </div></header>
 
 <main class="wrap">
   <section id="t-market"></section>
   <section id="t-picks" class="hide"></section>
-  <section id="t-record" class="hide"></section>
+  <section id="t-funds" class="hide"></section>
   <section id="t-paper" class="hide"></section>
   <section id="t-port" class="hide"></section>
-  <section id="t-guide" class="hide"></section>
+  <section id="t-learn" class="hide"></section>
   <footer>Signals come from fixed rules applied to past prices and reported fundamentals. They are not a forecast and not personal investment advice
-  (this tool is not a SEBI-registered adviser). Data: NSE, Yahoo Finance (end of day, may be delayed or wrong). You decide and place every trade yourself.</footer>
+  (this tool is not a SEBI-registered adviser). Data: NSE, AMFI, Yahoo Finance, mfapi.in (end of day, may be delayed or wrong). You decide and place every trade yourself.</footer>
 </main>
 
 <div class="sheet-bg" id="sheetBg"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
+<datalist id="symList"></datalist>
 
 <script>
 const DATA=/*__DATA__*/null;
 </script>
 <script>
 "use strict";
-/* ---------------------------------------------------------------- helpers */
+/* ================================================================ helpers */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const inr=(x,d=2)=>x==null||isNaN(x)?"–":"₹"+Number(x).toLocaleString("en-IN",{minimumFractionDigits:d,maximumFractionDigits:d});
 const num=(x,d=2)=>x==null||isNaN(x)?"–":Number(x).toLocaleString("en-IN",{minimumFractionDigits:d,maximumFractionDigits:d});
 const pct=(x,d=1,sign=true)=>x==null||isNaN(x)?"–":(sign&&x>0?"+":"")+(x*100).toFixed(d)+"%";
 const cls=x=>x==null?"":x>0?"up":x<0?"down":"";
+const LORDER=DATA.labels;
 const LCODE={"STRONG BUY":"SB","BUY":"B","HOLD / WAIT":"H","AVOID":"A","SELL / EXIT":"S"};
-const LORDER=["STRONG BUY","BUY","HOLD / WAIT","AVOID","SELL / EXIT"];
+const LACTION={"STRONG BUY":"Rules strongly favour buying now","BUY":"Rules favour buying","HOLD / WAIT":"Don't buy yet. If you already own it, hold","AVOID":"Don't buy","SELL / EXIT":"Don't buy. If you own it, consider exiting"};
 const pill=l=>`<span class="pill L-${LCODE[l]}">${esc(l)}</span>`;
+const LCOL=l=>({SB:"var(--sb)",B:"var(--b)",H:"var(--h)",A:"var(--a)",S:"var(--s)"}[LCODE[l]]);
 const store={get:(k,d)=>{try{const v=localStorage.getItem("n50."+k);return v?JSON.parse(v):d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem("n50."+k,JSON.stringify(v))}catch(e){}}};
-const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),2200)};
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),2400)};
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-const S=DATA.stocks, BY=Object.fromEntries(S.map(s=>[s.sym,s]));
-const settings=Object.assign({capital:1000000,risk:1,brokerage:0,dp:15.93},store.get("settings",{}));
+const today=()=>new Date().toISOString().slice(0,10);
+const isBuy=l=>l==="STRONG BUY"||l==="BUY";
 
-/* ---------------------------------------------------------------- chart */
+/* expand compact items */
+const S=DATA.items.map(x=>({sym:x.s,name:x.n,ind:x.i,cap:x.c,kind:x.k==="e"?"etf":"stock",price:x.p,chg:x.ch,
+  perf:{w1:x.w1,m1:x.m1,m3:x.m3,y1:x.y1},rsi:x.r,mom:x.mo,momr:x.mr,val:x.v,
+  swing:{score:x.ss,label:LORDER[x.sl],entry:x.e,stop:x.st,target:x.t},long:{score:x.ls,label:LORDER[x.ll]},
+  metrics:{pe:x.pe,roe:x.roe,mcap:x.mc}}));
+const BY=Object.fromEntries(S.map(s=>[s.sym,s]));
+const STOCKS=S.filter(s=>s.kind==="stock"),ETFS=S.filter(s=>s.kind==="etf");
+$("#symList").innerHTML=S.map(s=>`<option value="${s.sym}">${esc(s.name)}</option>`).join("");
+const settings=Object.assign({capital:1000000,risk:1,brokerage:0,dp:15.93},store.get("settings",{}));
+const UNIS=[["all","All stocks"],["Nifty 50","Nifty 50"],["Next 50","Next 50"],["Midcap","Midcap"],["Smallcap","Smallcap"],["etf","ETFs"]];
+const uniFilter=(u,s)=>u==="all"?s.kind==="stock":u==="etf"?s.kind==="etf":s.cap===u;
+const hitKey=u=>u==="all"?"All stocks":u==="etf"?"ETF":u;
+function cardify(){document.querySelectorAll("table.rc").forEach(t=>{const hs=[...t.querySelectorAll("thead th")].map(h=>h.textContent.trim());
+  t.querySelectorAll("tbody tr").forEach(r=>[...r.children].forEach((td,i)=>{if(hs[i])td.dataset.l=hs[i]}))})}
+
+/* ================================================================ chart */
 let chartId=0;
-function lineChart(series,dates,opts={}){
+function lineChart(series,xs,opts={}){
   const narrow=window.innerWidth<600,W=opts.w||(narrow?420:800),H=opts.h||(narrow?240:260),P={l:8,r:58,t:10,b:22},id="c"+(++chartId);
   const all=series.flatMap(s=>s.v.filter(v=>v!=null));
   if(!all.length)return "";
-  let lo=Math.min(...all),hi=Math.max(...all);const pad=(hi-lo)*.06||1;lo-=pad;hi+=pad;
-  const n=dates.length,X=i=>P.l+(W-P.l-P.r)*i/(n-1||1),Y=v=>P.t+(H-P.t-P.b)*(1-(v-lo)/(hi-lo));
+  let lo=Math.min(...all,opts.zero?0:Infinity),hi=Math.max(...all,opts.zero?0:-Infinity);const pad=(hi-lo)*.06||1;lo-=pad;hi+=pad;
+  const n=xs.length,X=i=>P.l+(W-P.l-P.r)*i/(n-1||1),Y=v=>P.t+(H-P.t-P.b)*(1-(v-lo)/(hi-lo));
   const paths=series.map(s=>{let d="",pen=false;s.v.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1);pen=true});
     return `<path d="${d}" fill="none" stroke="${s.c}" stroke-width="${s.w||1.6}" ${s.dash?'stroke-dasharray="4 3"':""} stroke-linejoin="round"/>`}).join("");
-  let grid="";for(let k=0;k<=4;k++){const v=lo+(hi-lo)*k/4,y=Y(v);grid+=`<line x1="${P.l}" x2="${W-P.r}" y1="${y}" y2="${y}" stroke="${css("--line")}"/><text x="${W-P.r+6}" y="${y+4}" font-size="11" fill="${css("--mute")}">${opts.fmt?opts.fmt(v):num(v,v>1000?0:1)}</text>`}
-  let xl="";const step=Math.max(1,Math.floor(n/5));for(let i=0;i<n;i+=step){xl+=`<text x="${X(i)}" y="${H-5}" font-size="11" fill="${css("--mute")}" text-anchor="${i===0?"start":"middle"}">${fmtD(dates[i],opts.long)}</text>`}
-  setTimeout(()=>bindHover(id,series,dates,X,Y,W,H,P,opts),0);
+  let grid="";for(let k=0;k<=4;k++){const v=lo+(hi-lo)*k/4,y=Y(v);grid+=`<line x1="${P.l}" x2="${W-P.r}" y1="${y}" y2="${y}" stroke="${css("--line")}"/><text x="${W-P.r+6}" y="${y+4}" font-size="11" fill="${css("--mute")}">${opts.fmt?opts.fmt(v):num(v,Math.abs(v)>1000?0:1)}</text>`}
+  if(opts.zero&&lo<0&&hi>0)grid+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="${css("--mute")}"/>`;
+  if(opts.vline!=null){const i=opts.vline;grid+=`<line x1="${X(i)}" x2="${X(i)}" y1="${P.t}" y2="${H-P.b}" stroke="${css("--accent")}" stroke-dasharray="2 3"/>`}
+  let xl="";const step=Math.max(1,Math.floor(n/5));for(let i=0;i<n;i+=step){xl+=`<text x="${X(i)}" y="${H-5}" font-size="11" fill="${css("--mute")}" text-anchor="${i===0?"start":"middle"}">${opts.xfmt?opts.xfmt(xs[i]):fmtD(xs[i],opts.long)}</text>`}
+  setTimeout(()=>bindHover(id,series,xs,X,W,P,opts),0);
   return `<svg id="${id}" class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="aspect-ratio:${W}/${H}">${grid}${xl}${paths}
   <line class="hx" y1="${P.t}" y2="${H-P.b}" stroke="${css("--mute")}" stroke-dasharray="3 3" visibility="hidden"/>
   <g class="tip" visibility="hidden"><rect rx="6" fill="${css("--ink")}" opacity=".92"/><text font-size="12" fill="${css("--bg")}"></text></g></svg>`;
 }
 function fmtD(d,long){const t=new Date(d+"T00:00:00");return t.toLocaleDateString("en-IN",long?{month:"short",year:"2-digit"}:{day:"numeric",month:"short"})}
-function bindHover(id,series,dates,X,Y,W,H,P,opts){
+function bindHover(id,series,xs,X,W,P,opts){
   const svg=document.getElementById(id);if(!svg)return;
   const hx=svg.querySelector(".hx"),tip=svg.querySelector(".tip"),rect=tip.querySelector("rect"),txt=tip.querySelector("text");
   const move=e=>{const r=svg.getBoundingClientRect(),cx=((e.touches?e.touches[0].clientX:e.clientX)-r.left)/r.width*W;
-    const n=dates.length,i=Math.max(0,Math.min(n-1,Math.round((cx-P.l)/(W-P.l-P.r)*(n-1))));
+    const n=xs.length,i=Math.max(0,Math.min(n-1,Math.round((cx-P.l)/(W-P.l-P.r)*(n-1))));
     hx.setAttribute("x1",X(i));hx.setAttribute("x2",X(i));hx.setAttribute("visibility","visible");
-    const lines=[fmtD(dates[i],false)+" "+dates[i].slice(0,4)].concat(series.map(s=>s.v[i]==null?null:`${s.n}: ${opts.fmt?opts.fmt(s.v[i]):num(s.v[i])}`).filter(Boolean));
-    txt.innerHTML=lines.map((l,k)=>`<tspan x="8" dy="${k?15:15}">${esc(l)}</tspan>`).join("");
+    const head=opts.xfmt?opts.xfmt(xs[i]):fmtD(xs[i],false)+" "+String(xs[i]).slice(0,4);
+    const lines=[head].concat(series.map(s=>s.v[i]==null?null:`${s.n}: ${opts.fmt?opts.fmt(s.v[i]):num(s.v[i])}`).filter(Boolean));
+    txt.innerHTML=lines.map(l=>`<tspan x="8" dy="15">${esc(l)}</tspan>`).join("");
     const w=Math.max(...lines.map(l=>l.length))*6.6+16,h=lines.length*15+10;rect.setAttribute("width",w);rect.setAttribute("height",h);
     let tx=X(i)+10;if(tx+w>W-P.r)tx=X(i)-w-10;tip.setAttribute("transform",`translate(${tx},${P.t+4})`);tip.setAttribute("visibility","visible")};
   const out=()=>{hx.setAttribute("visibility","hidden");tip.setAttribute("visibility","hidden")};
@@ -208,239 +231,283 @@ function bindHover(id,series,dates,X,Y,W,H,P,opts){
 const priceChart=c=>lineChart([{v:c.c,c:css("--accent"),n:"Price",w:2},{v:c.a,c:css("--h"),n:"50-day avg"},{v:c.b,c:css("--s"),n:"200-day avg",dash:1}],c.d)+
   `<div class="legend"><span><i style="background:${css("--accent")}"></i>Price</span><span><i style="background:${css("--h")}"></i>50-day avg</span><span><i style="background:${css("--s")}"></i>200-day avg</span></div>`;
 
-/* ---------------------------------------------------------------- tabs */
+/* ================================================================ tabs */
 const ICON={
  market:'<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>',
  picks:'<path d="M12 2 15 9l7 .5-5.5 4.6L18 21l-6-3.7L6 21l1.5-6.9L2 9.5 9 9z"/>',
- record:'<path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/>',
+ funds:'<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
  paper:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M8 3v3M16 3v3"/>',
  port:'<path d="M3 7h18v12H3z"/><path d="M8 7V5h8v2"/>',
- guide:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01"/>'};
-const TABS=[["market","Market"],["picks","Picks"],["record","Track record"],["paper","Paper trade"],["port","Portfolio"],["guide","Guide"]];
+ learn:'<path d="M2 7l10-4 10 4-10 4z"/><path d="M6 9v5c0 1.7 2.7 3 6 3s6-1.3 6-3V9"/>'};
+const TABS=[["market","Market"],["picks","Picks"],["funds","Funds"],["paper","Paper"],["port","Portfolio"],["learn","Learn"]];
 $("#tabs").innerHTML=TABS.map(([k,n])=>`<button data-t="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg><span>${n}</span></button>`).join("");
-const RENDER={market:renderMarket,picks:renderPicks,record:renderRecord,paper:renderPaper,port:renderPort,guide:renderGuide};
-function show(t){
+const RENDER={market:renderMarket,picks:renderPicks,funds:renderFunds,paper:renderPaper,port:renderPort,learn:renderLearn};
+function show(t,keepScroll){
   TABS.forEach(([k])=>$("#t-"+k).classList.toggle("hide",k!==t));
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
-  RENDER[t]();cardify();store.set("tab",t);history.replaceState(null,"","#"+t);window.scrollTo(0,0);
+  RENDER[t]();cardify();store.set("tab",t);history.replaceState(null,"","#"+t);if(!keepScroll)window.scrollTo(0,0);
 }
 $("#tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(b)show(b.dataset.t)});
 $("#asof").textContent="Data as of "+DATA.data_date+" close";
 
-function cardify(){document.querySelectorAll("table.rc").forEach(t=>{const hs=[...t.querySelectorAll("thead th")].map(h=>h.textContent.trim());
-  t.querySelectorAll("tbody tr").forEach(r=>[...r.children].forEach((td,i)=>{if(hs[i])td.dataset.l=hs[i]}))})}
-/* ---------------------------------------------------------------- market */
+/* ================================================================ market */
 function renderMarket(){
   const m=DATA.market,ix=m.indices,rc={BULLISH:"L-SB",CAUTIOUS:"L-H",BEARISH:"L-S"}[m.regime];
   const card=(name,p,inv)=>p?`<div class="card"><div class="mute small">${name}</div><div class="big">${num(p.last,name==="India VIX"?2:0)}</div>
     <div class="${cls(inv?-p.d1:p.d1)} small">${pct(p.d1,2)} today</div><div class="tiny mute">1W ${pct(p.w1)} · 1M ${pct(p.m1)} · 1Y ${pct(p.y1)}</div></div>`:"";
-  const movers=[...S].sort((a,b)=>b.chg-a.chg);
-  const mv=list=>list.map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b></td><td class="n">${inr(s.price)}</td><td class="n ${cls(s.chg)}">${pct(s.chg,2)}</td></tr>`).join("");
-  const top=k=>[...S].sort((a,b)=>b[k].score-a[k].score).slice(0,5).map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b><div class="tiny mute">${esc(s.ind)}</div></td><td>${pill(s[k].label)}</td><td class="n score">${s[k].score}</td></tr>`).join("");
+  const movers=[...STOCKS].sort((a,b)=>b.chg-a.chg);
+  const mv=list=>list.map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b> <span class="tag">${s.cap}</span></td><td class="n">${inr(s.price)}</td><td class="n ${cls(s.chg)}">${pct(s.chg,2)}</td></tr>`).join("");
+  const top=(k,list)=>[...list].sort((a,b)=>b[k].score-a[k].score).slice(0,6).map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b> <span class="tag">${s.cap}</span><div class="tiny mute">${esc(s.ind)}</div></td><td>${pill(s[k].label)}</td><td class="n score">${s[k].score}</td></tr>`).join("");
   $("#t-market").innerHTML=`
-  <div class="banner ${rc}" style="margin-top:6px"><div class="row"><span style="font-size:18px">Market mood: ${m.regime}</span></div><div style="font-weight:500;margin-top:4px">${esc(m.regime_text)}</div></div>
-  <div class="grid g3" style="margin-top:12px">${card("Nifty 50",ix["Nifty 50"])}${card("Nifty Bank",ix["Nifty Bank"])}${card("India VIX",ix["India VIX"],true)}</div>
+  <div class="banner ${rc}" style="margin-top:6px"><div style="font-size:18px">Market mood: ${m.regime}</div><div style="font-weight:500;margin-top:4px">${esc(m.regime_text)}</div></div>
+  <div class="grid g5" style="margin-top:12px">${card("Nifty 50",ix["Nifty 50"])}${card("Nifty Bank",ix["Nifty Bank"])}${card("Midcap 150",ix["Midcap 150"])}${card("Smallcap 250",ix["Smallcap 250"])}${card("India VIX",ix["India VIX"],true)}</div>
   <div class="grid g21" style="margin-top:12px">
     <div class="card"><h3>Nifty 50: last 12 months</h3>${priceChart(m.nifty.chart)}
       <div class="tiny mute" style="margin-top:6px">Nifty ${num(m.nifty.close,0)} · 50-day avg ${num(m.nifty.sma50,0)} · 200-day avg ${num(m.nifty.sma200,0)} · RSI ${m.nifty.rsi}</div></div>
-    <div class="card"><h3>Market breadth</h3>
+    <div class="card"><h3>Market breadth (Nifty 500)</h3>
       <div class="small">Stocks above 50-day avg <b style="float:right">${pct(m.breadth50,0,false)}</b></div><div class="bar" style="margin:4px 0 12px"><i style="width:${m.breadth50*100}%;background:var(--accent)"></i></div>
       <div class="small">Stocks above 200-day avg <b style="float:right">${pct(m.breadth200,0,false)}</b></div><div class="bar" style="margin:4px 0 12px"><i style="width:${m.breadth200*100}%;background:var(--accent)"></i></div>
       <div class="small">Today: <span class="up"><b>${m.adv}</b> up</span> · <span class="down"><b>${m.dec}</b> down</span></div>
       <p class="tiny mute">Breadth above 60% means most stocks are taking part in the move (healthy). Below 40% means only a few stocks are holding the index up.</p></div>
   </div>
-  <div class="grid g2" style="margin-top:12px">
-    <div class="card"><div class="row"><h3>Top swing signals</h3><span class="sp"></span><button class="btn sm ghost" data-go="swing">See all</button></div><div class="tw"><table><tbody>${top("swing")}</tbody></table></div></div>
-    <div class="card"><div class="row"><h3>Top long-term signals</h3><span class="sp"></span><button class="btn sm ghost" data-go="long">See all</button></div><div class="tw"><table><tbody>${top("long")}</tbody></table></div></div>
+  <div class="grid g3" style="margin-top:12px">
+    <div class="card"><div class="row"><h3>Top long-term stocks</h3><span class="sp"></span><button class="btn sm ghost" data-go="long,all">All</button></div><div class="tw"><table><tbody>${top("long",STOCKS)}</tbody></table></div></div>
+    <div class="card"><div class="row"><h3>Top swing stocks</h3><span class="sp"></span><button class="btn sm ghost" data-go="swing,all">All</button></div><div class="tw"><table><tbody>${top("swing",STOCKS)}</tbody></table></div></div>
+    <div class="card"><div class="row"><h3>Top ETFs</h3><span class="sp"></span><button class="btn sm ghost" data-go="long,etf">All</button></div><div class="tw"><table><tbody>${top("long",ETFS)}</tbody></table></div></div>
   </div>
   <div class="card" style="margin-top:12px"><h3>Sectors</h3><div class="tw"><table><thead><tr><th>Sector</th><th class="n">1 week</th><th class="n">1 month</th><th class="n">3 months</th><th class="n">1 year</th><th>Trend</th></tr></thead><tbody>
     ${m.sectors.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td class="n ${cls(s.w1)}">${pct(s.w1)}</td><td class="n ${cls(s.m1)}">${pct(s.m1)}</td><td class="n ${cls(s.m3)}">${pct(s.m3)}</td><td class="n ${cls(s.y1)}">${pct(s.y1)}</td><td>${s.trend==="Up"?'<span class="pill L-B">Up</span>':s.trend==="Down"?'<span class="pill L-S">Down</span>':'<span class="pill L-H">Mixed</span>'}</td></tr>`).join("")}
   </tbody></table></div></div>
   <div class="grid g2" style="margin-top:12px">
-    <div class="card"><h3>Top gainers today</h3><table><tbody>${mv(movers.slice(0,5))}</tbody></table></div>
-    <div class="card"><h3>Top losers today</h3><table><tbody>${mv(movers.slice(-5).reverse())}</tbody></table></div>
+    <div class="card"><h3>Top gainers today (Nifty 500)</h3><table><tbody>${mv(movers.slice(0,6))}</tbody></table></div>
+    <div class="card"><h3>Top losers today (Nifty 500)</h3><table><tbody>${mv(movers.slice(-6).reverse())}</tbody></table></div>
   </div>`;
-  $("#t-market").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{picksState.mode=b.dataset.go;show("picks")});
+  $("#t-market").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{const [m,u]=b.dataset.go.split(",");Object.assign(picksState,{mode:m,uni:u,filter:"buy",ind:"",q:""});show("picks")});
 }
 
-/* ---------------------------------------------------------------- picks */
-const picksState=Object.assign({mode:"swing",filter:"buy",q:"",sort:"score"},store.get("picks",{}));
-function edgeLine(mode,label){
-  const h=DATA.hit[mode][label];if(!h)return"";
-  const days=mode==="swing"?DATA.hit.swing_days:DATA.hit.long_days,per=mode==="swing"?"~1 month":"~6 months";
-  return `Past 5 years: after a <b>${esc(label)}</b> ${mode==="swing"?"swing":"long-term"} label, the stock was higher ${per} later <b>${pct(h.win,0,false)}</b> of the time (avg ${pct(h.avg)}), and beat the average Nifty 50 stock by <b class="${cls(h.xs)}">${pct(h.xs,2)}</b>.`;
+/* ================================================================ picks */
+const picksState=Object.assign({mode:"long",uni:"all",filter:"buy",q:"",sort:"score",ind:""},store.get("picks2",{}));
+let picksLimit=40;
+function edgeLine(mode,uni,label){
+  const t=DATA.hit[mode][hitKey(uni)];if(!t||!t[label])return"";const h=t[label],per=mode==="swing"?"~1 month":"~6 months";
+  return `Past 5 years (${esc(hitKey(uni))}): after a <b>${esc(label)}</b> label, the price was higher ${per} later <b>${pct(h.win,0,false)}</b> of the time (avg ${pct(h.avg)}), beating the average stock by <b class="${cls(h.xs)}">${pct(h.xs,2)}</b>.`;
 }
 function renderPicks(){
-  const st=picksState;store.set("picks",st);
-  const k=st.mode;
-  let list=S.filter(s=>{const l=s[k].label;
-    if(st.filter==="buy"&&!(l==="STRONG BUY"||l==="BUY"))return false;
+  const st=picksState;store.set("picks2",st);const k=st.mode;
+  const base=S.filter(s=>uniFilter(st.uni,s));
+  const inds=[...new Set(base.map(s=>s.ind))].sort();
+  if(st.ind&&!inds.includes(st.ind))st.ind="";
+  let list=base.filter(s=>{const l=s[k].label;
+    if(st.filter==="buy"&&!isBuy(l))return false;
     if(st.filter==="hold"&&l!=="HOLD / WAIT")return false;
     if(st.filter==="avoid"&&!(l==="AVOID"||l==="SELL / EXIT"))return false;
+    if(st.ind&&s.ind!==st.ind)return false;
     if(st.q&&!(s.sym+" "+s.name+" "+s.ind).toLowerCase().includes(st.q.toLowerCase()))return false;return true});
-  const sorters={score:(a,b)=>b[k].score-a[k].score,chg:(a,b)=>b.chg-a.chg,mom:(a,b)=>(b.mom??-9)-(a.mom??-9),name:(a,b)=>a.sym.localeCompare(b.sym)};
-  list.sort(sorters[st.sort]);
-  const counts=Object.fromEntries(LORDER.map(l=>[l,S.filter(s=>s[k].label===l).length]));
-  const sb=S.filter(s=>s[k].label==="STRONG BUY").sort(sorters.score).map(s=>s.sym);
-  const b=S.filter(s=>s[k].label==="BUY").sort(sorters.score).map(s=>s.sym);
+  const sorters={score:(a,b)=>b[k].score-a[k].score,chg:(a,b)=>b.chg-a.chg,mom:(a,b)=>(b.mom??-9)-(a.mom??-9),m3:(a,b)=>(b.perf.m3??-9)-(a.perf.m3??-9),
+    pe:(a,b)=>(a.metrics.pe>0?a.metrics.pe:1e9)-(b.metrics.pe>0?b.metrics.pe:1e9),mcap:(a,b)=>(b.metrics.mcap||0)-(a.metrics.mcap||0),name:(a,b)=>a.sym.localeCompare(b.sym)};
+  list.sort(sorters[st.sort]||sorters.score);
+  const counts=Object.fromEntries(LORDER.map(l=>[l,base.filter(s=>s[k].label===l).length]));
+  const sb=base.filter(s=>s[k].label==="STRONG BUY").sort(sorters.score);
+  const shown=list.slice(0,picksLimit);
   $("#t-picks").innerHTML=`
-  <div class="row" style="margin-top:6px"><div class="seg" id="mode"><button data-m="swing" class="${k==="swing"?"on":""}">Swing<div class="tiny mute" style="font-weight:500">days–weeks</div></button><button data-m="long" class="${k==="long"?"on":""}">Long term<div class="tiny mute" style="font-weight:500">months–years</div></button></div></div>
+  <div class="row" style="margin-top:6px"><div class="seg" id="mode"><button data-m="long" class="${k==="long"?"on":""}">Long term<div class="tiny mute" style="font-weight:500">months–years</div></button><button data-m="swing" class="${k==="swing"?"on":""}">Swing<div class="tiny mute" style="font-weight:500">days–weeks</div></button></div></div>
+  <div class="chips" id="uni" style="margin-top:10px">${UNIS.map(([u,n])=>`<button data-u="${u}" class="${st.uni===u?"on":""}">${n} <span class="mute">${S.filter(s=>uniFilter(u,s)).length}</span></button>`).join("")}</div>
   <div class="card" style="margin-top:12px">
-    <h3>${k==="swing"?"Swing":"Long-term"} summary for ${DATA.data_date}</h3>
-    <div class="small"><span class="pill L-SB">STRONG BUY</span> ${sb.length?sb.join(", "):"none today"}</div>
-    <div class="small" style="margin-top:6px"><span class="pill L-B">BUY</span> ${b.length?b.join(", "):"none today"}</div>
+    <h3>${k==="swing"?"Swing":"Long-term"} · ${esc(UNIS.find(x=>x[0]===st.uni)[1])} · ${DATA.data_date}</h3>
+    <div class="small"><span class="pill L-SB">STRONG BUY</span> ${sb.length?sb.slice(0,15).map(s=>`<a href="#" data-sym="${s.sym}">${s.sym}</a>`).join(", ")+(sb.length>15?` and ${sb.length-15} more below`:""):"none today"}</div>
     <div class="row tiny mute" style="margin-top:10px">${LORDER.map(l=>`${pill(l)} ${counts[l]}`).join(" ")}</div>
-    <div class="tiny mute" style="margin-top:10px">${edgeLine(k,"STRONG BUY")} <a href="#record" data-rec>Full track record →</a></div>
+    <div class="tiny mute" style="margin-top:10px">${edgeLine(k,st.uni,"STRONG BUY")} <a href="#" data-rec>Full track record →</a></div>
     ${DATA.market.regime!=="BULLISH"?`<div class="banner warn small" style="margin-top:10px">Market mood is ${DATA.market.regime}. Consider smaller position sizes.</div>`:""}
+    ${st.uni==="Smallcap"?`<div class="banner warn small" style="margin-top:10px">Smallcaps move more and can fall 30–60% in bad markets. Keep position sizes small and check daily traded value (liquidity) before buying.</div>`:""}
   </div>
   <div class="row tools" style="margin-top:12px;gap:10px">
-    <div class="chips" id="filt">${[["buy","Buy signals"],["hold","Hold / wait"],["avoid","Avoid / sell"],["all","All 50"]].map(([f,n])=>`<button data-f="${f}" class="${st.filter===f?"on":""}">${n}</button>`).join("")}</div>
+    <div class="chips" id="filt">${[["buy","Buy signals"],["hold","Hold / wait"],["avoid","Avoid / sell"],["all","All"]].map(([f,n])=>`<button data-f="${f}" class="${st.filter===f?"on":""}">${n}</button>`).join("")}</div>
     <span class="sp"></span>
-    <div class="row" style="gap:8px;flex:1;max-width:430px"><div style="flex:1;min-width:140px"><input type="search" id="q" placeholder="Search stock or sector" value="${esc(st.q)}"></div>
-    <div style="width:150px"><select id="sort">${[["score","Sort: score"],["chg","Sort: today %"],["mom","Sort: 12m momentum"],["name","Sort: A–Z"]].map(([v,n])=>`<option value="${v}" ${st.sort===v?"selected":""}>${n}</option>`).join("")}</select></div></div>
+    <div class="row" style="gap:8px;flex:2;max-width:640px;flex-wrap:nowrap">
+      <div style="flex:1.3;min-width:110px"><input type="search" id="q" placeholder="Search" value="${esc(st.q)}"></div>
+      <div style="flex:1;min-width:100px"><select id="ind"><option value="">${st.uni==="etf"?"All types":"All sectors"}</option>${inds.map(i=>`<option ${st.ind===i?"selected":""}>${esc(i)}</option>`).join("")}</select></div>
+      <div style="flex:1;min-width:100px"><select id="sort">${[["score","Score"],["chg","Today %"],["m3","3-month %"],["mom","12m momentum"],["pe","Lowest P/E"],["mcap","Biggest"],["name","A–Z"]].map(([v,n])=>`<option value="${v}" ${st.sort===v?"selected":""}>${n}</option>`).join("")}</select></div>
+    </div>
   </div>
-  <div class="slist" style="margin-top:12px">${list.length?list.map(s=>stockItem(s,k)).join(""):'<div class="card mute">No stocks match this filter today.</div>'}</div>`;
-  $("#mode").onclick=e=>{const b=e.target.closest("button");if(b){st.mode=b.dataset.m;renderPicks()}};
-  $("#filt").onclick=e=>{const b=e.target.closest("button");if(b){st.filter=b.dataset.f;renderPicks()}};
-  $("#q").oninput=e=>{st.q=e.target.value;clearTimeout(renderPicks.t);renderPicks.t=setTimeout(()=>{renderPicks();const q=$("#q");q.focus();q.setSelectionRange(q.value.length,q.value.length)},250)};
-  $("#sort").onchange=e=>{st.sort=e.target.value;renderPicks()};
-  $("#t-picks").querySelector("[data-rec]").onclick=e=>{e.preventDefault();show("record")};
+  <div class="tiny mute" style="margin-top:8px">${list.length} match${list.length===1?"":"es"}</div>
+  <div class="slist" style="margin-top:8px">${shown.length?shown.map(s=>stockItem(s,k)).join(""):'<div class="card mute">No matches for this filter today.</div>'}</div>
+  ${list.length>picksLimit?`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn ghost" id="more">Show more (${list.length-picksLimit} left)</button></div>`:""}`;
+  const re=()=>{picksLimit=40;renderPicks()};
+  $("#mode").onclick=e=>{const b=e.target.closest("button");if(b){st.mode=b.dataset.m;re()}};
+  $("#uni").onclick=e=>{const b=e.target.closest("button");if(b){st.uni=b.dataset.u;st.ind="";re()}};
+  $("#filt").onclick=e=>{const b=e.target.closest("button");if(b){st.filter=b.dataset.f;re()}};
+  $("#q").oninput=e=>{st.q=e.target.value;clearTimeout(renderPicks.t);renderPicks.t=setTimeout(()=>{picksLimit=40;renderPicks();const q=$("#q");q.focus();q.setSelectionRange(q.value.length,q.value.length)},300)};
+  $("#ind").onchange=e=>{st.ind=e.target.value;re()};
+  $("#sort").onchange=e=>{st.sort=e.target.value;re()};
+  $("#more")&&($("#more").onclick=()=>{picksLimit+=60;renderPicks()});
+  $("#t-picks").querySelector("[data-rec]").onclick=e=>{e.preventDefault();learnState.sec="record";learnState.uni=st.uni;show("learn")};
 }
 function stockItem(s,k){
-  const v=s[k],col={SB:"var(--sb)",B:"var(--b)",H:"var(--h)",A:"var(--a)",S:"var(--s)"}[LCODE[v.label]];
-  const extra=k==="swing"&&(v.label==="BUY"||v.label==="STRONG BUY")?`<span class="tiny">Entry ~${inr(v.entry,1)} · Stop ${inr(v.stop,1)} · Target ${inr(v.target,1)}</span>`
-    :k==="long"?`<span class="tiny mute">12m momentum ${pct(s.mom,0)} · P/E ${num(s.metrics.pe,1)} · ROE ${pct(s.metrics.roe,0,false)}</span>`:`<span class="tiny mute">${esc(v.action)}</span>`;
+  const v=s[k],col=LCOL(v.label);
+  const extra=k==="swing"&&isBuy(v.label)?`<span class="tiny">Entry ~${inr(v.entry,1)} · Stop ${inr(s.swing.stop,1)} · Target ${inr(s.swing.target,1)}</span>`
+    :s.kind==="etf"?`<span class="tiny mute">1Y ${pct(s.perf.y1,0)} · 3M ${pct(s.perf.m3,0)} · traded ₹${num(s.val,1)} Cr/day</span>`
+    :`<span class="tiny mute">P/E ${num(s.metrics.pe,1)} · ROE ${pct(s.metrics.roe,0,false)} · 1Y ${pct(s.perf.y1,0)}${s.metrics.mcap?` · ₹${num(s.metrics.mcap,0)} Cr`:""}</span>`;
+  const thin=s.val!=null&&s.val<5?` <span class="tag" title="Average daily traded value under ₹5 Cr">low volume</span>`:"";
   return `<div class="card sitem" data-sym="${s.sym}">
-    <div><span class="nm">${s.sym}</span> <span class="tiny mute">${esc(s.name)}</span></div>
-    <div class="row">${pill(v.label)}<span class="score" style="color:${col}">${v.score}</span></div>
+    <div><span class="nm">${s.sym}</span> <span class="tag">${s.cap}</span>${thin} <div class="tiny mute">${esc(s.name)}</div></div>
+    <div class="row" style="flex-wrap:nowrap">${pill(v.label)}<span class="score" style="color:${col}">${v.score}</span></div>
     <div class="small">${inr(s.price)} <span class="${cls(s.chg)}">${pct(s.chg,2)}</span> <span class="tiny mute">· ${esc(s.ind)}</span></div><div></div>
     <div class="bar" style="grid-column:1/-1;margin:4px 0"><i style="width:${v.score}%;background:${col}"></i></div>
     <div class="sub">${extra}</div></div>`;
 }
 
-/* ---------------------------------------------------------------- detail sheet */
+/* ================================================================ detail sheet */
+const DET={};
+async function detail(sym){if(DET[sym])return DET[sym];const r=await fetch("d/"+encodeURIComponent(sym)+".json");if(!r.ok)throw new Error("not found");return DET[sym]=await r.json()}
 const reasons=list=>`<ul class="why">${list.map(r=>`<li class="${r.s>0?"p":r.s<0?"n":"z"}">${esc(r.t)}</li>`).join("")}</ul>`;
-function qtyFor(entry,stop){const riskAmt=settings.capital*settings.risk/100,per=entry-stop;if(per<=0)return 0;
+function qtyFor(entry,stop){const riskAmt=settings.capital*settings.risk/100,per=entry-stop;if(!(per>0))return 0;
   return Math.max(0,Math.floor(Math.min(riskAmt/per,settings.capital*0.2/entry)))}
-function openStock(sym){
-  const s=BY[sym];if(!s)return;const sw=s.swing,lt=s.long,m=s.metrics;
-  const q=qtyFor(sw.entry,sw.stop),buyable=sw.label==="BUY"||sw.label==="STRONG BUY";
+async function openStock(sym){
+  const s=BY[sym];if(!s)return;
+  $("#sheet").innerHTML=`<div class="row" style="flex-wrap:nowrap"><div class="big">${s.sym}</div><span class="sp"></span><button class="x" id="closeS">×</button></div><p class="mute">Loading…</p>`;
+  $("#sheetBg").classList.add("on");document.body.style.overflow="hidden";$("#closeS").onclick=closeSheet;
+  let D;try{D=await detail(sym)}catch(e){$("#sheet").innerHTML+=`<p class="down">Couldn't load details. Check your connection.</p>`;return}
+  const sw=D.swing,lt=D.long,m=D.metrics||{},etf=s.kind==="etf";
+  const q=qtyFor(sw.entry,sw.stop),buyable=isBuy(sw.label);
   $("#sheet").innerHTML=`
-  <div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div><div class="big">${s.sym}</div><div class="mute small">${esc(s.name)} · ${esc(s.ind)}</div></div><span class="sp"></span><button class="x" id="closeS" aria-label="Close">×</button></div>
+  <div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div><div class="big">${s.sym} <span class="tag">${s.cap}</span></div><div class="mute small">${esc(s.name)} · ${esc(s.ind)}</div></div><span class="sp"></span><button class="x" id="closeS" aria-label="Close">×</button></div>
   <div class="row" style="margin:6px 0 12px"><span class="big">${inr(s.price)}</span><span class="${cls(s.chg)}">${pct(s.chg,2)} today</span>
-    <span class="tiny mute">1M ${pct(s.perf.m1)} · 3M ${pct(s.perf.m3)} · 1Y ${pct(s.perf.y1)}</span></div>
+    <span class="tiny mute">1M ${pct(D.perf.m1)} · 3M ${pct(D.perf.m3)} · 1Y ${pct(D.perf.y1)}</span></div>
+  ${s.val!=null&&s.val<5?`<div class="banner warn small" style="margin-bottom:12px">Low trading volume (about ₹${num(s.val,1)} Cr a day). Use limit orders: big orders can move the price against you.</div>`:""}
   <div class="grid g2">
-    <div class="verdict"><div class="mute tiny">SWING (days–weeks) · score ${sw.score}/100</div><div class="lab">${pill(sw.label)}</div><div style="margin-top:6px;font-weight:600">${esc(sw.action)}</div></div>
     <div class="verdict"><div class="mute tiny">LONG TERM (months–years) · score ${lt.score}/100</div><div class="lab">${pill(lt.label)}</div><div style="margin-top:6px;font-weight:600">${esc(lt.action)}</div></div>
+    <div class="verdict"><div class="mute tiny">SWING (days–weeks) · score ${sw.score}/100</div><div class="lab">${pill(sw.label)}</div><div style="margin-top:6px;font-weight:600">${esc(sw.action)}</div></div>
   </div>
-  <div class="card" style="margin-top:12px">${priceChart(s.chart)}</div>
+  <div class="card" style="margin-top:12px">${priceChart(D.chart)}</div>
   <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3>Long-term view</h3>
+      <div class="kv"><div><span>Trend + momentum</span><b>${lt.tech}/60</b></div><div><span>Fundamentals</span><b>${lt.fund??"–"}/40</b></div>
+      <div><span>Accumulate zone</span><b>${inr(lt.zone_lo,0)}–${inr(lt.zone_hi,0)}</b></div><div><span>Review if below</span><b class="down">${inr(lt.review,0)}</b><span>~3% under 200-day avg</span></div></div>
+      <h3 style="margin-top:12px">Why</h3>${reasons(lt.reasons)}</div>
     <div class="card"><h3>Swing trade plan</h3>
       ${buyable?"":`<div class="banner warn small" style="margin-bottom:10px">No swing buy signal today. Levels below are for reference only.</div>`}
       <div class="kv"><div><span>Entry (around)</span><b>${inr(sw.entry)}</b></div><div><span>Stop-loss</span><b class="down">${inr(sw.stop)}</b><span>${pct(sw.stop_pct)}</span></div>
       <div><span>Target</span><b class="up">${inr(sw.target)}</b><span>${pct(sw.target_pct)}</span></div><div><span>Risk : reward</span><b>1 : 2</b></div>
       <div><span>Qty for your settings</span><b>${q}</b><span>${inr(q*sw.entry,0)}</span></div><div><span>Max loss if stopped</span><b class="down">${inr(q*(sw.entry-sw.stop),0)}</b></div></div>
-      <p class="tiny mute">Qty = risk ${settings.risk}% of ${inr(settings.capital,0)} capital ÷ distance to stop, capped at 20% of capital. Exit at stop or target, or after ~20 trading days. <a href="#" data-set>Change settings</a></p>
-      <div class="tiny mute">${sw.hist.n?`On ${s.sym} itself, the "${esc(sw.label)}" label was followed by a rise ~1 month later ${pct(sw.hist.win,0,false)} of the time (avg ${pct(sw.hist.avg)}, ${sw.hist.n} days in 5 yrs).`:""}</div>
+      <p class="tiny mute">Qty = risk ${settings.risk}% of ${inr(settings.capital,0)} ÷ distance to stop, capped at 20% of capital. <a href="#" data-set>Change settings</a></p>
+      <div class="tiny mute">${sw.hist.n?`On ${s.sym} itself, the "${esc(sw.label)}" swing label was followed by a rise ~1 month later ${pct(sw.hist.win,0,false)} of the time (avg ${pct(sw.hist.avg)}, ${sw.hist.n} days in 5 yrs).`:""}</div>
       <h3 style="margin-top:12px">Why</h3>${reasons(sw.reasons)}</div>
-    <div class="card"><h3>Long-term view</h3>
-      <div class="kv"><div><span>Trend score</span><b>${lt.tech}/60</b></div><div><span>Fundamental score</span><b>${lt.fund??"–"}/40</b></div>
-      <div><span>Accumulate zone</span><b>${inr(lt.zone_lo,0)}–${inr(lt.zone_hi,0)}</b></div><div><span>Review if below</span><b class="down">${inr(lt.review,0)}</b><span>~3% under 200-day avg</span></div></div>
-      <h3 style="margin-top:12px">Why</h3>${reasons(lt.reasons)}</div>
   </div>
   <div class="card" style="margin-top:12px"><h3>Key numbers</h3><div class="kv">
-    <div><span>P/E</span><b>${num(m.pe,1)}</b></div><div><span>Price/Book</span><b>${num(m.pb,1)}</b></div><div><span>ROE</span><b>${pct(m.roe,1,false)}</b></div>
+    ${etf?"":`<div><span>P/E</span><b>${num(m.pe,1)}</b></div><div><span>Price/Book</span><b>${num(m.pb,1)}</b></div><div><span>ROE</span><b>${pct(m.roe,1,false)}</b></div>
     <div><span>Debt/Equity</span><b>${m.de==null?"–":num(m.de/100,2)}</b></div><div><span>Profit margin</span><b>${pct(m.pm,1,false)}</b></div>
     <div><span>Profit growth YoY</span><b class="${cls(m.eg)}">${pct(m.eg,0)}</b></div><div><span>Revenue growth YoY</span><b class="${cls(m.rg)}">${pct(m.rg,0)}</b></div>
-    <div><span>Dividend yield</span><b>${m.dy==null?"–":num(m.dy>1?m.dy:m.dy*100,2)+"%"}</b></div><div><span>Market cap</span><b>${m.mcap?"₹"+num(m.mcap/1e7,0)+" Cr":"–"}</b></div>
-    <div><span>RSI (14)</span><b>${s.rsi}</b></div><div><span>52-week high</span><b>${inr(s.hi52,0)}</b></div><div><span>52-week low</span><b>${inr(s.lo52,0)}</b></div>
-    <div><span>12m momentum</span><b class="${cls(s.mom)}">${pct(s.mom,0)}</b><span>rank ${Math.round((s.mom_rank||0)*50)}/50</span></div><div><span>Volatility (1y)</span><b>${pct(s.vol,0,false)}</b></div></div></div>
+    <div><span>Dividend yield</span><b>${m.dy==null?"–":num(m.dy>1?m.dy:m.dy*100,2)+"%"}</b></div><div><span>Market cap</span><b>${m.mcap?"₹"+num(m.mcap/1e7,0)+" Cr":"–"}</b></div>`}
+    <div><span>RSI (14)</span><b>${D.rsi}</b></div><div><span>52-week high</span><b>${inr(D.hi52,0)}</b></div><div><span>52-week low</span><b>${inr(D.lo52,0)}</b></div>
+    <div><span>12m momentum</span><b class="${cls(s.mom)}">${pct(s.mom,0)}</b><span>beats ${pct(s.momr,0,false)} of ${etf?"ETFs":"Nifty 500"}</span></div><div><span>Volatility (1y)</span><b>${pct(D.vol,0,false)}</b></div>
+    <div><span>Avg traded / day</span><b>₹${num(s.val,1)} Cr</b></div></div>
+    ${etf&&s.ind==="International"?`<p class="tiny mute">International ETFs can trade well above their real value (NAV) when foreign investment limits are hit. Check the iNAV on the fund house's site before buying.</p>`:""}</div>
   <div class="row" style="margin-top:14px"><button class="btn" data-pbuy>Paper buy ${q||1} @ ${inr(s.price)}</button><button class="btn ghost" data-padd>Add to my portfolio</button></div>`;
-  $("#sheetBg").classList.add("on");document.body.style.overflow="hidden";
   $("#closeS").onclick=closeSheet;
   $("#sheet").querySelector("[data-set]").onclick=e=>{e.preventDefault();closeSheet();show("paper");setTimeout(()=>$("#settingsCard")?.scrollIntoView({behavior:"smooth"}),50)};
   $("#sheet").querySelector("[data-pbuy]").onclick=()=>{paperBuy(s.sym,q||1);closeSheet()};
-  $("#sheet").querySelector("[data-padd]").onclick=()=>{closeSheet();show("port");const f=$("#hSym");if(f){f.value=s.sym;$("#hPrice").value=s.price;$("#hQty").focus()}};
+  $("#sheet").querySelector("[data-padd]").onclick=()=>{closeSheet();portState.type="stock";show("port");const f=$("#hSym");if(f){f.value=s.sym;$("#hPrice").value=s.price;$("#hQty").focus()}};
 }
 function closeSheet(){$("#sheetBg").classList.remove("on");document.body.style.overflow=""}
 $("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")closeSheet()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
-document.addEventListener("click",e=>{const r=e.target.closest("[data-sym]");if(r&&!e.target.closest("button,input,select,a"))openStock(r.dataset.sym)});
+document.addEventListener("click",e=>{const r=e.target.closest("[data-sym]");if(r&&!e.target.closest("button,input,select")){e.preventDefault();openStock(r.dataset.sym)}});
 
-/* ---------------------------------------------------------------- track record */
-function renderRecord(){
-  const H=DATA.hit,B=DATA.backtest;
-  const hitTable=(mode)=>`<div class="tw"><table><thead><tr><th>Label</th><th class="n">Times seen</th><th class="n">Price higher after</th><th class="n">Avg return</th><th class="n">Edge vs avg stock</th></tr></thead><tbody>
-    ${LORDER.concat(["ALL"]).map(l=>{const h=H[mode][l];if(!h)return"";return `<tr><td>${l==="ALL"?"<b>All stock-days</b>":pill(l)}</td><td class="n">${h.n.toLocaleString("en-IN")}</td><td class="n">${pct(h.win,0,false)}</td><td class="n">${pct(h.avg)}</td><td class="n ${cls(h.xs)}"><b>${l==="ALL"?"–":pct(h.xs,2)}</b></td></tr>`}).join("")}</tbody></table></div>`;
-  const bt=(k,title)=>{const b=B[k],s=b.stats,c=b.curve;
-    const beatEW=s.total>s.ew.total;
-    return `<div class="card" style="margin-top:12px"><h3>${title}</h3>
-    <div class="banner ${beatEW?"L-B":"warn"} small" style="margin-bottom:10px">${beatEW?`This strategy beat simply buying and holding the same 50 stocks over ${s.years} years.`:`This strategy did <u>worse</u> than simply buying and holding the same 50 stocks over ${s.years} years.`}</div>
-    <div class="kv"><div><span>Strategy total return</span><b class="${cls(s.total)}">${pct(s.total,0)}</b><span>${pct(s.cagr,1)} / yr</span></div>
-      <div><span>Buy & hold all 50 (equal)</span><b class="${cls(s.ew.total)}">${pct(s.ew.total,0)}</b><span>${pct(s.ew.cagr,1)} / yr</span></div>
-      <div><span>Nifty 50 index</span><b class="${cls(s.bench.total)}">${pct(s.bench.total,0)}</b><span>${pct(s.bench.cagr,1)} / yr</span></div>
-      <div><span>Worst fall (strategy)</span><b class="down">${pct(s.maxdd,0)}</b><span>buy & hold: ${pct(s.ew.maxdd,0)}</span></div>
-      ${s.trades!=null?`<div><span>Trades</span><b>${s.trades}</b><span>${s.exits.target} target · ${s.exits.stop} stop · ${s.exits.time} time</span></div>
-      <div><span>Winning trades</span><b>${pct(s.win,0,false)}</b><span>avg win ${pct(s.avg_win)} · avg loss ${pct(s.avg_loss)}</span></div>
-      <div><span>Profit factor</span><b>${s.pf==null?"–":num(s.pf,2)}</b><span>&gt;1 = made money</span></div>`:""}</div>
-    <div style="margin-top:12px">${lineChart([{v:c.s,c:css("--accent"),n:"Strategy",w:2},{v:c.e,c:css("--b"),n:"Buy & hold 50"},{v:c.b,c:css("--mute"),n:"Nifty 50",dash:1}],c.d,{long:1,fmt:v=>num(v,0)})}
-    <div class="legend"><span><i style="background:${css("--accent")}"></i>Strategy</span><span><i style="background:${css("--b")}"></i>Buy &amp; hold same 50 stocks</span><span><i style="background:${css("--mute")}"></i>Nifty 50 index</span></div></div>
-    <p class="tiny mute">${esc(b.rules)}</p>
-    ${b.recent?`<details><summary>Last ${b.recent.length} trades</summary><div class="tw"><table class="rc"><thead><tr><th>Stock</th><th>In</th><th>Out</th><th class="n">Entry</th><th class="n">Exit</th><th class="n">Return</th><th>Exit reason</th></tr></thead><tbody>
-      ${b.recent.map(t=>`<tr><td><b>${t.sym}</b></td><td>${t.in}</td><td>${t.out}</td><td class="n">${num(t.entry)}</td><td class="n">${num(t.exit)}</td><td class="n ${cls(t.ret)}">${pct(t.ret)}</td><td>${t.why}</td></tr>`).join("")}</tbody></table></div></details>`:""}
-    ${b.history?`<details><summary>Recent holdings</summary>${b.history.map(h=>`<div class="small" style="margin-top:6px"><b>${h.d}</b>: ${h.hold.join(", ")||"cash"}</div>`).join("")}</details>`:""}
-    </div>`};
-  const sb=H.swing["STRONG BUY"],lb=H.long["STRONG BUY"];
-  $("#t-record").innerHTML=`
-  <h2>Do these signals actually work?</h2>
-  <div class="card"><p style="margin-top:0"><b>The honest summary.</b> Every label was checked against what actually happened over the last 5 years for today's Nifty 50 stocks.</p>
-  <ul class="why">
-    <li class="${sb.xs>0?"p":"n"}">Swing <b>STRONG BUY</b> stocks beat the average Nifty 50 stock by <b>${pct(sb.xs,2)}</b> over the next month. ${Math.abs(sb.xs)<0.005?"That's a very small edge, easily wiped out by costs.":""}</li>
-    <li class="${lb.xs>0?"p":"n"}">Long-term <b>STRONG BUY</b> stocks beat the average Nifty 50 stock by <b>${pct(lb.xs,2)}</b> over the next 6 months.</li>
-    <li class="${B.swing.stats.total>B.swing.stats.ew.total?"p":"n"}">Trading the swing signals: ${pct(B.swing.stats.total,0)} vs ${pct(B.swing.stats.ew.total,0)} for just buying and holding all 50.</li>
-    <li class="${B.long.stats.total>B.long.stats.ew.total?"p":"n"}">Following the long-term signals: ${pct(B.long.stats.total,0)} vs ${pct(B.long.stats.ew.total,0)} for buying and holding all 50.</li>
-    <li class="z">Stocks rise more often than they fall over time, so a high "price higher after" % is normal. The <b>edge vs average stock</b> column is the real test.</li>
-    <li class="z">These tests only use stocks that are in the Nifty 50 <i>today</i>. Companies that fell out of the index are missing, so all past results look better than real life would have been.</li>
-  </ul></div>
-  <div class="card" style="margin-top:12px"><h3>Swing labels: what happened over the next ${H.swing_days} trading days (~1 month)</h3>${hitTable("swing")}</div>
-  <div class="card" style="margin-top:12px"><h3>Long-term labels: what happened over the next ${H.long_days} trading days (~6 months)</h3>${hitTable("long")}
-    <p class="tiny mute">Long-term history uses the trend part of the score only, because past fundamentals aren't available for free.</p></div>
-  ${bt("swing","Backtest: trading every swing BUY signal")}
-  ${bt("long","Backtest: holding the top 10 long-term picks, rebalanced monthly")}`;
+/* ================================================================ funds */
+let FUNDS=null,fundsLoading=null;
+function loadFunds(){if(FUNDS)return Promise.resolve(FUNDS);if(!fundsLoading)fundsLoading=fetch("funds.json").then(r=>{if(!r.ok)throw 0;return r.json()}).then(j=>FUNDS=j);return fundsLoading}
+const fundsState=Object.assign({cat:"Flexi Cap",q:"",sort:"rank",view:"cat"},store.get("funds",{}));
+function renderFunds(){
+  const el=$("#t-funds");
+  if(!FUNDS){el.innerHTML=`<h2>Mutual funds</h2><div class="card mute">Loading ${DATA.funds.count||""} funds…</div>`;
+    loadFunds().then(()=>{if(!el.classList.contains("hide"))renderFunds()}).catch(()=>{el.innerHTML=`<h2>Mutual funds</h2><div class="card">Fund data isn't available right now. Try again later.</div>`});return}
+  const st=fundsState;store.set("funds",st);
+  const F=FUNDS.funds,groups=[...new Set(FUNDS.cats.map(c=>c.g))];
+  let list=st.q?F.filter(f=>(f.n+" "+f.h).toLowerCase().includes(st.q.toLowerCase())):F.filter(f=>f.cat===st.cat);
+  const srt={rank:(a,b)=>(a.rank??999)-(b.rank??999)||(b.r3??-9)-(a.r3??-9),r1:(a,b)=>(b.r1??-9)-(a.r1??-9),r3:(a,b)=>(b.r3??-9)-(a.r3??-9),r5:(a,b)=>(b.r5??-9)-(a.r5??-9),
+    dd:(a,b)=>(b.dd??-9)-(a.dd??-9),vol:(a,b)=>(a.vol??9)-(b.vol??9),sh:(a,b)=>(b.sh??-9)-(a.sh??-9)};
+  list.sort(srt[st.sort]||srt.rank);
+  const th=(k,n)=>`<th class="n sort" data-s="${k}">${n}${st.sort===k?" ▾":""}</th>`;
+  el.innerHTML=`
+  <h2>Mutual funds <span class="tiny mute">${F.length} direct-plan funds · NAV ${esc(FUNDS.navdate)}</span></h2>
+  <div class="row tools" style="gap:10px">
+    <div style="flex:1;max-width:360px"><input type="search" id="fq" placeholder="Search any fund or fund house" value="${esc(st.q)}"></div>
+    <div style="width:240px"><select id="fcat">${groups.map(g=>`<optgroup label="${g}">${FUNDS.cats.filter(c=>c.g===g).map(c=>`<option ${c.cat===st.cat?"selected":""}>${esc(c.cat)}</option>`).join("")}</optgroup>`).join("")}</select></div>
+  </div>
+  <div class="chips" id="fchips" style="margin-top:10px">${["Large Cap","Flexi Cap","Mid Cap","Small Cap","Index Funds","ELSS (Tax saver)","Aggressive Hybrid","Gold & Silver","International","Liquid & Money Market"].filter(c=>FUNDS.cats.some(x=>x.cat===c)).map(c=>`<button data-c="${esc(c)}" class="${!st.q&&st.cat===c?"on":""}">${esc(c)}</button>`).join("")}</div>
+  <div class="card" style="margin-top:12px"><h3>${st.q?`Search: "${esc(st.q)}"`:esc(st.cat)} <span class="tiny mute">${list.length} funds</span></h3>
+    <div class="tw"><table class="rc"><thead><tr><th>Fund</th>${st.q?"<th>Category</th>":""}<th class="n sort" data-s="rank">Rank${st.sort==="rank"?" ▾":""}</th>${th("r1","1Y")}${th("r3","3Y /yr")}${th("r5","5Y /yr")}${th("vol","Volatility")}${th("dd","Worst fall")}${th("sh","Sharpe")}</tr></thead><tbody>
+    ${list.slice(0,150).map(f=>`<tr class="click" data-fund="${f.c}"><td class="wtd"><b>${esc(f.n)}</b><div class="tiny mute">${esc(f.h)}${f.age<3?` · <span class="tag">new: ${num(f.age,1)} yrs</span>`:""}</div></td>${st.q?`<td>${esc(f.cat)}</td>`:""}
+      <td class="n">${f.rank?`<b>${f.rank}</b><span class="tiny mute"> / ${f.of}</span>`:'<span class="tiny mute">not ranked</span>'}</td>
+      <td class="n ${cls(f.r1)}">${pct(f.r1)}</td><td class="n ${cls(f.r3)}">${pct(f.r3)}</td><td class="n ${cls(f.r5)}">${pct(f.r5)}</td>
+      <td class="n">${pct(f.vol,0,false)}</td><td class="n down">${pct(f.dd,0)}</td><td class="n">${num(f.sh,2)}</td></tr>`).join("")}</tbody></table></div>
+    <p class="tiny mute">Rank within category uses 3-year return (35%), 5-year return (20%), return per unit of risk (Sharpe, 25%) and smallest worst fall in 5 years (20%). Funds under 3 years old aren't ranked.
+    Past returns don't guarantee future returns. Expense ratio and fund size aren't shown here; check them on the fund house's site, Value Research or Morningstar before investing.</p></div>
+  ${sipCard()}`;
+  $("#fq").oninput=e=>{st.q=e.target.value;clearTimeout(renderFunds.t);renderFunds.t=setTimeout(()=>{renderFunds();cardify();const q=$("#fq");q.focus();q.setSelectionRange(q.value.length,q.value.length)},300)};
+  $("#fcat").onchange=e=>{st.cat=e.target.value;st.q="";renderFunds();cardify()};
+  $("#fchips").onclick=e=>{const b=e.target.closest("button");if(b){st.cat=b.dataset.c;st.q="";renderFunds();cardify()}};
+  el.querySelectorAll("th.sort").forEach(h=>h.onclick=()=>{st.sort=h.dataset.s;renderFunds();cardify()});
+  el.querySelectorAll("[data-fund]").forEach(r=>r.onclick=()=>openFund(+r.dataset.fund));
+  bindSip();cardify();
 }
+function openFund(code){
+  const f=FUNDS.funds.find(x=>x.c===code);if(!f)return;
+  $("#sheet").innerHTML=`<div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div><div class="big" style="font-size:20px">${esc(f.n)}</div><div class="mute small">${esc(f.h)} · ${esc(f.cat)} · Direct plan, Growth</div></div><span class="sp"></span><button class="x" id="closeS">×</button></div>
+  <div class="row" style="margin:10px 0">${f.rank?`<span class="pill ${f.rank<=Math.ceil(f.of*0.25)?"L-SB":f.rank<=Math.ceil(f.of*0.5)?"L-B":"L-H"}">Rank ${f.rank} of ${f.of} in ${esc(f.cat)}</span>`:'<span class="pill L-H">Not ranked (under 3 years old)</span>'}<span class="mute small">NAV ₹${num(f.nav,2)}</span></div>
+  <div class="kv"><div><span>1 year</span><b class="${cls(f.r1)}">${pct(f.r1)}</b></div><div><span>3 years (per yr)</span><b class="${cls(f.r3)}">${pct(f.r3)}</b></div>
+  <div><span>5 years (per yr)</span><b class="${cls(f.r5)}">${pct(f.r5)}</b></div><div><span>10 years (per yr)</span><b class="${cls(f.r10)}">${pct(f.r10)}</b></div>
+  <div><span>Volatility (3y)</span><b>${pct(f.vol,1,false)}</b></div><div><span>Worst fall (5y)</span><b class="down">${pct(f.dd,1)}</b></div>
+  <div><span>Sharpe (3y)</span><b>${num(f.sh,2)}</b><span>&gt;1 is good</span></div><div><span>Positive 1-yr periods</span><b>${pct(f.cons,0,false)}</b><span>last 3 years</span></div>
+  <div><span>Fund age</span><b>${num(f.age,1)} yrs</b></div></div>
+  <div class="card" style="margin-top:12px"><h3>What ₹10,000 a month would have become</h3>${[3,5,10].map(y=>{const r=f["r"+y];if(r==null)return"";const fv=sipFV(10000,r,y);return `<div class="small">${y} years: invested ${inr(120000*y,0)} → <b>${inr(fv,0)}</b> <span class="mute">(at this fund's ${y}-year return of ${pct(r)} a year)</span></div>`}).join("")||'<span class="small mute">Not enough history.</span>'}
+  <p class="tiny mute">Approximation using the fund's average yearly return. Real SIP results depend on the timing of ups and downs.</p></div>
+  <div class="row" style="margin-top:12px"><button class="btn ghost" data-fadd>Add to my portfolio</button></div>`;
+  $("#sheetBg").classList.add("on");document.body.style.overflow="hidden";$("#closeS").onclick=closeSheet;
+  $("#sheet").querySelector("[data-fadd]").onclick=()=>{closeSheet();portState.type="fund";show("port");const i=$("#hFund");if(i){i.value=f.n;$("#hPrice").value=f.nav;$("#hQty").focus()}};
+}
+function sipFV(monthly,annual,years){const r=Math.pow(1+annual,1/12)-1,n=years*12;return r===0?monthly*n:monthly*((Math.pow(1+r,n)-1)/r)*(1+r)}
+function sipCard(){const s=store.get("sip",{m:10000,y:15,r:12,step:0});return `<div class="card" style="margin-top:12px"><h3>SIP calculator</h3><div class="grid g4">
+  <label class="f">Monthly amount (₹)<input type="number" id="sipM" value="${s.m}"></label><label class="f">Years<input type="number" id="sipY" value="${s.y}"></label>
+  <label class="f">Expected return (% / yr)<input type="number" id="sipR" step="0.5" value="${s.r}"></label><label class="f">Yearly step-up (%)<input type="number" id="sipS" value="${s.step}"></label></div>
+  <div id="sipOut" style="margin-top:12px"></div><p class="tiny mute">Equity funds have historically returned about 10–14% a year over long periods in India, with big ups and downs on the way. Nothing is guaranteed.</p></div>`}
+function bindSip(){const f=()=>{const m=+$("#sipM").value||0,y=Math.min(50,+$("#sipY").value||0),r=(+$("#sipR").value||0)/100,step=(+$("#sipS").value||0)/100;store.set("sip",{m,y,r:r*100,step:step*100});
+  let bal=0,inv=0,mm=m;const pts=[],yrs=[];const rm=Math.pow(1+r,1/12)-1;for(let i=1;i<=y;i++){for(let k=0;k<12;k++){bal=(bal+mm)*(1+rm);inv+=mm}pts.push(bal);yrs.push(i);mm*=1+step}
+  $("#sipOut").innerHTML=`<div class="kv"><div><span>You invest</span><b>${inr(inv,0)}</b></div><div><span>Estimated value</span><b class="up">${inr(bal,0)}</b></div><div><span>Gain</span><b>${inr(bal-inv,0)}</b></div></div>`+
+    (y>1?lineChart([{v:pts,c:css("--b"),n:"Value",w:2}],yrs,{xfmt:v=>"Yr "+v,fmt:v=>"₹"+(v>=1e7?num(v/1e7,1)+"Cr":num(v/1e5,1)+"L"),h:200}):"")};
+  ["sipM","sipY","sipR","sipS"].forEach(id=>$("#"+id).oninput=f);f()}
 
-/* ---------------------------------------------------------------- charges & tax */
+/* ================================================================ charges & tax */
 function charges(buyVal,sellVal){
-  // Equity delivery on NSE. Brokerage per order (₹, from settings) applied on each side that exists.
   const br=(buyVal?settings.brokerage:0)+(sellVal?settings.brokerage:0);
   const stt=0.001*(buyVal+sellVal),exch=0.0000297*(buyVal+sellVal),sebi=0.000001*(buyVal+sellVal),stamp=0.00015*buyVal;
   const gst=0.18*(br+exch+sebi),dp=sellVal?settings.dp:0;
   return {br,stt,exch,sebi,stamp,gst,dp,total:br+stt+exch+sebi+stamp+gst+dp};
 }
 function taxEst(gain,buyDate,sellDate){
-  if(!buyDate)return{type:"–",tax:0,rate:0};
+  if(!buyDate)return{type:"–",tax:0};
   const days=(new Date(sellDate)-new Date(buyDate))/864e5;
-  if(gain<=0)return{type:days>365?"LTCG (loss)":"STCG (loss)",tax:0,rate:0};
-  if(days>365)return{type:"LTCG",rate:0.125,tax:Math.max(0,gain-125000)*0.125*1.04};
-  return{type:"STCG",rate:0.20,tax:gain*0.20*1.04};
+  if(gain<=0)return{type:days>365?"LTCG (loss)":"STCG (loss)",tax:0};
+  if(days>365)return{type:"LTCG",tax:Math.max(0,gain-125000)*0.125*1.04};
+  return{type:"STCG",tax:gain*0.20*1.04};
 }
-const today=()=>new Date().toISOString().slice(0,10);
 
-/* ---------------------------------------------------------------- paper trading */
+/* ================================================================ paper trading */
 function paper(){return store.get("paper",{cash:1000000,start:1000000,pos:[],hist:[]})}
 function savePaper(p){store.set("paper",p)}
-function paperBuy(sym,qty){
-  const p=paper(),s=BY[sym],cost=qty*s.price,ch=charges(cost,0).total;
-  if(cost+ch>p.cash){toast("Not enough paper cash");return}
+function paperBuy(sym,qty,quiet){
+  const p=paper(),s=BY[sym];if(!s){toast("Unknown symbol "+sym);return false}
+  const cost=qty*s.price,ch=charges(cost,0).total;
+  if(cost+ch>p.cash){if(!quiet)toast("Not enough paper cash");return false}
   p.cash-=cost+ch;
-  const sw=s.swing;p.pos.push({id:Date.now(),sym,qty,price:s.price,date:DATA.data_date,stop:sw.stop,target:sw.target,label:sw.label,ch});
-  savePaper(p);toast(`Paper bought ${qty} ${sym}`);if(!$("#t-paper").classList.contains("hide"))renderPaper();
+  p.pos.push({id:Date.now()+Math.random(),sym,qty,price:s.price,date:DATA.data_date,stop:s.swing.stop,target:s.swing.target,label:s.swing.label,ch});
+  savePaper(p);if(!quiet)toast(`Paper bought ${qty} ${sym}`);if(!$("#t-paper").classList.contains("hide"))renderPaper();return true;
 }
 function renderPaper(){
   const p=paper();let inv=0,val=0;
   const rows=p.pos.map(x=>{const s=BY[x.sym],cur=s?s.price:x.price,v=cur*x.qty;inv+=x.price*x.qty;val+=v;const pl=v-x.price*x.qty;
     const alert=cur<=x.stop?'<span class="pill L-S">Stop hit</span>':cur>=x.target?'<span class="pill L-SB">Target hit</span>':"";
-    return `<tr><td><b class="click" data-sym="${x.sym}" style="cursor:pointer">${x.sym}</b> ${alert}<div class="tiny mute">${x.date} · ${esc(x.label)}</div></td><td class="n">${x.qty}</td><td class="n">${num(x.price)}</td><td class="n">${num(cur)}</td>
+    return `<tr><td><b data-sym="${x.sym}" style="cursor:pointer">${x.sym}</b> ${alert}<div class="tiny mute">${x.date} · ${esc(x.label)}</div></td><td class="n">${x.qty}</td><td class="n">${num(x.price)}</td><td class="n">${num(cur)}</td>
     <td class="n ${cls(pl)}">${inr(pl,0)}<div class="tiny">${pct(cur/x.price-1)}</div></td><td class="n tiny">${num(x.stop,1)} / ${num(x.target,1)}</td><td><button class="btn sm ghost" data-sell="${x.id}">Sell</button></td></tr>`}).join("");
   const eq=p.cash+val,ret=eq/p.start-1,wins=p.hist.filter(h=>h.pl>0).length;
   $("#t-paper").innerHTML=`
@@ -450,25 +517,25 @@ function renderPaper(){
     <div class="card"><div class="mute small">Open positions</div><div class="big">${p.pos.length}</div><div class="small ${cls(val-inv)}">${inr(val-inv,0)} unrealised</div></div>
     <div class="card"><div class="mute small">Closed trades</div><div class="big">${p.hist.length}</div><div class="small">${p.hist.length?pct(wins/p.hist.length,0,false)+" winners":"–"}</div></div></div>
   <div class="card" style="margin-top:12px"><div class="row"><h3>Open positions</h3><span class="sp"></span>
-    <button class="btn sm" id="buyAll">Paper-buy all swing BUY signals</button></div>
+    <button class="btn sm ghost" id="buyLong">Buy top 10 long-term</button><button class="btn sm" id="buyAll">Buy all swing STRONG BUYs</button></div>
     ${p.pos.length?`<div class="tw"><table class="rc"><thead><tr><th>Stock</th><th class="n">Qty</th><th class="n">Buy</th><th class="n">Now</th><th class="n">P&amp;L</th><th class="n">Stop / Target</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:
-    '<p class="mute small">No open positions. Open any stock and tap "Paper buy", or use the button above. Prices update each time you rerun the analyzer.</p>'}
+    '<p class="mute small">No open positions. Open any stock and tap "Paper buy", or use the buttons above. Prices update every evening.</p>'}
   </div>
-  <div class="card" style="margin-top:12px"><h3>Buy any stock</h3><div class="grid g3">
-    <label class="f">Stock<select id="pSym">${S.map(s=>`<option>${s.sym}</option>`).join("")}</select></label>
+  <div class="card" style="margin-top:12px"><h3>Buy any stock or ETF</h3><div class="grid g3">
+    <label class="f">Symbol<input type="text" id="pSym" list="symList" placeholder="e.g. RELIANCE, GOLDBEES" autocapitalize="characters"></label>
     <label class="f">Quantity<input type="number" id="pQty" min="1" value="10"></label>
     <label class="f">&nbsp;<button class="btn" id="pBuy" style="width:100%">Paper buy at last close</button></label></div></div>
   ${p.hist.length?`<div class="card" style="margin-top:12px"><h3>Closed trades</h3><div class="tw"><table class="rc"><thead><tr><th>Stock</th><th>Bought</th><th>Sold</th><th class="n">Qty</th><th class="n">Buy</th><th class="n">Sell</th><th class="n">P&amp;L after costs</th></tr></thead><tbody>
     ${p.hist.slice().reverse().map(h=>`<tr><td><b>${h.sym}</b></td><td>${h.date}</td><td>${h.sold}</td><td class="n">${h.qty}</td><td class="n">${num(h.price)}</td><td class="n">${num(h.sell)}</td><td class="n ${cls(h.pl)}">${inr(h.pl,0)}</td></tr>`).join("")}</tbody></table></div></div>`:""}
   ${settingsCard()}
   <div class="row" style="margin-top:12px"><span class="sp"></span><button class="btn sm red" id="pReset">Reset paper account</button></div>`;
-  $("#pBuy").onclick=()=>paperBuy($("#pSym").value,Math.max(1,parseInt($("#pQty").value)||1));
-  $("#buyAll").onclick=()=>{const list=S.filter(s=>s.swing.label==="BUY"||s.swing.label==="STRONG BUY").filter(s=>!paper().pos.some(x=>x.sym===s.sym));
-    if(!list.length){toast("No new swing BUY signals");return}
-    let ok=0;list.forEach(s=>{const before=paper().pos.length;paperBuy(s.sym,Math.max(1,qtyFor(s.swing.entry,s.swing.stop)));if(paper().pos.length>before)ok++});
-    toast(ok===list.length?`Paper bought ${ok} stocks`:`Bought ${ok} of ${list.length}. Not enough paper cash for the rest`)};
-  $("#t-paper").querySelectorAll("[data-sell]").forEach(b=>b.onclick=()=>{const p=paper(),i=p.pos.findIndex(x=>x.id==b.dataset.sell);if(i<0)return;const x=p.pos[i],s=BY[x.sym],px=s?s.price:x.price;
-    const ch=charges(0,px*x.qty).total;p.cash+=px*x.qty-ch;p.hist.push({...x,sell:px,sold:DATA.data_date,pl:(px-x.price)*x.qty-ch-(x.ch||0)});p.pos.splice(i,1);savePaper(p);toast("Sold "+x.sym);renderPaper()});
+  $("#pBuy").onclick=()=>{const sym=$("#pSym").value.trim().toUpperCase();paperBuy(sym,Math.max(1,parseInt($("#pQty").value)||1))};
+  const bulk=(list,qf)=>{list=list.filter(s=>!paper().pos.some(x=>x.sym===s.sym));if(!list.length){toast("Nothing new to buy");return}
+    let ok=0;list.forEach(s=>{if(paperBuy(s.sym,Math.max(1,qf(s)),true))ok++});toast(ok===list.length?`Paper bought ${ok}`:`Bought ${ok} of ${list.length}. Not enough paper cash for the rest`);renderPaper();cardify()};
+  $("#buyAll").onclick=()=>bulk(STOCKS.filter(s=>s.swing.label==="STRONG BUY").sort((a,b)=>b.swing.score-a.swing.score),s=>qtyFor(s.swing.entry,s.swing.stop));
+  $("#buyLong").onclick=()=>bulk([...STOCKS].sort((a,b)=>b.long.score-a.long.score).slice(0,10),s=>Math.floor(paper().cash/10/s.price));
+  $("#t-paper").querySelectorAll("[data-sell]").forEach(b=>b.onclick=()=>{const p=paper(),i=p.pos.findIndex(x=>String(x.id)===b.dataset.sell);if(i<0)return;const x=p.pos[i],s=BY[x.sym],px=s?s.price:x.price;
+    const ch=charges(0,px*x.qty).total;p.cash+=px*x.qty-ch;p.hist.push({...x,sell:px,sold:DATA.data_date,pl:(px-x.price)*x.qty-ch-(x.ch||0)});p.pos.splice(i,1);savePaper(p);toast("Sold "+x.sym);renderPaper();cardify()});
   $("#pReset").onclick=()=>{if(confirm("Reset paper account to ₹10,00,000 and delete all paper trades?")){store.set("paper",null);renderPaper()}};
   bindSettings();cardify();
 }
@@ -480,16 +547,25 @@ function settingsCard(){return `<div class="card" id="settingsCard" style="margi
   <p class="tiny mute">Risk per trade is how much of your capital you're willing to lose if a stop-loss hits. 0.5–1% is a common choice. Saved on this device only.</p></div>`}
 function bindSettings(){[["sCap","capital"],["sRisk","risk"],["sBr","brokerage"],["sDp","dp"]].forEach(([id,k])=>{const el=document.getElementById(id);if(el)el.onchange=()=>{settings[k]=parseFloat(el.value)||0;store.set("settings",settings);toast("Settings saved")}})}
 
-/* ---------------------------------------------------------------- real portfolio */
+/* ================================================================ real portfolio */
+const portState={type:"stock"};
 function renderPort(){
   const H=store.get("holdings",[]);const t=today();let tInv=0,tVal=0,tCh=0,tTax=0;
-  const rows=H.map((h,i)=>{const s=BY[h.sym],cur=s?s.price:(h.manual||h.price),inv=h.price*h.qty,val=cur*h.qty,gain=val-inv;
-    const ch=charges(0,val).total,tx=taxEst(gain-ch,h.date,t);tInv+=inv;tVal+=val;tCh+=ch;tTax+=tx.tax;
-    return `<tr><td><b ${s?`data-sym="${h.sym}" style="cursor:pointer"`:""}>${esc(h.sym)}</b><div class="tiny mute">${h.date||""}</div></td><td class="n">${h.qty}</td><td class="n">${num(h.price)}</td><td class="n">${num(cur)}</td>
+  const needFunds=H.some(h=>h.type==="fund");
+  if(needFunds&&!FUNDS){loadFunds().then(()=>{if(!$("#t-port").classList.contains("hide")){renderPort()}}).catch(()=>{})}
+  const rows=H.map((h,i)=>{
+    let cur,sig="",sig2="",ch=0;
+    if(h.type==="fund"){const f=FUNDS&&FUNDS.funds.find(x=>x.c===h.code);cur=f?f.nav:h.price;
+      sig=f&&f.rank?`<span class="tag">Rank ${f.rank}/${f.of}</span>`:"–";sig2=f?`<span class="tiny mute">${esc(f.cat)}</span>`:"";}
+    else{const s=BY[h.sym];cur=s?s.price:h.price;sig=s?pill(s.long.label):"–";sig2=s?pill(s.swing.label):"–";}
+    const inv=h.price*h.qty,val=cur*h.qty,gain=val-inv;
+    if(h.type!=="fund")ch=charges(0,val).total;
+    const tx=taxEst(gain-ch,h.date,t);tInv+=inv;tVal+=val;tCh+=ch;tTax+=tx.tax;
+    const label=h.type==="fund"?`<b>${esc(h.name||h.sym)}</b>`:`<b ${BY[h.sym]?`data-sym="${h.sym}" style="cursor:pointer"`:""}>${esc(h.sym)}</b>`;
+    return `<tr><td class="wtd">${label}<div class="tiny mute">${h.type==="fund"?"Mutual fund · ":""}${h.date||""}</div></td><td class="n">${num(h.qty,h.type==="fund"?3:0)}</td><td class="n">${num(h.price)}</td><td class="n">${num(cur)}</td>
     <td class="n ${cls(gain)}">${inr(gain,0)}<div class="tiny">${pct(cur/h.price-1)}</div></td>
-    <td>${s?pill(s.swing.label):"–"}</td><td>${s?pill(s.long.label):"–"}</td>
-    <td class="n tiny">${inr(ch,0)}<br>${tx.type} ${inr(tx.tax,0)}</td><td><button class="btn sm ghost" data-del="${i}">Remove</button></td></tr>`}).join("");
-  const net=tVal-tInv-tCh-tTax;
+    <td>${sig}</td><td>${sig2}</td><td class="n tiny">${inr(ch,0)}<br>${tx.type} ${inr(tx.tax,0)}</td><td><button class="btn sm ghost" data-del="${i}">Remove</button></td></tr>`}).join("");
+  const net=tVal-tInv-tCh-tTax,isF=portState.type==="fund";
   $("#t-port").innerHTML=`
   <h2>My portfolio</h2>
   <div class="grid g4"><div class="card"><div class="mute small">Invested</div><div class="big">${inr(tInv,0)}</div></div>
@@ -497,63 +573,218 @@ function renderPort(){
     <div class="card"><div class="mute small">If you sold everything today</div><div class="small">Charges ≈ ${inr(tCh,0)}<br>Tax ≈ ${inr(tTax,0)}</div></div>
     <div class="card"><div class="mute small">Net gain after costs & tax</div><div class="big ${cls(net)}">${inr(net,0)}</div></div></div>
   <div class="card" style="margin-top:12px"><h3>Holdings</h3>
-    ${H.length?`<div class="tw"><table class="rc"><thead><tr><th>Stock</th><th class="n">Qty</th><th class="n">Avg buy</th><th class="n">Now</th><th class="n">P&amp;L</th><th>Swing</th><th>Long term</th><th class="n">Sell costs / tax</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
-    :'<p class="mute small">Add the stocks you actually own to see P&amp;L, the current signal for each, and what you\'d pay in charges and tax if you sold today.</p>'}
-    ${H.some(h=>{const s=BY[h.sym];return s&&(s.long.label==="SELL / EXIT"||s.swing.label==="SELL / EXIT")})?'<div class="banner warn small" style="margin-top:10px">Some of your holdings have a SELL / EXIT label. Open them to see why before deciding anything.</div>':""}
+    ${H.length?`<div class="tw"><table class="rc"><thead><tr><th>Holding</th><th class="n">Qty / units</th><th class="n">Avg buy</th><th class="n">Now</th><th class="n">P&amp;L</th><th>Long term</th><th>Swing</th><th class="n">Sell costs / tax</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+    :'<p class="mute small">Add the stocks, ETFs and mutual funds you actually own to see P&amp;L, the current signal for each, and what you\'d pay in charges and tax if you sold today.</p>'}
+    ${H.some(h=>{const s=BY[h.sym];return h.type!=="fund"&&s&&(s.long.label==="SELL / EXIT")})?'<div class="banner warn small" style="margin-top:10px">Some holdings have a long-term SELL / EXIT label. Open them to see why before deciding anything.</div>':""}
   </div>
-  <div class="card" style="margin-top:12px"><h3>Add a holding</h3><div class="grid g4">
-    <label class="f">Stock (NSE symbol)<input type="text" id="hSym" list="symList" placeholder="e.g. TCS" autocapitalize="characters"></label>
-    <label class="f">Quantity<input type="number" id="hQty" min="1"></label>
-    <label class="f">Average buy price (₹)<input type="number" id="hPrice" step="0.05"></label>
+  <div class="card" style="margin-top:12px"><div class="row"><h3>Add a holding</h3><span class="sp"></span><div class="seg" id="htype"><button data-t="stock" class="${isF?"":"on"}">Stock / ETF</button><button data-t="fund" class="${isF?"on":""}">Mutual fund</button></div></div>
+    <div class="grid g4" style="margin-top:8px">
+    ${isF?`<label class="f" style="grid-column:span 2">Fund name<input type="text" id="hFund" list="fundList" placeholder="Start typing a fund name"></label><datalist id="fundList"></datalist>`
+      :`<label class="f">Symbol (NSE)<input type="text" id="hSym" list="symList" placeholder="e.g. TCS" autocapitalize="characters"></label>`}
+    <label class="f">${isF?"Units":"Quantity"}<input type="number" id="hQty" min="0" step="any"></label>
+    <label class="f">${isF?"Average NAV (₹)":"Average buy price (₹)"}<input type="number" id="hPrice" step="any"></label>
     <label class="f">Buy date<input type="date" id="hDate" value="${t}"></label></div>
-    <datalist id="symList">${S.map(s=>`<option value="${s.sym}">${esc(s.name)}</option>`).join("")}</datalist>
-    <div class="row" style="margin-top:10px"><button class="btn" id="hAdd">Add holding</button><span class="tiny mute">Stocks outside the Nifty 50 are allowed, but their price won't update.</span></div></div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="hAdd">Add holding</button><span class="tiny mute">${isF?"Equity funds are taxed like shares (shown). Debt funds are taxed at your income-tax slab instead.":"Stocks outside the Nifty 500 are allowed, but their price won't update."}</span></div></div>
   <div class="card" style="margin-top:12px"><h3>How charges & tax are estimated</h3><div class="small mute">
-    Equity delivery on NSE: STT 0.1% on buy and sell · exchange fee 0.00297% · SEBI fee ₹10/crore · stamp duty 0.015% on buy · GST 18% on brokerage + exchange + SEBI fees · DP charge per sell (set in Paper trade → settings).<br>
-    Tax: held ≤ 12 months = STCG 20%; held &gt; 12 months = LTCG 12.5% on gains above ₹1.25 lakh per year, plus 4% cess. The ₹1.25 lakh exemption is applied per holding here, but really it applies once across all your gains in a year. This is a rough estimate. Check with a CA for filing.</div></div>
-  <div class="row" style="margin-top:12px"><button class="btn sm ghost" id="hExport">Export holdings</button><label class="btn sm ghost" style="display:inline-block">Import<input type="file" id="hImport" accept=".json" class="hide"></label></div>`;
-  $("#hAdd").onclick=()=>{const sym=$("#hSym").value.trim().toUpperCase(),qty=parseFloat($("#hQty").value),price=parseFloat($("#hPrice").value),date=$("#hDate").value;
-    if(!sym||!(qty>0)||!(price>0)){toast("Enter symbol, quantity and price");return}
-    const H=store.get("holdings",[]);H.push({sym,qty,price,date});store.set("holdings",H);toast("Added "+sym);renderPort()};
-  $("#t-port").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const H=store.get("holdings",[]);if(confirm("Remove "+H[b.dataset.del].sym+"?")){H.splice(b.dataset.del,1);store.set("holdings",H);renderPort()}});
-  $("#hExport").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({holdings:store.get("holdings",[]),paper:paper(),settings},null,1)],{type:"application/json"}));a.download="nifty-analyzer-backup.json";a.click()};
+    Equity delivery on NSE: STT 0.1% on buy and sell · exchange fee 0.00297% · SEBI fee ₹10/crore · stamp duty 0.015% on buy · GST 18% on brokerage + exchange + SEBI fees · DP charge per sell (set in Paper → settings). Mutual funds: no selling charges shown (some funds charge an exit load if sold early).<br>
+    Tax: held ≤ 12 months = STCG 20%; held &gt; 12 months = LTCG 12.5% on gains above ₹1.25 lakh per year, plus 4% cess. The ₹1.25 lakh exemption is applied per holding here, but really it applies once across all your gains in a year. Rough estimate only: check with a CA for filing.</div></div>
+  <div class="row" style="margin-top:12px"><button class="btn sm ghost" id="hExport">Export backup</button><label class="btn sm ghost" style="display:inline-block">Import backup<input type="file" id="hImport" accept=".json" class="hide"></label></div>`;
+  $("#htype").onclick=e=>{const b=e.target.closest("button");if(b){portState.type=b.dataset.t;renderPort();cardify()}};
+  if(isF){loadFunds().then(()=>{const dl=$("#fundList");if(dl)dl.innerHTML=FUNDS.funds.map(f=>`<option value="${esc(f.n)}">`).join("")}).catch(()=>{});
+    $("#hFund").onchange=()=>{const f=FUNDS&&FUNDS.funds.find(x=>x.n===$("#hFund").value);if(f&&!$("#hPrice").value)$("#hPrice").value=f.nav}}
+  $("#hAdd").onclick=()=>{const qty=parseFloat($("#hQty").value),price=parseFloat($("#hPrice").value),date=$("#hDate").value;const H=store.get("holdings",[]);
+    if(isF){const f=FUNDS&&FUNDS.funds.find(x=>x.n===$("#hFund").value);if(!f||!(qty>0)||!(price>0)){toast("Pick a fund from the list and enter units and NAV");return}
+      H.push({type:"fund",code:f.c,name:f.n,qty,price,date})}
+    else{const sym=$("#hSym").value.trim().toUpperCase();if(!sym||!(qty>0)||!(price>0)){toast("Enter symbol, quantity and price");return}H.push({type:"stock",sym,qty,price,date})}
+    store.set("holdings",H);toast("Added");renderPort();cardify()};
+  $("#t-port").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const H=store.get("holdings",[]);const h=H[b.dataset.del];if(confirm("Remove "+(h.name||h.sym)+"?")){H.splice(b.dataset.del,1);store.set("holdings",H);renderPort();cardify()}});
+  $("#hExport").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({holdings:store.get("holdings",[]),paper:paper(),settings},null,1)],{type:"application/json"}));a.download="market-analyzer-backup.json";a.click()};
+  $("#hImport").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const j=JSON.parse(t);if(j.holdings)store.set("holdings",j.holdings);if(j.paper)store.set("paper",j.paper);if(j.settings){Object.assign(settings,j.settings);store.set("settings",settings)}toast("Imported");renderPort();cardify()}catch(err){toast("Not a valid backup file")}})};
   cardify();
-  $("#hImport").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const j=JSON.parse(t);if(j.holdings)store.set("holdings",j.holdings);if(j.paper)store.set("paper",j.paper);if(j.settings){Object.assign(settings,j.settings);store.set("settings",settings)}toast("Imported");renderPort()}catch(err){toast("Not a valid backup file")}})};
 }
 
-/* ---------------------------------------------------------------- guide */
+/* ================================================================ learn: track record / F&O / guide */
+const learnState=Object.assign({sec:"record",uni:"all"},store.get("learn",{}));
+function renderLearn(){
+  const st=learnState;store.set("learn",st);
+  $("#t-learn").innerHTML=`<div class="seg" id="lsec" style="margin-top:6px">${[["record","Track record"],["fno","F&O tools"],["guide","Guide"]].map(([k,n])=>`<button data-k="${k}" class="${st.sec===k?"on":""}">${n}</button>`).join("")}</div><div id="lbody"></div>`;
+  $("#lsec").onclick=e=>{const b=e.target.closest("button");if(b){st.sec=b.dataset.k;renderLearn();cardify()}};
+  ({record:renderRecord,fno:renderFno,guide:renderGuide})[st.sec]();
+}
+function renderRecord(){
+  const H=DATA.hit,B=DATA.backtest,st=learnState,key=hitKey(st.uni);
+  const hitTable=(mode)=>{const t=H[mode][key];if(!t)return'<p class="mute small">No data.</p>';return `<div class="tw"><table><thead><tr><th>Label</th><th class="n">Times seen</th><th class="n">Price higher after</th><th class="n">Avg return</th><th class="n">Edge vs avg stock</th></tr></thead><tbody>
+    ${LORDER.concat(["ALL"]).map(l=>{const h=t[l];if(!h)return"";return `<tr><td>${l==="ALL"?"<b>All</b>":pill(l)}</td><td class="n">${h.n.toLocaleString("en-IN")}</td><td class="n">${pct(h.win,0,false)}</td><td class="n">${pct(h.avg)}</td><td class="n ${cls(h.xs)}"><b>${l==="ALL"?"–":pct(h.xs,2)}</b></td></tr>`}).join("")}</tbody></table></div>`};
+  const bt=(k,title)=>{const b=B[k],s=b.stats,c=b.curve;const beatEW=s.total>s.ew.total;
+    return `<div class="card" style="margin-top:12px"><h3>${title}</h3>
+    <div class="banner ${beatEW?"L-B":"warn"} small" style="margin-bottom:10px">${beatEW?`This strategy beat simply buying and holding all Nifty 500 stocks over ${s.years} years.`:`This strategy did <u>worse</u> than simply buying and holding all Nifty 500 stocks over ${s.years} years.`}</div>
+    <div class="kv"><div><span>Strategy total return</span><b class="${cls(s.total)}">${pct(s.total,0)}</b><span>${pct(s.cagr,1)} / yr</span></div>
+      <div><span>Buy & hold all 500 (equal)</span><b class="${cls(s.ew.total)}">${pct(s.ew.total,0)}</b><span>${pct(s.ew.cagr,1)} / yr</span></div>
+      <div><span>Nifty 50 index</span><b class="${cls(s.bench.total)}">${pct(s.bench.total,0)}</b><span>${pct(s.bench.cagr,1)} / yr</span></div>
+      <div><span>Worst fall (strategy)</span><b class="down">${pct(s.maxdd,0)}</b><span>buy & hold: ${pct(s.ew.maxdd,0)}</span></div>
+      ${s.trades!=null?`<div><span>Trades</span><b>${s.trades}</b><span>${s.exits.target} target · ${s.exits.stop} stop · ${s.exits.time} time</span></div>
+      <div><span>Winning trades</span><b>${pct(s.win,0,false)}</b><span>avg win ${pct(s.avg_win)} · avg loss ${pct(s.avg_loss)}</span></div>
+      <div><span>Profit factor</span><b>${s.pf==null?"–":num(s.pf,2)}</b><span>&gt;1 = made money</span></div>`:""}</div>
+    <div style="margin-top:12px">${lineChart([{v:c.s,c:css("--accent"),n:"Strategy",w:2},{v:c.e,c:css("--b"),n:"Buy & hold 500"},{v:c.b,c:css("--mute"),n:"Nifty 50",dash:1}],c.d,{long:1,fmt:v=>num(v,0)})}
+    <div class="legend"><span><i style="background:${css("--accent")}"></i>Strategy</span><span><i style="background:${css("--b")}"></i>Buy &amp; hold all 500</span><span><i style="background:${css("--mute")}"></i>Nifty 50 index</span></div></div>
+    <p class="tiny mute">${esc(b.rules)}</p>
+    ${b.recent?`<details><summary>Last ${b.recent.length} trades</summary><div class="tw"><table class="rc"><thead><tr><th>Stock</th><th>In</th><th>Out</th><th class="n">Entry</th><th class="n">Exit</th><th class="n">Return</th><th>Exit reason</th></tr></thead><tbody>
+      ${b.recent.map(t=>`<tr><td><b>${t.sym}</b></td><td>${t.in}</td><td>${t.out}</td><td class="n">${num(t.entry)}</td><td class="n">${num(t.exit)}</td><td class="n ${cls(t.ret)}">${pct(t.ret)}</td><td>${t.why}</td></tr>`).join("")}</tbody></table></div></details>`:""}
+    ${b.history?`<details><summary>Recent holdings</summary>${b.history.map(h=>`<div class="small" style="margin-top:6px"><b>${h.d}</b>: ${h.hold.join(", ")||"cash"}</div>`).join("")}</details>`:""}</div>`};
+  const sb=H.swing["All stocks"]["STRONG BUY"],lb=H.long["All stocks"]["STRONG BUY"];
+  const byCap=mode=>["Nifty 50","Next 50","Midcap","Smallcap","ETF"].map(c=>{const h=H[mode][c]&&H[mode][c]["STRONG BUY"];return h?`<tr><td>${c}</td><td class="n ${cls(h.xs)}"><b>${pct(h.xs,2)}</b></td><td class="n">${h.n.toLocaleString("en-IN")}</td></tr>`:""}).join("");
+  $("#lbody").innerHTML=`
+  <h2>Do these signals actually work?</h2>
+  <div class="card"><p style="margin-top:0"><b>The honest summary.</b> Every label was checked against what actually happened over the last 5 years.</p>
+  <ul class="why">
+    <li class="${lb.xs>0?"p":"n"}">Long-term <b>STRONG BUY</b> stocks beat the average Nifty 500 stock by <b>${pct(lb.xs,2)}</b> over the next 6 months.</li>
+    <li class="${sb.xs>0?"p":"n"}">Swing <b>STRONG BUY</b> stocks beat the average Nifty 500 stock by <b>${pct(sb.xs,2)}</b> over the next month.</li>
+    <li class="${B.long.stats.total>B.long.stats.ew.total?"p":"n"}">Holding the top 15 long-term picks (monthly rebalance): ${pct(B.long.stats.total,0)} vs ${pct(B.long.stats.ew.total,0)} for buying and holding all 500.</li>
+    <li class="${B.swing.stats.total>B.swing.stats.ew.total?"p":"n"}">Mechanically trading every swing signal with a stop and target: ${pct(B.swing.stats.total,0)} vs ${pct(B.swing.stats.ew.total,0)} for buying and holding.</li>
+    <li class="z">The edge is weakest among Nifty 50 giants and strongest in mid and small caps, where moves are also bigger and riskier.</li>
+    <li class="z">These tests use stocks in the Nifty 500 <i>today</i>. Companies that collapsed and dropped out are missing, so past results look better than real life would have been, especially for smallcaps.</li>
+  </ul></div>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3>STRONG BUY edge by group: long term (6 months)</h3><table><thead><tr><th>Group</th><th class="n">Edge vs avg</th><th class="n">Times seen</th></tr></thead><tbody>${byCap("long")}</tbody></table></div>
+    <div class="card"><h3>STRONG BUY edge by group: swing (1 month)</h3><table><thead><tr><th>Group</th><th class="n">Edge vs avg</th><th class="n">Times seen</th></tr></thead><tbody>${byCap("swing")}</tbody></table></div>
+  </div>
+  <div class="chips" id="runi" style="margin-top:12px">${UNIS.map(([u,n])=>`<button data-u="${u}" class="${st.uni===u?"on":""}">${n}</button>`).join("")}</div>
+  <div class="card" style="margin-top:12px"><h3>Long-term labels (${esc(key)}): next ${H.long_days} trading days (~6 months)</h3>${hitTable("long")}
+    <p class="tiny mute">Long-term history uses the trend and momentum part of the score only, because past fundamentals aren't available for free.</p></div>
+  <div class="card" style="margin-top:12px"><h3>Swing labels (${esc(key)}): next ${H.swing_days} trading days (~1 month)</h3>${hitTable("swing")}</div>
+  ${bt("long","Backtest: holding the top 15 long-term picks, rebalanced monthly")}
+  ${bt("swing","Backtest: trading every swing BUY signal")}`;
+  $("#runi").onclick=e=>{const b=e.target.closest("button");if(b){st.uni=b.dataset.u;renderLearn();cardify()}};
+}
+
+/* ---------- F&O tools ---------- */
+const fno=Object.assign({und:"NIFTY",spot:null,lot:75,legs:null,iv:15,days:7},store.get("fno",{}));
+function normCdf(x){const t=1/(1+0.2316419*Math.abs(x)),d=0.3989423*Math.exp(-x*x/2);let p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return x>0?1-p:p}
+function bs(type,S,K,days,iv,r=0.065){const T=Math.max(days,0.5)/365,v=iv/100;if(!(S>0&&K>0&&v>0))return 0;const d1=(Math.log(S/K)+(r+v*v/2)*T)/(v*Math.sqrt(T)),d2=d1-v*Math.sqrt(T);
+  return type==="CE"?S*normCdf(d1)-K*Math.exp(-r*T)*normCdf(d2):K*Math.exp(-r*T)*normCdf(-d2)-S*normCdf(-d1)}
+function roundStrike(x,S){const step=S>20000?50:S>5000?50:S>1000?20:S>300?10:5;return Math.round(x/step)*step}
+const PRESETS={
+  "Long call (bullish)":S=>[["B","CE",roundStrike(S,S)]],
+  "Long put (bearish)":S=>[["B","PE",roundStrike(S,S)]],
+  "Bull call spread":S=>[["B","CE",roundStrike(S,S)],["S","CE",roundStrike(S*1.03,S)]],
+  "Bear put spread":S=>[["B","PE",roundStrike(S,S)],["S","PE",roundStrike(S*0.97,S)]],
+  "Covered call (own shares)":S=>[["B","FUT",roundStrike(S,S)],["S","CE",roundStrike(S*1.04,S)]],
+  "Protective put (insure shares)":S=>[["B","FUT",roundStrike(S,S)],["B","PE",roundStrike(S*0.96,S)]],
+  "Long straddle (big move)":S=>[["B","CE",roundStrike(S,S)],["B","PE",roundStrike(S,S)]],
+  "Iron condor (range)":S=>[["S","PE",roundStrike(S*0.97,S)],["B","PE",roundStrike(S*0.94,S)],["S","CE",roundStrike(S*1.03,S)],["B","CE",roundStrike(S*1.06,S)]],
+  "Short straddle (UNLIMITED risk)":S=>[["S","CE",roundStrike(S,S)],["S","PE",roundStrike(S,S)]],
+};
+function undPrice(u){if(u==="NIFTY")return DATA.market.indices["Nifty 50"].last;if(u==="BANKNIFTY")return DATA.market.indices["Nifty Bank"].last;return BY[u]?.price}
+function priceLegs(){fno.legs.forEach(l=>{if(l.t!=="FUT"&&l.auto!==false)l.p=Math.round(bs(l.t,fno.spot,l.k,fno.days,fno.iv)*20)/20;if(l.t==="FUT")l.p=fno.spot})}
+function renderFno(){
+  if(!fno.spot)fno.spot=undPrice(fno.und)||25000;
+  if(!fno.legs){fno.legs=PRESETS["Bull call spread"](fno.spot).map(([s,t,k])=>({s,t,k,n:1}));priceLegs()}
+  store.set("fno",fno);
+  const S0=fno.spot,lo=S0*0.85,hi=S0*1.15,N=121,xs=[],ys=[];
+  const pay=x=>fno.legs.reduce((a,l)=>{const sg=l.s==="B"?1:-1;let v=l.t==="CE"?Math.max(x-l.k,0)-l.p:l.t==="PE"?Math.max(l.k-x,0)-l.p:x-l.p;return a+sg*v*l.n*fno.lot},0);
+  for(let i=0;i<N;i++){const x=lo+(hi-lo)*i/(N-1);xs.push(Math.round(x));ys.push(Math.round(pay(x)))}
+  // beyond the chart: keeps rising on the upside = unlimited profit; keeps falling = unlimited loss
+  const unlimitedUp=pay(S0*5)>pay(hi)+1,lossUnlim=pay(S0*5)<pay(hi)-1;
+  const atZero=pay(0.0001),maxProfit=Math.max(...ys,atZero),maxLoss=Math.min(...ys,atZero);
+  const be=[];for(let i=1;i<N;i++){if((ys[i-1]<0)!==(ys[i]<0)){const x0=xs[i-1],x1=xs[i];be.push(Math.round(x0+(x1-x0)*(-ys[i-1])/(ys[i]-ys[i-1])))}}
+  const net=fno.legs.reduce((a,l)=>a+(l.t==="FUT"?0:(l.s==="B"?-1:1)*l.p*l.n*fno.lot),0);
+  const sellers=fno.legs.some(l=>l.s==="S"&&l.t!=="FUT")||fno.legs.some(l=>l.t==="FUT");
+  const vline=Math.round((S0-lo)/(hi-lo)*(N-1));
+  $("#lbody").innerHTML=`
+  <h2>Futures & options (F&O)</h2>
+  <div class="banner L-S small"><b>Read this first.</b> SEBI's studies (FY22 and FY24) found that about <b>9 in 10 individual F&O traders lost money</b>, and the average loss was large. Options can expire worthless in days, and selling options or trading futures can lose far more than you put in. These tools are for <b>learning</b>. The app gives no F&O trade signals.</div>
+  <div class="grid g3" style="margin-top:12px">
+    <div class="card"><h3>Futures</h3><p class="small">An agreement to buy or sell a stock or index at a fixed price on the expiry date (the last Tuesday of the month for most contracts; check NSE's current calendar). You pay only a <b>margin</b> (about 12–20% of the value), so a 1% move in the stock can be a 5–8% gain or loss on your money.</p></div>
+    <div class="card"><h3>Options</h3><p class="small">A <b>Call (CE)</b> is the right to buy at the strike price; a <b>Put (PE)</b> is the right to sell. <b>Buyers</b> pay a premium and can lose only that, but most options expire worthless. <b>Sellers</b> collect the premium but take on large, sometimes unlimited, risk.</p></div>
+    <div class="card"><h3>Key terms</h3><p class="small"><b>Lot size</b>: contracts trade in fixed quantities (check NSE). <b>Expiry</b>: the date the contract ends. <b>IV</b>: implied volatility, the market's expected movement (higher IV = pricier options). <b>Theta</b>: options lose value every day as expiry gets closer.</p></div>
+  </div>
+  <div class="card" style="margin-top:12px"><h3>Option strategy payoff calculator</h3>
+    <div class="grid g5">
+      <label class="f">Underlying<input type="text" id="fU" list="fnoList" value="${esc(fno.und)}" autocapitalize="characters"></label>
+      <datalist id="fnoList"><option value="NIFTY"><option value="BANKNIFTY">${STOCKS.filter(s=>s.cap==="Nifty 50"||s.cap==="Next 50").map(s=>`<option value="${s.sym}">`).join("")}</datalist>
+      <label class="f">Spot price<input type="number" id="fS" value="${S0}"></label>
+      <label class="f">Lot size<input type="number" id="fL" value="${fno.lot}"></label>
+      <label class="f">IV (%)<input type="number" id="fV" value="${fno.iv}"></label>
+      <label class="f">Days to expiry<input type="number" id="fD" value="${fno.days}"></label>
+    </div>
+    <div class="row" style="margin-top:10px"><label class="f" style="flex:1;min-width:220px">Strategy preset<select id="fP"><option value="">Choose a strategy…</option>${Object.keys(PRESETS).map(k=>`<option>${esc(k)}</option>`).join("")}</select></label></div>
+    <div style="margin-top:12px">${fno.legs.map((l,i)=>`<div class="leg">
+      <label class="f">Side<select data-i="${i}" data-f="s"><option value="B" ${l.s==="B"?"selected":""}>Buy</option><option value="S" ${l.s==="S"?"selected":""}>Sell</option></select></label>
+      <label class="f">Type<select data-i="${i}" data-f="t"><option value="CE" ${l.t==="CE"?"selected":""}>Call (CE)</option><option value="PE" ${l.t==="PE"?"selected":""}>Put (PE)</option><option value="FUT" ${l.t==="FUT"?"selected":""}>Future / shares</option></select></label>
+      <label class="f">Strike<input type="number" data-i="${i}" data-f="k" value="${l.k}" ${l.t==="FUT"?"disabled":""}></label>
+      <label class="f">Premium<input type="number" step="0.05" data-i="${i}" data-f="p" value="${l.p}"></label>
+      <label class="f">Lots<input type="number" min="1" data-i="${i}" data-f="n" value="${l.n}"></label>
+      <button class="btn sm ghost" data-rm="${i}" title="Remove leg">✕</button></div>`).join("")}
+      <div class="row"><button class="btn sm ghost" id="fAdd">+ Add leg</button><button class="btn sm ghost" id="fRe">Re-estimate premiums</button><span class="tiny mute">Premiums are estimated with Black-Scholes from IV and days. Type real prices from your broker for accuracy.</span></div></div>
+    <div class="kv" style="margin-top:12px">
+      <div><span>Max profit (at expiry)</span><b class="up">${unlimitedUp?"Unlimited":inr(maxProfit,0)}</b></div>
+      <div><span>Max loss (at expiry)</span><b class="down">${lossUnlim?"UNLIMITED":inr(maxLoss,0)}</b>${!lossUnlim&&maxLoss<Math.min(...ys)-1?"<span>if price falls to zero</span>":""}</div>
+      <div><span>Breakeven</span><b>${be.length?be.map(b=>num(b,0)).join(" / "):"–"}</b></div>
+      <div><span>${net<0?"Premium you pay":"Premium you receive"}</span><b>${inr(Math.abs(net),0)}</b></div>
+      ${sellers?`<div><span>Margin needed (rough)</span><b>${inr(fno.legs.filter(l=>l.s==="S"||l.t==="FUT").reduce((a,l)=>a+S0*fno.lot*l.n*0.15,0)*(fno.legs.some(l=>l.s==="B"&&l.t!=="FUT")&&fno.legs.some(l=>l.s==="S")?0.35:1),0)}</b><span>check your broker's margin calculator</span></div>`:""}
+    </div>
+    <div style="margin-top:12px">${lineChart([{v:ys,c:css("--accent"),n:"P&L",w:2}],xs,{zero:1,vline,xfmt:v=>num(v,0),fmt:v=>(v<0?"-₹":"₹")+num(Math.abs(v),0)})}
+      <div class="legend"><span>Profit/loss at expiry for prices ±15% around ${num(S0,0)} (dotted line = today)</span></div></div>
+    ${lossUnlim?`<div class="banner L-S small" style="margin-top:10px">This position can lose an unlimited amount if the price moves sharply. Many traders have lost years of savings on a single bad week this way.</div>`:""}
+  </div>
+  <div class="card" style="margin-top:12px"><h3>Futures risk calculator</h3><div class="grid g4">
+    <label class="f">Futures price<input type="number" id="ffP" value="${Math.round(S0)}"></label><label class="f">Lot size<input type="number" id="ffL" value="${fno.lot}"></label>
+    <label class="f">Lots<input type="number" id="ffN" value="1"></label><label class="f">Margin (% of value)<input type="number" id="ffM" value="15"></label></div><div id="ffOut" style="margin-top:12px"></div></div>`;
+  const upd=()=>{store.set("fno",fno);renderFno();cardify()};
+  $("#fU").onchange=e=>{fno.und=e.target.value.trim().toUpperCase();const p=undPrice(fno.und);if(p){fno.spot=p;fno.legs=fno.legs.map(l=>({...l,k:l.t==="FUT"?l.k:roundStrike(l.k/S0*p,p)}));priceLegs()}else toast("Enter the spot price manually");upd()};
+  $("#fS").onchange=e=>{fno.spot=+e.target.value||S0;priceLegs();upd()};
+  $("#fL").onchange=e=>{fno.lot=Math.max(1,+e.target.value||1);upd()};
+  $("#fV").onchange=e=>{fno.iv=+e.target.value||15;priceLegs();upd()};
+  $("#fD").onchange=e=>{fno.days=Math.max(0,+e.target.value||0);priceLegs();upd()};
+  $("#fP").onchange=e=>{const p=PRESETS[e.target.value];if(p){fno.legs=p(S0).map(([s,t,k])=>({s,t,k,n:1}));priceLegs();upd()}};
+  $("#lbody").querySelectorAll("[data-f]").forEach(el=>el.onchange=()=>{const l=fno.legs[+el.dataset.i],f=el.dataset.f;l[f]=f==="s"||f==="t"?el.value:+el.value;if(f==="p")l.auto=false;else if(f!=="n"){l.auto=true;priceLegs()}upd()});
+  $("#lbody").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{if(fno.legs.length>1){fno.legs.splice(+b.dataset.rm,1);upd()}});
+  $("#fAdd").onclick=()=>{fno.legs.push({s:"B",t:"CE",k:roundStrike(S0,S0),n:1});priceLegs();upd()};
+  $("#fRe").onclick=()=>{fno.legs.forEach(l=>l.auto=true);priceLegs();upd()};
+  const ff=()=>{const p=+$("#ffP").value,L=+$("#ffL").value,n=+$("#ffN").value,m=(+$("#ffM").value||15)/100,val=p*L*n,mg=val*m;
+    $("#ffOut").innerHTML=`<div class="kv"><div><span>Contract value</span><b>${inr(val,0)}</b></div><div><span>Margin blocked</span><b>${inr(mg,0)}</b></div>
+    <div><span>P&L for a 1% move</span><b>±${inr(val*0.01,0)}</b><span>= ${pct(0.01/m,1,false)} of your margin</span></div>
+    <div><span>Move that wipes out margin</span><b class="down">${pct(m,1,false)}</b></div></div>`};
+  ["ffP","ffL","ffN","ffM"].forEach(id=>$("#"+id).oninput=ff);ff();
+}
+
+/* ---------- guide ---------- */
 function renderGuide(){
-  $("#t-guide").innerHTML=`<h2>How to use this</h2>
+  $("#lbody").innerHTML=`<h2>How to use this</h2>
   <div class="grid g2">
   <div class="card"><h3>What the labels mean</h3>
     <p>${pill("STRONG BUY")} Score 72+. Rules strongly favour buying.</p><p>${pill("BUY")} Score 58–71. Rules favour buying.</p>
     <p>${pill("HOLD / WAIT")} Score 42–57. Don't buy yet. If you own it, hold.</p><p>${pill("AVOID")} Score 28–41. Don't buy.</p><p>${pill("SELL / EXIT")} Below 28. Don't buy. If you own it, consider exiting.</p></div>
+  <div class="card"><h3>What's covered</h3><ul class="why small">
+    <li class="z"><b>Stocks:</b> all Nifty 500 companies (about 95% of India's market value), grouped as Nifty 50, Next 50, Midcap and Smallcap.</li>
+    <li class="z"><b>ETFs:</b> index, factor, sector, gold, silver, international and debt ETFs.</li>
+    <li class="z"><b>Mutual funds:</b> 1,000+ direct-plan funds ranked within their category.</li>
+    <li class="z"><b>F&O:</b> learning tools only (payoff and risk calculators), no trade signals.</li>
+    <li class="z">Not covered: tiny stocks outside the Nifty 500 (often illiquid and easy to get trapped in), IPOs, bonds and crypto.</li></ul></div>
   <div class="card"><h3>How the scores are built</h3>
-    <p class="small"><b>Swing (0–100):</b> 12-month momentum rank vs other Nifty 50 stocks (30), trend: price vs 50/200-day averages (30), MACD momentum (15), RSI not overbought (10), breakout + volume (15), minus 10 if the overall market is weak.</p>
-    <p class="small"><b>Long term (0–100):</b> momentum rank (30) + long-term trend (30) + fundamentals (40): return on equity, profit and revenue growth, margins, debt, and P/E vs sector peers.</p>
-    <p class="small mute">Momentum is used because it's one of the most widely documented stock-market effects worldwide. My first version used other rules, and they had no edge in testing, so I replaced them.</p></div>
+    <p class="small"><b>Long term (0–100):</b> 12-month momentum vs other stocks (30), long-term trend (30), fundamentals (40): return on equity, profit and revenue growth, margins, debt, and P/E vs sector peers. ETFs use trend and momentum only.</p>
+    <p class="small"><b>Swing (0–100):</b> momentum rank (30), trend vs 50/200-day averages (30), MACD momentum (15), RSI not overbought (10), breakout + volume (15), minus 10 if the overall market is weak.</p>
+    <p class="small mute">Momentum is one of the most widely documented stock-market effects worldwide. See Track record for how it actually did here.</p></div>
   <div class="card"><h3>A sensible routine</h3><ol class="small" style="padding-left:18px;margin:0">
-    <li>Check <b>Market mood</b> first. In a BEARISH market, most buy signals fail more often.</li>
+    <li>Check <b>Market mood</b> first.</li>
+    <li>For long-term money, regular SIPs into a low-cost index or well-ranked fund are the simplest choice. Use stock picks for a part you're comfortable actively managing.</li>
     <li>Open a BUY / STRONG BUY stock and read the <b>Why</b> list. Don't just trust the label.</li>
-    <li>For swing trades, place the <b>stop-loss</b> at the same time as you buy (GTT/SL order at your broker).</li>
-    <li>Keep each trade's risk to about 1% of capital. Ten losses in a row would then cost about 10%, not everything.</li>
-    <li>Practise in <b>Paper trade</b> for a few weeks before using real money.</li>
-    <li>Rerun the analyzer after market close (3:30 PM IST) for fresh signals.</li></ol></div>
+    <li>For swing trades, place the <b>stop-loss</b> when you buy (GTT/SL order) and risk about 1% of capital per trade.</li>
+    <li>Keep smallcap positions small. They can fall 30–60% in bad years.</li>
+    <li>Practise in <b>Paper</b> trading for a few weeks before using real money.</li></ol></div>
   <div class="card"><h3>Read this before investing</h3><ul class="why small">
-    <li class="n">The signals don't predict the future. In 5 years of testing, the edge was small, and trading them did not beat simply holding all 50 stocks. See Track record.</li>
-    <li class="n">Data is end-of-day and can be wrong or delayed. Always check the price at your broker before you trade.</li>
-    <li class="n">This isn't personal advice and doesn't know your goals, income or other investments. A SEBI-registered adviser can give advice for your situation.</li>
-    <li class="z">For most people, the evidence favours regular, long-term investing in a diversified fund (for example, a Nifty 50 index fund via SIP) over frequent trading.</li></ul></div>
-  </div>
-  <div class="card" style="margin-top:12px"><h3>Install as an app</h3><div class="small">
+    <li class="n">The signals don't predict the future. They had a measurable edge in the past, but that's no guarantee.</li>
+    <li class="n">Data is end-of-day and can be wrong or delayed. Always check the price at your broker.</li>
+    <li class="n">This isn't personal advice and doesn't know your goals, income or other investments. A SEBI-registered adviser can give advice for your situation.</li></ul></div>
+  <div class="card"><h3>Install as an app</h3><div class="small">
     <p><b>iPhone / iPad (Safari):</b> tap Share → <b>Add to Home Screen</b>.</p>
-    <p><b>Android (Chrome):</b> tap ⋮ → <b>Install app</b> (or Add to Home screen).</p>
-    <p><b>Mac:</b> Safari → File → <b>Add to Dock</b>, or Chrome → ⋮ → Cast, save and share → <b>Install page as app</b>.</p></div></div>
-  <div class="card" style="margin-top:12px"><h3>Updates</h3><p class="small">The data refreshes automatically every weekday evening after market close (around 5:15 PM and again at 9:30 PM IST). Pull down or reopen the app to see the latest.</p>
-  <p class="tiny mute">Generated ${esc(DATA.generated)}. Paper trades, holdings and settings are saved on each device separately (your phone and Mac don't sync). Use Export / Import in Portfolio to move them between devices.</p></div>`;
+    <p><b>Android (Chrome):</b> tap ⋮ → <b>Install app</b>.</p>
+    <p><b>Mac:</b> Safari → File → <b>Add to Dock</b>, or Chrome → ⋮ → Cast, save and share → <b>Install page as app</b>.</p></div>
+    <p class="tiny mute">Data refreshes every weekday evening (around 5:15 PM and 9:30 PM IST). Generated ${esc(DATA.generated)}. Paper trades, holdings and settings are saved on each device separately; use Export / Import in Portfolio to move them.</p></div>
+  </div>`;
 }
 
-/* ---------------------------------------------------------------- boot */
+/* ================================================================ boot */
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 const first=(location.hash||"").slice(1);
 show(TABS.some(([k])=>k===first)?first:(store.get("tab","market")||"market"));

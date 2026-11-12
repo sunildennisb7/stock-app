@@ -1,12 +1,13 @@
-# Nifty 50 Analyzer
+# Market Analyzer India
 
-Analyses all Nifty 50 stocks and builds a dashboard (works on phone and desktop) with:
+An installable app (phone and desktop) that analyses the Indian market every evening:
 
-- **Market**: market mood, Nifty / Bank Nifty / VIX, breadth, sectors, gainers and losers
-- **Picks**: a clear label for every stock (STRONG BUY / BUY / HOLD-WAIT / AVOID / SELL-EXIT) for **swing** and **long-term**, with the reasons, plus a swing trade plan (entry, stop-loss, target, quantity)
-- **Track record**: how often each label worked over the last 5 years, plus backtests compared with buy-and-hold
-- **Paper trade**: practise with ₹10 lakh of fake money
-- **Portfolio**: your real holdings, P&L, Indian charges and an STCG/LTCG estimate
+- **Market**: market mood, Nifty / Bank / Midcap / Smallcap / VIX, Nifty 500 breadth, sectors, gainers and losers
+- **Picks**: every **Nifty 500 stock** (Nifty 50, Next 50, Midcap, Smallcap) and **~34 ETFs** (index, factor, sector, gold, silver, international, debt) get a clear label (STRONG BUY / BUY / HOLD-WAIT / AVOID / SELL-EXIT) for **long-term** and **swing**, with the reasons, fundamentals and a swing trade plan
+- **Funds**: ~1,200 direct-plan mutual funds ranked within 23 categories (returns, risk, worst fall, Sharpe), plus an SIP calculator
+- **Paper**: practise with ₹10 lakh of fake money
+- **Portfolio**: your real stocks, ETFs and mutual funds, P&L, Indian charges and an STCG/LTCG estimate
+- **Learn**: track record of every signal (by company size), F&O payoff and risk calculators (no F&O signals), guide
 
 ## Open the app
 
@@ -33,17 +34,19 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 | File | What it does |
 |---|---|
-| `core/data.py` | Nifty 50 list from NSE, prices and fundamentals from Yahoo Finance (cached in `cache/`) |
+| `core/data.py` | Nifty 500 lists from NSE, ETF list, prices and fundamentals from Yahoo Finance (cached in `cache/`) |
+| `core/funds.py` | Mutual fund list (AMFI) + NAV history (mfapi.in), metrics and category ranks |
 | `core/indicators.py` | Moving averages, RSI, MACD, ATR, etc. |
 | `core/signals.py` | The scoring rules and labels. Change thresholds here |
 | `core/backtest.py` | Backtests of the same rules |
-| `core/report.py` | Puts everything together into `output/index.html` |
+| `core/report.py` | Builds `output/` (index.html, per-stock detail files in `d/`, `funds.json`) |
 | `web/template.html` | The dashboard (HTML/CSS/JS) |
 | `web/static/` | App icon, manifest and offline support (makes it installable) |
 | `scripts/make_icons.py` | Regenerates the icons |
 
 ## Important
 
-The labels come from fixed rules, not from a prediction. In 5 years of testing the edge was small, and trading the
-signals did **not** beat simply holding all 50 stocks (see the Track record tab). This isn't personal investment
+The labels come from fixed rules, not from a prediction. Over 5 years, long-term STRONG BUY stocks beat the average
+Nifty 500 stock, mostly in mid and small caps. Mechanically trading the swing signals did **not** beat buy-and-hold.
+All tests use today's index members, so they look better than reality (see Learn → Track record). This isn't personal investment
 advice. Data is end-of-day from free sources, so check prices at your broker before trading.

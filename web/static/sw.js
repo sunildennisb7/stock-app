@@ -1,5 +1,5 @@
 // Network-first: always try to get the latest daily data; fall back to the last copy when offline.
-const CACHE = "n50-v1";
+const CACHE = "n50-v2";
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./", "manifest.webmanifest", "icon-192.png", "icon-512.png"])));
   self.skipWaiting();

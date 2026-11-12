@@ -1,15 +1,28 @@
 {
-  "name": "Nifty 50 Analyzer",
-  "short_name": "Nifty 50",
-  "description": "Daily Nifty 50 market analysis, swing and long-term signals, paper trading and portfolio tracker.",
+  "name": "Market Analyzer India",
+  "short_name": "Market India",
+  "description": "Daily signals for Nifty 500 stocks and ETFs, mutual fund rankings, F&O tools, paper trading and portfolio tracker.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
-    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
