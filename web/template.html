@@ -122,7 +122,8 @@ footer{color:var(--mute);font-size:12px;margin-top:28px;text-align:center}
   .g21{grid-template-columns:1fr}
   header.top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
   .brand{font-size:16px}
-  .themeBtn{margin-left:auto}
+  #bellBtn{margin-left:auto}
+  .themeBtn span{display:none}
   .tools{flex-direction:column;align-items:stretch!important}
   .tools>div{max-width:none!important;width:100%!important}
   .seg{display:flex;width:100%}.seg button{flex:1;padding:7px 6px}
@@ -131,7 +132,9 @@ footer{color:var(--mute);font-size:12px;margin-top:28px;text-align:center}
   nav.tabs button.on{box-shadow:none;background:var(--soft)}
   .leg{grid-template-columns:1fr 1fr 1fr}
 }
-@media (max-width:520px){.g2{grid-template-columns:1fr}}
+.grid>*{min-width:0}
+html,body{overflow-x:hidden}
+@media (max-width:520px){.g2,.g3{grid-template-columns:1fr}}
 @media (max-width:600px){
   table.rc thead{display:none}
   table.rc tr{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -147,6 +150,7 @@ footer{color:var(--mute);font-size:12px;margin-top:28px;text-align:center}
 <header class="top"><div class="in">
   <div class="brand">Market Analyzer India<small id="asof"></small></div>
   <nav class="tabs" id="tabs"></nav>
+  <button class="themeBtn" id="bellBtn" aria-label="Alerts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span>Alerts</span></button>
   <button class="themeBtn" id="themeBtn" aria-label="Change theme"></button>
 </div></header>
 
@@ -211,6 +215,7 @@ function applyTheme(t){document.documentElement.dataset.theme=t;store.set("theme
   const dark=t==="dark"||(t==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);
   document.querySelector('meta[name=theme-color]').content=dark?"#0b1120":"#f4f6fa"}
 applyTheme(store.get("theme","light"));
+$("#bellBtn").onclick=()=>{learnState.sec="alerts";show("learn")};
 $("#themeBtn").onclick=()=>{const order=["light","dark","auto"],cur=store.get("theme","light");applyTheme(order[(order.indexOf(cur)+1)%3]);
   const t=store.get("tab","market");show(t,true);if($("#sheetBg").classList.contains("on"))closeSheet();toast("Theme: "+THEMES[store.get("theme","light")].n)};
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if(store.get("theme","light")==="auto"){applyTheme("auto");show(store.get("tab","market"),true)}});
@@ -303,9 +308,9 @@ function renderMarket(){
   const card=(name,p,inv)=>p?`<div class="card"><div class="mute small">${name}</div><div class="big">${num(p.last,name==="India VIX"?2:0)}</div>
     <div class="${cls(inv?-p.d1:p.d1)} small">${pct(p.d1,2)} today</div><div class="tiny mute">1W ${pct(p.w1)} · 1M ${pct(p.m1)} · 1Y ${pct(p.y1)}</div></div>`:"";
   const movers=[...STOCKS].sort((a,b)=>b.chg-a.chg);
-  const mv=list=>list.map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b> <span class="tag">${s.cap}</span></td><td class="n">${inr(s.price)}</td><td class="n ${cls(s.chg)}">${pct(s.chg,2)}</td></tr>`).join("");
-  const top=(k,list)=>[...list].sort((a,b)=>b[k].score-a[k].score).slice(0,6).map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b> <span class="tag">${s.cap}</span><div class="tiny mute">${esc(s.ind)}</div></td><td>${pill(s[k].label)}</td><td class="n score">${s[k].score}</td></tr>`).join("");
-  $("#t-market").innerHTML=`${freshBanner()}${buyListCard()}
+  const mv=list=>list.map(s=>`<tr class="click" data-sym="${s.sym}"><td style="white-space:normal"><b>${s.sym}</b> <span class="tag">${s.cap}</span></td><td class="n">${inr(s.price)}</td><td class="n ${cls(s.chg)}">${pct(s.chg,2)}</td></tr>`).join("");
+  const top=(k,list)=>[...list].sort((a,b)=>b[k].score-a[k].score).slice(0,6).map(s=>`<tr class="click" data-sym="${s.sym}"><td style="white-space:normal"><b>${s.sym}</b> <span class="tag">${s.cap}</span><div class="tiny mute">${esc(s.ind)}</div></td><td>${pill(s[k].label)}</td><td class="n score">${s[k].score}</td></tr>`).join("");
+  $("#t-market").innerHTML=`${freshBanner()}<div id="alertPrompt"></div>${buyListCard()}
   <div class="banner ${rc}" style="margin-top:6px"><div style="font-size:18px">Market mood: ${m.regime}</div><div style="font-weight:500;margin-top:4px">${esc(m.regime_text)}</div></div>
   <div class="grid g5" style="margin-top:12px">${card("Nifty 50",ix["Nifty 50"])}${card("Nifty Bank",ix["Nifty Bank"])}${card("Midcap 150",ix["Midcap 150"])}${card("Smallcap 250",ix["Smallcap 250"])}${card("India VIX",ix["India VIX"],true)}</div>
   <div class="grid g21" style="margin-top:12px">
@@ -329,6 +334,9 @@ function renderMarket(){
     <div class="card"><h3>Top gainers today (Nifty 500)</h3><table><tbody>${mv(movers.slice(0,6))}</tbody></table></div>
     <div class="card"><h3>Top losers today (Nifty 500)</h3><table><tbody>${mv(movers.slice(-6).reverse())}</tbody></table></div>
   </div>`;
+  pushSub().then(sub=>{if(sub||store.get("hidePrompt",false))return;const el=$("#alertPrompt");if(!el)return;
+    el.innerHTML=`<div class="card row" style="margin-bottom:12px;flex-wrap:nowrap"><div style="flex:1"><b>Get the 1:30 PM buy list on your phone</b><div class="tiny mute">Plus evening summary and watchlist alerts.</div></div><button class="btn sm" id="apGo">Set up</button><button class="x" id="apX" aria-label="Hide">×</button></div>`;
+    $("#apGo").onclick=()=>{learnState.sec="alerts";show("learn")};$("#apX").onclick=()=>{store.set("hidePrompt",true);el.innerHTML=""}}).catch(()=>{});
   $("#t-market").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{const [m,u]=b.dataset.go.split(",");Object.assign(picksState,{mode:m,uni:u,filter:"buy",ind:"",q:""});show("picks")});
 }
 
@@ -766,7 +774,7 @@ async function renderAlerts(){
   $("#wGo").onclick=addW;$("#wAdd").onkeydown=e=>{if(e.key==="Enter")addW()};
   $("#lbody").querySelectorAll("[data-wrm]").forEach(b=>b.onclick=()=>{store.set("watch",watchlist().filter(x=>x!==b.dataset.wrm));renderLearn()});
   const pb=$("#pushBody");
-  if(!supported){pb.innerHTML=isIOS&&!standalone?`<div class="banner warn small">On iPhone, notifications only work from the installed app: open this page in <b>Safari</b>, tap Share → <b>Add to Home Screen</b>, then open it from the new icon and come back here. Needs iOS 16.4 or newer.</div>`:`<div class="banner warn small">This browser doesn't support push notifications. Try Chrome, Edge or Safari, or install the app to your home screen.</div>`;return}
+  if(!supported){pb.innerHTML=isIOS&&!standalone?`<div class="banner warn small"><b>Almost there.</b> On iPhone, notifications only work from the installed app: open this page in <b>Safari</b>, tap Share → <b>Add to Home Screen</b>, then open it from the new icon and come back here. Needs iOS 16.4 or newer.</div>`:`<div class="banner warn small">This browser doesn't support push notifications. Try Chrome, Edge or Safari, or install the app to your home screen.</div>`;return}
   if(location.protocol!=="https:"&&location.hostname!=="localhost"){pb.innerHTML='<p class="small mute">Open the app from its https link to enable notifications.</p>';return}
   if(perm==="denied"){pb.innerHTML='<div class="banner warn small">Notifications are blocked for this app. Allow them in your phone or browser settings (Settings → Notifications), then come back.</div>';return}
   if(!sub){pb.innerHTML=`<label class="f" style="max-width:320px">Name for this device<input type="text" id="devName" value="${esc(store.get("devname",isIOS?"iPhone":/Android/.test(navigator.userAgent)?"Android phone":"Computer"))}"></label>
