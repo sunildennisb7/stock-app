@@ -64,7 +64,9 @@ def build(refresh: bool = False, log=print, with_funds: bool = True) -> Path:
     log("2/6  Downloading ~6 years of daily prices for ~550 symbols...")
     allsyms = uni["yf"].tolist() + list(data.INDICES) + list(data.SECTORS)
     prices = data.get_prices(allsyms, refresh)
+    nse_filled = data.fill_gaps_from_nse(prices, log)
     nifty = prices["^NSEI"]
+    data_day = nifty.index[-1]
     uni = uni[uni["yf"].isin(prices)]
     stocks_u, etfs_u = uni[uni["kind"] == "stock"], uni[uni["kind"] == "etf"]
 
@@ -142,6 +144,7 @@ def build(refresh: bool = False, log=print, with_funds: bool = True) -> Path:
             "pe": _r(metrics.get("pe"), 1), "roe": _r(metrics.get("roe"), 3),
             "mc": _r(metrics["mcap"] / 1e7, 0) if metrics.get("mcap") else None,
             "v": _r(float((d["Close"] * d["Volume"]).iloc[-20:].mean()) / 1e7, 2),  # avg daily traded value, ₹ Cr
+            **({"od": d.index[-1].strftime("%d %b")} if d.index[-1] < data_day else {}),  # price older than the rest
         })
         detail = {
             "s": sym, "perf": perf, "rsi": _r(last["RSI"], 1), "sma50": _r(last["SMA50"]), "sma200": _r(last["SMA200"]),
@@ -230,6 +233,8 @@ def build(refresh: bool = False, log=print, with_funds: bool = True) -> Path:
     payload = {
         "generated": datetime.now().strftime("%d %b %Y, %I:%M %p"),
         "data_date": nifty.index[-1].strftime("%d %b %Y"),
+        "data_iso": nifty.index[-1].strftime("%Y-%m-%d"),
+        "nse_filled": nse_filled,
         "labels": LORDER, "market": market, "items": items, "hit": hit, "backtest": bt, "funds": fund_info,
     }
     blob = _dump(payload).replace("</", "<\\/")

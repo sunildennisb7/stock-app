@@ -170,6 +170,105 @@ def get_prices(symbols: list[str], refresh: bool = False, years: int = 6) -> dic
     return out
 
 
+# ----------------------------------------------------------------------------- NSE gap filling
+BHAV_URL = "https://nsearchives.nseindia.com/products/content/sec_bhavdata_full_{}.csv"
+IDX_URL = "https://nsearchives.nseindia.com/content/indices/ind_close_all_{}.csv"
+# Yahoo symbol -> name in NSE's daily index file
+NSE_INDEX_NAMES = {
+    "^NSEI": "Nifty 50", "^NSEBANK": "Nifty Bank", "NIFTYMIDCAP150.NS": "Nifty Midcap 150",
+    "NIFTYSMLCAP250.NS": "Nifty Smallcap 250", "^INDIAVIX": "India VIX", "^CNXIT": "Nifty IT",
+    "^CNXAUTO": "Nifty Auto", "^CNXPHARMA": "Nifty Pharma", "^CNXFMCG": "Nifty FMCG", "^CNXMETAL": "Nifty Metal",
+    "^CNXENERGY": "Nifty Energy", "^CNXREALTY": "Nifty Realty", "^CNXPSUBANK": "Nifty PSU Bank",
+    "^CNXINFRA": "Nifty Infrastructure", "NIFTY_FIN_SERVICE.NS": "Nifty Financial Services",
+}
+
+
+def _nse_get(url: str) -> pd.DataFrame | None:
+    try:
+        r = requests.get(url, headers=UA, timeout=25)
+        if r.status_code != 200 or len(r.text) < 500:
+            return None
+        df = pd.read_csv(io.StringIO(r.text), skipinitialspace=True)
+        df.columns = [c.strip() for c in df.columns]
+        return df
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def fill_gaps_from_nse(prices: dict[str, pd.DataFrame], log=print, lookback_days: int = 10) -> list[str]:
+    """Yahoo sometimes lags NSE by a day or two. Append any missing recent trading days from NSE's
+    official end-of-day files (the 'bhavcopy' for stocks/ETFs and the daily index close file).
+
+    Uses the real trade date inside each file (NSE file names don't always match it), and skips a
+    symbol if NSE's previous close doesn't match ours (a split/bonus Yahoo hasn't applied yet).
+    Returns the list of dates that were filled in.
+    """
+    from zoneinfo import ZoneInfo
+    now = pd.Timestamp(datetime.now(ZoneInfo("Asia/Kolkata")).replace(tzinfo=None))
+    oldest_last = min(df.index[-1] for df in prices.values())
+    start = max(oldest_last + pd.Timedelta(days=1), now - pd.Timedelta(days=lookback_days))
+    days = [d for d in pd.date_range(start.normalize(), now.normalize(), freq="D") if d.weekday() < 5]
+    filled: set[str] = set()
+    seen_dates: set = set()
+    for day in days:
+        tag = day.strftime("%d%m%Y")
+        bhav = _nse_get(BHAV_URL.format(tag))
+        if bhav is not None and {"SYMBOL", "SERIES", "DATE1", "CLOSE_PRICE"} <= set(bhav.columns):
+            bhav["SYMBOL"] = bhav["SYMBOL"].astype(str).str.strip()
+            bhav["SERIES"] = bhav["SERIES"].astype(str).str.strip()
+            tdate = pd.to_datetime(bhav["DATE1"].astype(str).str.strip().iloc[0], format="%d-%b-%Y")
+            if tdate not in seen_dates:
+                seen_dates.add(tdate)
+                bhav = bhav[bhav["SERIES"].isin(["EQ", "BE", "BZ", "RR", "IV", "SM", "ST"])].copy()
+                bhav["_pri"] = bhav["SERIES"].map({"EQ": 0, "BE": 1, "BZ": 2, "RR": 3, "IV": 4, "SM": 5, "ST": 6})
+                rows = bhav.sort_values("_pri").drop_duplicates("SYMBOL").set_index("SYMBOL")
+                n = 0
+                for ysym, df in prices.items():
+                    if not ysym.endswith(".NS") or df.index[-1] >= tdate:
+                        continue
+                    sym = ysym[:-3]
+                    if sym not in rows.index:
+                        continue
+                    r = rows.loc[sym]
+                    try:
+                        prev, close = float(r["PREV_CLOSE"]), float(r["CLOSE_PRICE"])
+                        if abs(prev / float(df["Close"].iloc[-1]) - 1) > 0.03:
+                            continue  # corporate action or a missing day in between: leave it for Yahoo
+                        prices[ysym] = pd.concat([df, pd.DataFrame(
+                            {"Open": [float(r["OPEN_PRICE"])], "High": [float(r["HIGH_PRICE"])],
+                             "Low": [float(r["LOW_PRICE"])], "Close": [close],
+                             "Volume": [float(r["TTL_TRD_QNTY"])]}, index=[tdate])])
+                        n += 1
+                    except (ValueError, TypeError, ZeroDivisionError):
+                        continue
+                if n:
+                    filled.add(tdate.strftime("%d %b"))
+                    log(f"     filled {tdate:%d %b} from NSE for {n} stocks/ETFs")
+        idx = _nse_get(IDX_URL.format(tag))
+        if idx is not None and "Index Name" in idx.columns:
+            idx["Index Name"] = idx["Index Name"].astype(str).str.strip()
+            tdate = pd.to_datetime(str(idx["Index Date"].iloc[0]).strip(), format="%d-%m-%Y")
+            byname = idx.drop_duplicates("Index Name").set_index("Index Name")
+            n = 0
+            for ysym, name in NSE_INDEX_NAMES.items():
+                df = prices.get(ysym)
+                if df is None or df.index[-1] >= tdate or name not in byname.index:
+                    continue
+                r = byname.loc[name]
+                try:
+                    vol = pd.to_numeric(r.get("Volume"), errors="coerce")
+                    prices[ysym] = pd.concat([df, pd.DataFrame(
+                        {"Open": [float(r["Open Index Value"])], "High": [float(r["High Index Value"])],
+                         "Low": [float(r["Low Index Value"])], "Close": [float(r["Closing Index Value"])],
+                         "Volume": [0.0 if pd.isna(vol) else float(vol)]}, index=[tdate])])
+                    n += 1
+                except (ValueError, TypeError):
+                    continue
+            if n:
+                filled.add(tdate.strftime("%d %b"))
+    return sorted(filled, key=lambda s: datetime.strptime(s, "%d %b"))
+
+
 FUND_FIELDS = ["trailingPE", "forwardPE", "priceToBook", "returnOnEquity", "debtToEquity",
                "profitMargins", "revenueGrowth", "earningsGrowth", "dividendYield", "marketCap"]
 

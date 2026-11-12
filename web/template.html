@@ -182,7 +182,7 @@ const isBuy=l=>l==="STRONG BUY"||l==="BUY";
 const S=DATA.items.map(x=>({sym:x.s,name:x.n,ind:x.i,cap:x.c,kind:x.k==="e"?"etf":"stock",price:x.p,chg:x.ch,
   perf:{w1:x.w1,m1:x.m1,m3:x.m3,y1:x.y1},rsi:x.r,mom:x.mo,momr:x.mr,val:x.v,
   swing:{score:x.ss,label:LORDER[x.sl],entry:x.e,stop:x.st,target:x.t},long:{score:x.ls,label:LORDER[x.ll]},
-  metrics:{pe:x.pe,roe:x.roe,mcap:x.mc}}));
+  metrics:{pe:x.pe,roe:x.roe,mcap:x.mc},od:x.od||null}));
 const BY=Object.fromEntries(S.map(s=>[s.sym,s]));
 const STOCKS=S.filter(s=>s.kind==="stock"),ETFS=S.filter(s=>s.kind==="etf");
 $("#symList").innerHTML=S.map(s=>`<option value="${s.sym}">${esc(s.name)}</option>`).join("");
@@ -192,6 +192,19 @@ const uniFilter=(u,s)=>u==="all"?s.kind==="stock":u==="etf"?s.kind==="etf":s.cap
 const hitKey=u=>u==="all"?"All stocks":u==="etf"?"ETF":u;
 function cardify(){document.querySelectorAll("table.rc").forEach(t=>{const hs=[...t.querySelectorAll("thead th")].map(h=>h.textContent.trim());
   t.querySelectorAll("tbody tr").forEach(r=>[...r.children].forEach((td,i)=>{if(hs[i])td.dataset.l=hs[i]}))})}
+
+/* ================================================================ data freshness */
+function istNow(){const d=new Date();return new Date(d.getTime()+(d.getTimezoneOffset()+330)*60000)}
+function prevWeekday(d){const x=new Date(d);do{x.setDate(x.getDate()-1)}while(x.getDay()===0||x.getDay()===6);return x}
+function staleDays(){ // weekdays the app is missing, counting today only after ~7 PM IST (when NSE data is out)
+  const now=istNow();let expected=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  if(expected.getDay()===0||expected.getDay()===6||now.getHours()<19)expected=prevWeekday(expected);
+  const have=new Date(DATA.data_iso+"T00:00:00");let n=0,d=new Date(have);
+  while(true){d.setDate(d.getDate()+1);if(d>expected)break;if(d.getDay()!==0&&d.getDay()!==6)n++}return n}
+function freshBanner(){const n=staleDays();if(n<1)return"";
+  return `<div class="banner warn small" style="margin:6px 0 12px">Prices are from the <b>${DATA.data_date}</b> close. ${n===1?"One trading day":n+" trading days"} may be missing (unless the market was closed for a holiday).
+  Always check the <b>live price</b> at your broker before buying: you'll pay the live price, not this one. Use the live price check on any stock to recalculate the plan.</div>`}
+const PRICE_NOTE=`<span class="tiny mute">Prices are closing prices from ${DATA.data_date}. You buy at the live price at your broker.</span>`;
 
 /* ================================================================ chart */
 let chartId=0;
@@ -258,7 +271,7 @@ function renderMarket(){
   const movers=[...STOCKS].sort((a,b)=>b.chg-a.chg);
   const mv=list=>list.map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b> <span class="tag">${s.cap}</span></td><td class="n">${inr(s.price)}</td><td class="n ${cls(s.chg)}">${pct(s.chg,2)}</td></tr>`).join("");
   const top=(k,list)=>[...list].sort((a,b)=>b[k].score-a[k].score).slice(0,6).map(s=>`<tr class="click" data-sym="${s.sym}"><td><b>${s.sym}</b> <span class="tag">${s.cap}</span><div class="tiny mute">${esc(s.ind)}</div></td><td>${pill(s[k].label)}</td><td class="n score">${s[k].score}</td></tr>`).join("");
-  $("#t-market").innerHTML=`
+  $("#t-market").innerHTML=`${freshBanner()}
   <div class="banner ${rc}" style="margin-top:6px"><div style="font-size:18px">Market mood: ${m.regime}</div><div style="font-weight:500;margin-top:4px">${esc(m.regime_text)}</div></div>
   <div class="grid g5" style="margin-top:12px">${card("Nifty 50",ix["Nifty 50"])}${card("Nifty Bank",ix["Nifty Bank"])}${card("Midcap 150",ix["Midcap 150"])}${card("Smallcap 250",ix["Smallcap 250"])}${card("India VIX",ix["India VIX"],true)}</div>
   <div class="grid g21" style="margin-top:12px">
@@ -309,7 +322,7 @@ function renderPicks(){
   const counts=Object.fromEntries(LORDER.map(l=>[l,base.filter(s=>s[k].label===l).length]));
   const sb=base.filter(s=>s[k].label==="STRONG BUY").sort(sorters.score);
   const shown=list.slice(0,picksLimit);
-  $("#t-picks").innerHTML=`
+  $("#t-picks").innerHTML=`${freshBanner()}
   <div class="row" style="margin-top:6px"><div class="seg" id="mode"><button data-m="long" class="${k==="long"?"on":""}">Long term<div class="tiny mute" style="font-weight:500">months–years</div></button><button data-m="swing" class="${k==="swing"?"on":""}">Swing<div class="tiny mute" style="font-weight:500">days–weeks</div></button></div></div>
   <div class="chips" id="uni" style="margin-top:10px">${UNIS.map(([u,n])=>`<button data-u="${u}" class="${st.uni===u?"on":""}">${n} <span class="mute">${S.filter(s=>uniFilter(u,s)).length}</span></button>`).join("")}</div>
   <div class="card" style="margin-top:12px">
@@ -329,7 +342,7 @@ function renderPicks(){
       <div style="flex:1;min-width:100px"><select id="sort">${[["score","Score"],["chg","Today %"],["m3","3-month %"],["mom","12m momentum"],["pe","Lowest P/E"],["mcap","Biggest"],["name","A–Z"]].map(([v,n])=>`<option value="${v}" ${st.sort===v?"selected":""}>${n}</option>`).join("")}</select></div>
     </div>
   </div>
-  <div class="tiny mute" style="margin-top:8px">${list.length} match${list.length===1?"":"es"}</div>
+  <div class="tiny mute" style="margin-top:8px">${list.length} match${list.length===1?"":"es"} · ${PRICE_NOTE}</div>
   <div class="slist" style="margin-top:8px">${shown.length?shown.map(s=>stockItem(s,k)).join(""):'<div class="card mute">No matches for this filter today.</div>'}</div>
   ${list.length>picksLimit?`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn ghost" id="more">Show more (${list.length-picksLimit} left)</button></div>`:""}`;
   const re=()=>{picksLimit=40;renderPicks()};
@@ -371,13 +384,17 @@ async function openStock(sym){
   const q=qtyFor(sw.entry,sw.stop),buyable=isBuy(sw.label);
   $("#sheet").innerHTML=`
   <div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div><div class="big">${s.sym} <span class="tag">${s.cap}</span></div><div class="mute small">${esc(s.name)} · ${esc(s.ind)}</div></div><span class="sp"></span><button class="x" id="closeS" aria-label="Close">×</button></div>
-  <div class="row" style="margin:6px 0 12px"><span class="big">${inr(s.price)}</span><span class="${cls(s.chg)}">${pct(s.chg,2)} today</span>
+  <div class="row" style="margin:6px 0 4px"><span class="big">${inr(s.price)}</span><span class="${cls(s.chg)}">${pct(s.chg,2)} on the day</span>
     <span class="tiny mute">1M ${pct(D.perf.m1)} · 3M ${pct(D.perf.m3)} · 1Y ${pct(D.perf.y1)}</span></div>
+  <div class="tiny mute" style="margin-bottom:12px">Closing price on ${s.od?`<b class="down">${s.od}</b> (older than the rest: no newer data yet)`:DATA.data_date}. Not a live price.</div>
   ${s.val!=null&&s.val<5?`<div class="banner warn small" style="margin-bottom:12px">Low trading volume (about ₹${num(s.val,1)} Cr a day). Use limit orders: big orders can move the price against you.</div>`:""}
   <div class="grid g2">
     <div class="verdict"><div class="mute tiny">LONG TERM (months–years) · score ${lt.score}/100</div><div class="lab">${pill(lt.label)}</div><div style="margin-top:6px;font-weight:600">${esc(lt.action)}</div></div>
     <div class="verdict"><div class="mute tiny">SWING (days–weeks) · score ${sw.score}/100</div><div class="lab">${pill(sw.label)}</div><div style="margin-top:6px;font-weight:600">${esc(sw.action)}</div></div>
   </div>
+  <div class="card" style="margin-top:12px"><h3>Check against the live price</h3>
+    <div class="row" style="flex-wrap:nowrap"><div style="flex:1"><input type="number" id="livePx" step="0.05" inputmode="decimal" placeholder="Type the price you see at your broker"></div><button class="btn" id="liveGo">Check</button></div>
+    <div id="liveOut" class="small" style="margin-top:10px"><span class="mute">The plan below uses the ${DATA.data_date} close of ${inr(s.price)}. Enter today's live price to see if the entry still makes sense and get a recalculated stop, target and quantity.</span></div></div>
   <div class="card" style="margin-top:12px">${priceChart(D.chart)}</div>
   <div class="grid g2" style="margin-top:12px">
     <div class="card"><h3>Long-term view</h3>
@@ -404,9 +421,35 @@ async function openStock(sym){
     ${etf&&s.ind==="International"?`<p class="tiny mute">International ETFs can trade well above their real value (NAV) when foreign investment limits are hit. Check the iNAV on the fund house's site before buying.</p>`:""}</div>
   <div class="row" style="margin-top:14px"><button class="btn" data-pbuy>Paper buy ${q||1} @ ${inr(s.price)}</button><button class="btn ghost" data-padd>Add to my portfolio</button></div>`;
   $("#closeS").onclick=closeSheet;
+  const goLive=()=>liveCheck(s,D,parseFloat($("#livePx").value));
+  $("#liveGo").onclick=goLive;$("#livePx").onkeydown=e=>{if(e.key==="Enter")goLive()};
   $("#sheet").querySelector("[data-set]").onclick=e=>{e.preventDefault();closeSheet();show("paper");setTimeout(()=>$("#settingsCard")?.scrollIntoView({behavior:"smooth"}),50)};
   $("#sheet").querySelector("[data-pbuy]").onclick=()=>{paperBuy(s.sym,q||1);closeSheet()};
   $("#sheet").querySelector("[data-padd]").onclick=()=>{closeSheet();portState.type="stock";show("port");const f=$("#hSym");if(f){f.value=s.sym;$("#hPrice").value=s.price;$("#hQty").focus()}};
+}
+function liveCheck(s,D,live){
+  const out=$("#liveOut");if(!(live>0)){out.innerHTML='<span class="down">Enter a valid price.</span>';return}
+  const sw=D.swing,lt=D.long,move=live/sw.entry-1;
+  // swing
+  let sv,scls;
+  if(live<=sw.stop){sv=`Live price is at or below the stop-loss (${inr(sw.stop)}). The swing setup has failed: <b>don't buy</b> for a swing trade.`;scls="L-S"}
+  else if(move>0.03){sv=`Price has already moved up <b>${pct(move)}</b> since the signal. Buying now means a bigger loss if the stop hits, so don't chase it. Wait for a dip, or place a <b>limit order</b> near ${inr(sw.entry)}.`;scls="L-A"}
+  else if(move<-0.03){sv=`Price has fallen <b>${pct(-move,1,false)}</b> since the signal (still above the stop). The setup is weaker; better to wait for this evening's update.`;scls="L-H"}
+  else{sv=`Within 3% of the signal price (${pct(move)}). The plan still holds${isBuy(sw.label)?"":", but there's no swing buy signal today"}.`;scls=isBuy(sw.label)?"L-B":"L-H"}
+  const risk=live-sw.stop,target=live+2*risk,q=risk>0?qtyFor(live,sw.stop):0;
+  // long term
+  let lv,lcls;
+  if(live<lt.review){lv=`Below the review level (${inr(lt.review,0)}): the long-term trend is broken. <b>Don't buy</b> for the long term now.`;lcls="L-S"}
+  else if(live>lt.zone_hi*1.05){lv=`<b>${pct(live/lt.zone_hi-1)}</b> above the accumulate zone. If you still want it, buy in parts over a few weeks instead of all at once.`;lcls="L-A"}
+  else if(live<lt.zone_lo){lv=`Below the accumulate zone but above the review level: cheaper than the zone. Fine for buying in parts, but check the news for why it fell.`;lcls="L-H"}
+  else{lv=`Inside or near the accumulate zone (${inr(lt.zone_lo,0)}–${inr(lt.zone_hi,0)}).${isBuy(lt.label)?"":" Note: no long-term buy signal today."}`;lcls=isBuy(lt.label)?"L-B":"L-H"}
+  out.innerHTML=`<div class="banner ${scls}" style="font-weight:500;padding:10px 12px"><b>Swing:</b> ${sv}</div>
+    ${risk>0?`<div class="kv" style="margin-top:8px"><div><span>Entry (live)</span><b>${inr(live)}</b></div><div><span>Stop-loss (same level)</span><b class="down">${inr(sw.stop)}</b><span>${pct(sw.stop/live-1)}</span></div>
+    <div><span>New target (1:2)</span><b class="up">${inr(target)}</b><span>${pct(target/live-1)}</span></div><div><span>Qty for your settings</span><b>${q}</b><span>${inr(q*live,0)}</span></div>
+    <div><span>Max loss if stopped</span><b class="down">${inr(q*risk,0)}</b></div></div>`:""}
+    <div class="banner ${lcls}" style="font-weight:500;padding:10px 12px;margin-top:8px"><b>Long term:</b> ${lv}</div>
+    <div class="row" style="margin-top:8px"><button class="btn sm ghost" id="livePaper">Paper buy ${Math.max(1,q)} at ${inr(live)}</button></div>`;
+  $("#livePaper").onclick=()=>{paperBuy(s.sym,Math.max(1,q),false,live);closeSheet()};
 }
 function closeSheet(){$("#sheetBg").classList.remove("on");document.body.style.overflow=""}
 $("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")closeSheet()});
@@ -495,13 +538,13 @@ function taxEst(gain,buyDate,sellDate){
 /* ================================================================ paper trading */
 function paper(){return store.get("paper",{cash:1000000,start:1000000,pos:[],hist:[]})}
 function savePaper(p){store.set("paper",p)}
-function paperBuy(sym,qty,quiet){
+function paperBuy(sym,qty,quiet,price){
   const p=paper(),s=BY[sym];if(!s){toast("Unknown symbol "+sym);return false}
-  const cost=qty*s.price,ch=charges(cost,0).total;
+  const px=price>0?price:s.price,cost=qty*px,ch=charges(cost,0).total;
   if(cost+ch>p.cash){if(!quiet)toast("Not enough paper cash");return false}
   p.cash-=cost+ch;
-  p.pos.push({id:Date.now()+Math.random(),sym,qty,price:s.price,date:DATA.data_date,stop:s.swing.stop,target:s.swing.target,label:s.swing.label,ch});
-  savePaper(p);if(!quiet)toast(`Paper bought ${qty} ${sym}`);if(!$("#t-paper").classList.contains("hide"))renderPaper();return true;
+  p.pos.push({id:Date.now()+Math.random(),sym,qty,price:px,date:price>0?today():DATA.data_date,stop:s.swing.stop,target:s.swing.target,label:s.swing.label,ch});
+  savePaper(p);if(!quiet)toast(`Paper bought ${qty} ${sym} at ${inr(px)}`);if(!$("#t-paper").classList.contains("hide"))renderPaper();return true;
 }
 function renderPaper(){
   const p=paper();let inv=0,val=0;
@@ -521,15 +564,17 @@ function renderPaper(){
     ${p.pos.length?`<div class="tw"><table class="rc"><thead><tr><th>Stock</th><th class="n">Qty</th><th class="n">Buy</th><th class="n">Now</th><th class="n">P&amp;L</th><th class="n">Stop / Target</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:
     '<p class="mute small">No open positions. Open any stock and tap "Paper buy", or use the buttons above. Prices update every evening.</p>'}
   </div>
-  <div class="card" style="margin-top:12px"><h3>Buy any stock or ETF</h3><div class="grid g3">
+  <div class="card" style="margin-top:12px"><h3>Buy any stock or ETF</h3><div class="grid g4">
     <label class="f">Symbol<input type="text" id="pSym" list="symList" placeholder="e.g. RELIANCE, GOLDBEES" autocapitalize="characters"></label>
     <label class="f">Quantity<input type="number" id="pQty" min="1" value="10"></label>
-    <label class="f">&nbsp;<button class="btn" id="pBuy" style="width:100%">Paper buy at last close</button></label></div></div>
+    <label class="f">Live price (optional)<input type="number" id="pPx" step="0.05" placeholder="blank = last close"></label>
+    <label class="f">&nbsp;<button class="btn" id="pBuy" style="width:100%">Paper buy</button></label></div>
+    <p class="tiny mute">For realistic practice, type the live price from your broker. Positions are valued at each evening's closing price.</p></div>
   ${p.hist.length?`<div class="card" style="margin-top:12px"><h3>Closed trades</h3><div class="tw"><table class="rc"><thead><tr><th>Stock</th><th>Bought</th><th>Sold</th><th class="n">Qty</th><th class="n">Buy</th><th class="n">Sell</th><th class="n">P&amp;L after costs</th></tr></thead><tbody>
     ${p.hist.slice().reverse().map(h=>`<tr><td><b>${h.sym}</b></td><td>${h.date}</td><td>${h.sold}</td><td class="n">${h.qty}</td><td class="n">${num(h.price)}</td><td class="n">${num(h.sell)}</td><td class="n ${cls(h.pl)}">${inr(h.pl,0)}</td></tr>`).join("")}</tbody></table></div></div>`:""}
   ${settingsCard()}
   <div class="row" style="margin-top:12px"><span class="sp"></span><button class="btn sm red" id="pReset">Reset paper account</button></div>`;
-  $("#pBuy").onclick=()=>{const sym=$("#pSym").value.trim().toUpperCase();paperBuy(sym,Math.max(1,parseInt($("#pQty").value)||1))};
+  $("#pBuy").onclick=()=>{const sym=$("#pSym").value.trim().toUpperCase();paperBuy(sym,Math.max(1,parseInt($("#pQty").value)||1),false,parseFloat($("#pPx").value))};
   const bulk=(list,qf)=>{list=list.filter(s=>!paper().pos.some(x=>x.sym===s.sym));if(!list.length){toast("Nothing new to buy");return}
     let ok=0;list.forEach(s=>{if(paperBuy(s.sym,Math.max(1,qf(s)),true))ok++});toast(ok===list.length?`Paper bought ${ok}`:`Bought ${ok} of ${list.length}. Not enough paper cash for the rest`);renderPaper();cardify()};
   $("#buyAll").onclick=()=>bulk(STOCKS.filter(s=>s.swing.label==="STRONG BUY").sort((a,b)=>b.swing.score-a.swing.score),s=>qtyFor(s.swing.entry,s.swing.stop));
@@ -780,7 +825,7 @@ function renderGuide(){
     <p><b>iPhone / iPad (Safari):</b> tap Share → <b>Add to Home Screen</b>.</p>
     <p><b>Android (Chrome):</b> tap ⋮ → <b>Install app</b>.</p>
     <p><b>Mac:</b> Safari → File → <b>Add to Dock</b>, or Chrome → ⋮ → Cast, save and share → <b>Install page as app</b>.</p></div>
-    <p class="tiny mute">Data refreshes every weekday evening (around 5:15 PM and 9:30 PM IST). Generated ${esc(DATA.generated)}. Paper trades, holdings and settings are saved on each device separately; use Export / Import in Portfolio to move them.</p></div>
+    <p class="tiny mute">Data refreshes every weekday evening (around 6:45 PM and 9:30 PM IST). If Yahoo Finance is late, missing days are filled from NSE's official end-of-day files${DATA.nse_filled&&DATA.nse_filled.length?` (this update: ${DATA.nse_filled.join(", ")})`:""}. Generated ${esc(DATA.generated)}. Paper trades, holdings and settings are saved on each device separately; use Export / Import in Portfolio to move them.</p></div>
   </div>`;
 }
 
